@@ -3,20 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
-process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION:', err);
-  process.exit(1);
-});
-process.on('unhandledRejection', (reason) => {
-  console.error('UNHANDLED REJECTION:', reason);
-  process.exit(1);
-});
-
 async function bootstrap() {
-  console.log('Bootstrap starting...');
-  console.log('DATABASE_URL set:', !!process.env.DATABASE_URL);
   const app = await NestFactory.create(AppModule);
-  console.log('NestJS app created');
 
   app.setGlobalPrefix('api');
 
