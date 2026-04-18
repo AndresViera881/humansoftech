@@ -1,5 +1,7 @@
 FROM node:20-alpine
 
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -11,4 +13,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD npx prisma migrate deploy && node dist/main
+CMD ["/bin/sh", "-c", "npx prisma migrate deploy && node dist/main"]
