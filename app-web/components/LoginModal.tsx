@@ -138,9 +138,7 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
             ) : 'Ingresar'}
           </button>
 
-          <p className="text-center text-xs" style={{ color: '#a08878' }}>
-            admin@humansoftechs.com · admin
-          </p>
+
         </form>
       </div>
     </div>
