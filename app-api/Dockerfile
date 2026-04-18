@@ -13,4 +13,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["/bin/sh", "-c", "npx prisma db push --accept-data-loss && echo 'Starting NestJS...' && node dist/main.js 2>&1"]
+CMD ["/bin/sh", "-c", "npx prisma db push --accept-data-loss; echo 'Prisma done, starting NestJS...'; node dist/main.js"]
