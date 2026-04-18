@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none">
+  <defs>
+    <linearGradient id="hbody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e30"/><stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+    <filter id="glow6"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <!-- Headband arc -->
+  <path d="M30 100 Q30 20 90 20 Q150 20 150 100" stroke="#e91e8c" stroke-width="6" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+  <path d="M35 100 Q35 28 90 28 Q145 28 145 100" stroke="#1a1a2e" stroke-width="4" fill="none"/>
+  <!-- Left cup -->
+  <ellipse cx="28" cy="108" rx="22" ry="28" fill="url(#hbody)" stroke="#8b5cf6" stroke-width="1.5"/>
+  <ellipse cx="28" cy="108" rx="15" ry="20" fill="#150025" stroke="#e91e8c" stroke-width="1" filter="url(#glow6)"/>
+  <circle cx="28" cy="108" r="6" fill="#e91e8c" opacity="0.3" filter="url(#glow6)"/>
+  <!-- Right cup -->
+  <ellipse cx="152" cy="108" rx="22" ry="28" fill="url(#hbody)" stroke="#8b5cf6" stroke-width="1.5"/>
+  <ellipse cx="152" cy="108" rx="15" ry="20" fill="#150025" stroke="#e91e8c" stroke-width="1" filter="url(#glow6)"/>
+  <circle cx="152" cy="108" r="6" fill="#8b5cf6" opacity="0.3" filter="url(#glow6)"/>
+  <!-- RGB strip left -->
+  <path d="M10 100 Q8 115 12 125" stroke="#e91e8c" stroke-width="2" stroke-linecap="round" opacity="0.7" filter="url(#glow6)"/>
+  <!-- RGB strip right -->
+  <path d="M170 100 Q172 115 168 125" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" opacity="0.7" filter="url(#glow6)"/>
+  <!-- Mic arm -->
+  <path d="M18 125 Q5 140 8 155" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <circle cx="8" cy="157" r="4" fill="#150025" stroke="#8b5cf6" stroke-width="1" filter="url(#glow6)"/>
+</svg>

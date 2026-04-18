@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 100" fill="none">
+  <defs>
+    <linearGradient id="kbody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e30"/><stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+    <filter id="glow4"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect x="5" y="20" width="210" height="65" rx="8" fill="url(#kbody)" stroke="#e91e8c" stroke-width="1"/>
+  <!-- Row 1 keys -->
+  <g opacity="0.8" filter="url(#glow4)">
+    <rect x="12" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="30" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="48" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="66" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="84" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="102" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="120" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="138" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="156" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="174" y="28" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="192" y="28" width="18" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+  </g>
+  <!-- Row 2 keys -->
+  <g opacity="0.7" filter="url(#glow4)">
+    <rect x="12" y="44" width="20" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="36" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="54" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="72" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="90" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="108" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="126" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="144" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="162" y="44" width="14" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="180" y="44" width="30" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+  </g>
+  <!-- Row 3 - spacebar -->
+  <g opacity="0.7">
+    <rect x="12" y="60" width="24" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="40" y="60" width="24" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+    <rect x="68" y="60" width="84" height="12" rx="2" fill="#150025" stroke="#e91e8c" stroke-width="0.8"/>
+    <rect x="156" y="60" width="24" height="12" rx="2" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.6"/>
+    <rect x="184" y="60" width="26" height="12" rx="2" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.6"/>
+  </g>
+  <!-- RGB line at bottom -->
+  <rect x="5" y="82" width="210" height="2" rx="1" fill="url(#kbody)"/>
+  <rect x="10" y="82" width="200" height="1" rx="0.5" fill="#e91e8c" opacity="0.6" filter="url(#glow4)"/>
+</svg>

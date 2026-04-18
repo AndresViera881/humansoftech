@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 160" fill="none">
+  <defs>
+    <linearGradient id="mbody" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1e30"/><stop offset="100%" stop-color="#0d0d1a"/>
+    </linearGradient>
+    <filter id="glow5"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <!-- Body -->
+  <path d="M20 60 Q10 40 15 20 Q20 5 50 5 Q80 5 85 20 Q90 40 80 60 L75 140 Q75 155 50 155 Q25 155 25 140 Z" fill="url(#mbody)" stroke="#8b5cf6" stroke-width="1"/>
+  <!-- Left click -->
+  <path d="M20 60 Q10 40 15 20 Q20 5 50 5 L50 55 Q35 58 20 60 Z" fill="#1a1a2e" stroke="#e91e8c" stroke-width="0.8"/>
+  <!-- Right click -->
+  <path d="M80 60 Q90 40 85 20 Q80 5 50 5 L50 55 Q65 58 80 60 Z" fill="#1a1a2e" stroke="#8b5cf6" stroke-width="0.8"/>
+  <!-- Scroll wheel -->
+  <rect x="44" y="20" width="12" height="25" rx="6" fill="#150025" stroke="#e91e8c" stroke-width="1" filter="url(#glow5)"/>
+  <!-- RGB strip bottom -->
+  <ellipse cx="50" cy="148" rx="18" ry="4" fill="#e91e8c" opacity="0.3" filter="url(#glow5)"/>
+  <ellipse cx="50" cy="148" rx="12" ry="2.5" fill="#e91e8c" opacity="0.6" filter="url(#glow5)"/>
+  <!-- Side accent -->
+  <path d="M26 90 Q22 100 23 115" stroke="#e91e8c" stroke-width="1.5" stroke-linecap="round" opacity="0.5" filter="url(#glow5)"/>
+  <path d="M74 90 Q78 100 77 115" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" opacity="0.5" filter="url(#glow5)"/>
+  <!-- DPI button -->
+  <circle cx="50" cy="68" r="4" fill="#150025" stroke="#e91e8c" stroke-width="0.8" filter="url(#glow5)"/>
+</svg>
