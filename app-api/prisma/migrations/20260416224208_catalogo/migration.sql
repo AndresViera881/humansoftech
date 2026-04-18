@@ -36,7 +36,7 @@ CREATE TABLE "products" (
     "slug" TEXT NOT NULL,
     "price" DECIMAL(10,2) NOT NULL,
     "description" TEXT,
-    "image" TEXT,
+    "images" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "badge" TEXT,
     "stock" INTEGER NOT NULL DEFAULT 0,
     "active" BOOLEAN NOT NULL DEFAULT true,
