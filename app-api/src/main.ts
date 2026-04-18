@@ -28,4 +28,7 @@ async function bootstrap() {
   await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
   console.log(`API running on port ${process.env.PORT ?? 4000}`);
 }
-bootstrap();
+bootstrap().catch(err => {
+  console.error('Fatal error starting app:', err);
+  process.exit(1);
+});
