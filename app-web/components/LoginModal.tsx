@@ -81,7 +81,7 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
             <input
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={e => setEmail(e.target.value.trimStart())}
               onFocus={() => setFocusedField('email')}
               onBlur={() => setFocusedField(null)}
               placeholder="admin@humansoftechs.com"
@@ -98,7 +98,7 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
             <input
               type="password"
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={e => setPassword(e.target.value.trimStart())}
               onFocus={() => setFocusedField('password')}
               onBlur={() => setFocusedField(null)}
               placeholder="••••••••"
@@ -119,16 +119,16 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
 
           <button
             type="submit"
-            disabled={loading || !email || !password}
+            disabled={loading || !email.trim() || !password.trim()}
             className="w-full py-3 rounded-xl text-sm font-bold mt-1 transition-all duration-200"
             style={{
               background: loading || !email || !password ? 'rgba(37,99,235,0.08)' : '#2563eb',
               border: '1px solid rgba(37,99,235,0.2)',
-              color: loading || !email || !password ? 'rgba(37,99,235,0.35)' : '#fff',
-              cursor: loading || !email || !password ? 'not-allowed' : 'pointer',
+              color: loading || !email.trim() || !password.trim() ? 'rgba(37,99,235,0.35)' : '#fff',
+              cursor: loading || !email.trim() || !password.trim() ? 'not-allowed' : 'pointer',
             }}
-            onMouseEnter={e => { if (!loading && email && password) e.currentTarget.style.background = '#1d4ed8'; }}
-            onMouseLeave={e => { if (!loading && email && password) e.currentTarget.style.background = '#2563eb'; }}>
+            onMouseEnter={e => { if (!loading && email.trim() && password.trim()) e.currentTarget.style.background = '#1d4ed8'; }}
+            onMouseLeave={e => { if (!loading && email.trim() && password.trim()) e.currentTarget.style.background = '#2563eb'; }}>
             {loading ? (
               <span className="flex items-center gap-2 justify-center">
                 <span className="w-4 h-4 border-2 rounded-full animate-spin"
