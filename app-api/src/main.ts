@@ -25,7 +25,7 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
   });
 
-  await app.listen(process.env.PORT ?? 4000);
-  console.log(`API running on http://localhost:${process.env.PORT ?? 4000}/api`);
+  await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
+  console.log(`API running on port ${process.env.PORT ?? 4000}`);
 }
 bootstrap();
