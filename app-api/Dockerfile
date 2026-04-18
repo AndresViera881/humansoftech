@@ -1,6 +1,6 @@
-FROM node:20-alpine
+FROM node:20-slim
 
-RUN apk add --no-cache openssl
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -13,4 +13,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["/bin/sh", "-c", "npx prisma db push --accept-data-loss && echo 'Starting NestJS...' && node dist/main.js 2>&1; echo 'Process exited with code' $?"]
+CMD ["/bin/sh", "-c", "npx prisma db push --accept-data-loss && echo 'Starting NestJS...' && node dist/main.js 2>&1"]
