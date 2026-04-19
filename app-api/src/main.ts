@@ -28,8 +28,11 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: true,
-    methods: '*',
+    origin: [
+      'https://humansoftech-frontend-production-334d.up.railway.app',
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
 
