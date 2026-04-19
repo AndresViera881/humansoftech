@@ -7,10 +7,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --legacy-peer-deps
 
-COPY prisma ./prisma
-RUN npx prisma generate
-
 COPY . .
+RUN npx prisma generate
 RUN npm run build
 
 RUN test -f dist/main.js || (echo "ERROR: dist/main.js not found" && exit 1)
