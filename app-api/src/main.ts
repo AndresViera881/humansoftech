@@ -22,7 +22,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    methods: ['*'],
   });
 
   await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
