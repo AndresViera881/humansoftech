@@ -34,6 +34,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [showLogin, setShowLogin] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const loadProducts = useCallback(async () => {
     try {
@@ -84,7 +85,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
 
-      <Navbar onLoginClick={() => setShowLogin(true)} searchValue={search} onSearchChange={setSearch} />
+      <Navbar onLoginClick={() => setShowLogin(true)} searchValue={search} onSearchChange={setSearch} onFilterClick={() => setFilterOpen(true)} />
 
 
       {/* Main */}
@@ -97,9 +98,11 @@ export default function Home() {
           onPriceChange={setPriceRange}
           conditions={conditions}
           onConditionsChange={setConditions}
+          mobileOpen={filterOpen}
+          onMobileClose={() => setFilterOpen(false)}
         />
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 md:p-6">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-32 gap-4">
               <div className="w-10 h-10 rounded-full border-2 animate-spin"
@@ -183,16 +186,10 @@ export default function Home() {
                   href: `https://wa.me/${WA_PHONE}`,
                 },
                 {
-                  icon: <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />,
-                  label: 'Email',
-                  value: 'soporte@humansoftechs.com',
-                  href: 'mailto:soporte@humansoftechs.com',
-                },
-                {
                   icon: <><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" /></>,
                   label: 'Web',
-                  value: 'humansoftechs.com',
-                  href: '#',
+                  value: 'humansoftechs.vercel.app',
+                  href: 'https://humansoftechs.vercel.app/',
                 },
               ].map(({ icon, label, value, href }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
@@ -223,9 +220,9 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                    Av. 12 de Noviembre (03-39)<br />
-                    y Unidad Nacional<br />
-                    <span style={{ color: 'var(--text-muted)' }}>Ambato — Ecuador</span>
+                    Atahualpa<br />
+                    Calle Conflictos Limítrofes y Guabillos<br />
+                    <span style={{ color: 'var(--text-muted)' }}>Ambato - Ecuador</span>
                   </p>
                 </div>
               </div>
@@ -253,7 +250,7 @@ export default function Home() {
               Desarrollo de Software Web y Móvil
             </span>
             <span className="text-xs tracking-widest uppercase" style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', opacity: 0.7 }}>
-              Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © 2025 Human Softechs
+              Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Human Softechs
             </span>
           </div>
         </div>

@@ -6,9 +6,10 @@ import { useAuth } from '@/lib/auth-context';
 import Navbar from '@/components/Navbar';
 import AdminPanel from '@/components/AdminPanel';
 import AdminProductsGrid from '@/components/AdminProductsGrid';
+import AdminUsersGrid from '@/components/AdminUsersGrid';
 import { ApiProduct } from '@/lib/api';
 
-type Tab = 'inventory' | 'create';
+type Tab = 'inventory' | 'create' | 'users';
 
 export default function AdminPage() {
   const { loggedUser } = useAuth();
@@ -74,9 +75,12 @@ export default function AdminPage() {
         {/* Tabs */}
         <div className="max-w-7xl mx-auto px-6 flex gap-1 pb-0">
           {([
-            { key: 'inventory', label: 'Inventario', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" /> },
-            { key: 'create', label: 'Nuevo Producto', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /> },
-          ] as { key: Tab; label: string; icon: React.ReactNode }[]).map(({ key, label, icon }) => (
+            { key: 'inventory', label: 'Inventario', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />, roles: ['admin', 'super_admin'] },
+            { key: 'create', label: 'Nuevo Producto', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />, roles: ['admin', 'super_admin'] },
+            { key: 'users', label: 'Usuarios', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8zm6 4a3 3 0 100-6 3 3 0 000 6zM3 16a3 3 0 100-6 3 3 0 000 6z" />, roles: ['super_admin'] },
+          ] as { key: Tab; label: string; icon: React.ReactNode; roles: string[] }[])
+          .filter(t => t.roles.includes(loggedUser.role))
+          .map(({ key, label, icon }) => (
             <button key={key} onClick={() => setTab(key)}
               className="flex items-center gap-2 px-4 py-3 text-sm font-semibold transition-all duration-200 relative"
               style={{ color: tab === key ? '#2563eb' : 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -92,7 +96,9 @@ export default function AdminPage() {
 
       {/* Content */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
-        {tab === 'inventory' ? (
+        {tab === 'users' ? (
+          <AdminUsersGrid />
+        ) : tab === 'inventory' ? (
           <AdminProductsGrid />
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

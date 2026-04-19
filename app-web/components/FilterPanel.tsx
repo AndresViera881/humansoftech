@@ -8,18 +8,24 @@ interface FilterPanelProps {
   onPriceChange: (range: [number, number]) => void;
   conditions: ('nuevo' | 'seminuevo')[];
   onConditionsChange: (conditions: ('nuevo' | 'seminuevo')[]) => void;
+  // mobile drawer
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export default function FilterPanel({ categoryNames, selectedCategory, onCategoryChange, priceRange, onPriceChange, conditions, onConditionsChange }: FilterPanelProps) {
+export default function FilterPanel({
+  categoryNames, selectedCategory, onCategoryChange,
+  priceRange, onPriceChange, conditions, onConditionsChange,
+  mobileOpen = false, onMobileClose,
+}: FilterPanelProps) {
   const toggleCondition = (c: 'nuevo' | 'seminuevo') => {
     onConditionsChange(
       conditions.includes(c) ? conditions.filter(x => x !== c) : [...conditions, c]
     );
   };
-  return (
-    <aside className="w-52 flex-shrink-0 flex flex-col gap-4 overflow-y-auto p-4"
-      style={{ background: '#fff', borderRight: '1px solid var(--border)' }}>
 
+  const content = (
+    <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto">
       {/* Categories */}
       <div>
         <h3 className="text-xs font-semibold uppercase tracking-widest mb-2.5" style={{ color: 'var(--primary)' }}>
@@ -27,7 +33,7 @@ export default function FilterPanel({ categoryNames, selectedCategory, onCategor
         </h3>
         <div className="flex flex-col gap-0.5">
           {categoryNames.map((cat) => (
-            <button key={cat} onClick={() => onCategoryChange(cat)}
+            <button key={cat} onClick={() => { onCategoryChange(cat); onMobileClose?.(); }}
               className="text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150"
               style={{
                 background: selectedCategory === cat ? 'rgba(37,99,235,0.07)' : 'transparent',
@@ -68,12 +74,8 @@ export default function FilterPanel({ categoryNames, selectedCategory, onCategor
             { value: 'seminuevo', label: 'Seminuevo' },
           ] as { value: 'nuevo' | 'seminuevo'; label: string }[]).map(({ value, label }) => (
             <label key={value} className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={conditions.includes(value)}
-                onChange={() => toggleCondition(value)}
-                style={{ accentColor: '#2563eb', width: '14px', height: '14px' }}
-              />
+              <input type="checkbox" checked={conditions.includes(value)} onChange={() => toggleCondition(value)}
+                style={{ accentColor: '#2563eb', width: '14px', height: '14px' }} />
               <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
             </label>
           ))}
@@ -82,13 +84,46 @@ export default function FilterPanel({ categoryNames, selectedCategory, onCategor
 
       <div style={{ height: '1px', background: 'var(--border)' }} />
 
-      {/* Shipping */}
       <div className="rounded-xl p-3 text-center"
         style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.16)' }}>
         <div className="text-base mb-1">🚀</div>
         <div className="text-xs font-bold" style={{ color: '#16a34a' }}>Envío en 24hs</div>
         <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Todo el país</div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-52 flex-shrink-0 flex-col"
+        style={{ background: '#fff', borderRight: '1px solid var(--border)' }}>
+        {content}
+      </aside>
+
+      {/* Mobile drawer overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-40 md:hidden" onClick={onMobileClose}
+          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }}>
+          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] flex flex-col"
+            style={{ background: '#fff', boxShadow: '4px 0 24px rgba(0,0,0,0.15)' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Drawer header */}
+            <div className="flex items-center justify-between px-4 py-4"
+              style={{ borderBottom: '1px solid var(--border)' }}>
+              <h2 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Filtros</h2>
+              <button onClick={onMobileClose}
+                className="w-8 h-8 flex items-center justify-center rounded-lg"
+                style={{ background: 'var(--bg)', color: 'var(--text-muted)' }}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {content}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

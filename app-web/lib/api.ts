@@ -79,6 +79,9 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
     const err = await res.json().catch(() => ({}));
     throw new Error(err.message ?? `API error ${res.status}`);
   }
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
   return res.json() as Promise<T>;
 }
 
@@ -87,6 +90,37 @@ export interface AuthUser {
   name: string;
   email: string;
   role: string;
+}
+
+export interface ApiRole {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+export interface ApiUser {
+  id: string;
+  name: string;
+  email: string;
+  active: boolean;
+  createdAt: string;
+  role: { id: string; name: string };
+}
+
+export interface CreateUserPayload {
+  name: string;
+  email: string;
+  password: string;
+  roleId: string;
+  active?: boolean;
+}
+
+export interface UpdateUserPayload {
+  name?: string;
+  email?: string;
+  password?: string;
+  roleId?: string;
+  active?: boolean;
 }
 
 export const api = {
@@ -142,6 +176,18 @@ export const api = {
       request<ApiProduct>(`/products/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
     delete: (id: string) =>
       request<void>(`/products/${id}`, { method: 'DELETE' }),
+  },
+  roles: {
+    list: () => request<ApiRole[]>('/roles'),
+  },
+  users: {
+    list: () => request<ApiUser[]>('/users'),
+    create: (payload: CreateUserPayload) =>
+      request<ApiUser>('/users', { method: 'POST', body: JSON.stringify(payload) }),
+    update: (id: string, payload: UpdateUserPayload) =>
+      request<ApiUser>(`/users/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+    delete: (id: string) =>
+      request<void>(`/users/${id}`, { method: 'DELETE' }),
   },
 };
 

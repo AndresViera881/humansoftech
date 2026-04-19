@@ -1,6 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import Lightbox from 'yet-another-react-lightbox';
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import 'yet-another-react-lightbox/styles.css';
+import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { Product } from '@/lib/types';
 
 const WA_PHONE = '5930995351473';
@@ -13,116 +18,6 @@ const WA_ICON = (
   </svg>
 );
 
-interface LightboxProps {
-  images: string[];
-  name: string;
-  startIdx: number;
-  onClose: () => void;
-}
-
-function Lightbox({ images, name, startIdx, onClose }: LightboxProps) {
-  const [active, setActive] = useState(startIdx);
-
-  const prev = useCallback(() => setActive(i => (i - 1 + images.length) % images.length), [images.length]);
-  const next = useCallback(() => setActive(i => (i + 1) % images.length), [images.length]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-      if (e.key === 'ArrowLeft') prev();
-      if (e.key === 'ArrowRight') next();
-    };
-    window.addEventListener('keydown', onKey);
-    document.body.style.overflow = 'hidden';
-    return () => { window.removeEventListener('keydown', onKey); document.body.style.overflow = ''; };
-  }, [onClose, prev, next]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.92)' }}
-      onClick={onClose}
-    >
-      {/* Close */}
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10"
-        style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-
-      {/* Counter */}
-      {images.length > 1 && (
-        <span className="absolute top-5 left-1/2 -translate-x-1/2 text-xs font-semibold"
-          style={{ color: 'rgba(255,255,255,0.4)' }}>
-          {active + 1} / {images.length}
-        </span>
-      )}
-
-      {/* Main image */}
-      <div
-        className="relative flex items-center justify-center w-full"
-        style={{ maxHeight: 'calc(100vh - 140px)', padding: '0 56px' }}
-        onClick={e => e.stopPropagation()}
-      >
-        {images.length > 1 && (
-          <>
-            <button onClick={prev}
-              className="absolute left-2 w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button onClick={next}
-              className="absolute right-2 w-10 h-10 rounded-full flex items-center justify-center transition-all"
-              style={{ background: 'rgba(255,255,255,0.08)', color: '#fff' }}>
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </>
-        )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={images[active]}
-          alt={name}
-          style={{ maxHeight: 'calc(100vh - 140px)', maxWidth: '100%', objectFit: 'contain', borderRadius: '12px' }}
-        />
-      </div>
-
-      {/* Thumbnails strip */}
-      {images.length > 1 && (
-        <div
-          className="flex gap-2 mt-4 px-4 overflow-x-auto pb-1"
-          style={{ maxWidth: '100vw' }}
-          onClick={e => e.stopPropagation()}
-        >
-          {images.map((src, i) => (
-            <button
-              key={i}
-              onClick={() => setActive(i)}
-              className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-200"
-              style={{
-                width: '64px',
-                height: '64px',
-                border: `2px solid ${i === active ? '#a78bfa' : 'rgba(255,255,255,0.12)'}`,
-                opacity: i === active ? 1 : 0.5,
-              }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="w-full h-full object-cover" />
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 interface ProductCardProps {
   product: Product;
   isNew?: boolean;
@@ -130,7 +25,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, isNew }: ProductCardProps) {
   const images = product.images?.length ? product.images : [FALLBACK];
-  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const slides = images.map(src => ({ src }));
 
   const waMessage = encodeURIComponent(`Hola! Estoy interesado en: ${product.name}. ¿Tiene disponibilidad y cuál es el precio?`);
   const waUrl = `https://wa.me/${WA_PHONE}?text=${waMessage}`;
@@ -140,11 +37,11 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
       <div className={`card flex flex-col overflow-hidden ${isNew ? 'animate-new-product' : ''}`}
         style={{ borderRadius: '16px' }}>
 
-        {/* Single image — click to open lightbox */}
+        {/* Image */}
         <div
-          className="relative flex items-center justify-center p-5 group cursor-zoom-in"
-          style={{ background: '#faf7f2', height: '200px', borderBottom: '1px solid var(--border)' }}
-          onClick={() => setLightboxOpen(true)}
+          className="relative flex items-center justify-center p-5 group cursor-zoom-in overflow-hidden"
+          style={{ background: '#fff', height: '200px', borderBottom: '1px solid var(--border)' }}
+          onClick={() => setOpen(true)}
         >
           {product.badge && (
             <span className="badge absolute top-3 left-3 z-10"
@@ -168,10 +65,9 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             src={images[0]}
             alt={product.name}
             className="object-contain transition-transform duration-300 group-hover:scale-105"
-            style={{ maxHeight: '140px', maxWidth: '100%' }}
+            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }}
           />
 
-          {/* Indicator for multiple images */}
           {images.length > 1 && (
             <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
               style={{ background: 'rgba(37,99,235,0.12)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }}>
@@ -188,11 +84,9 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {product.category}
           </p>
-
           <h3 className="font-bold text-base leading-snug" style={{ color: 'var(--text)', lineHeight: '1.35' }}>
             {product.name}
           </h3>
-
           <p className="text-sm flex-1" style={{
             color: 'var(--text-secondary)',
             lineHeight: '1.6',
@@ -204,8 +98,6 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           }}>
             {product.description}
           </p>
-
-          {/* WhatsApp CTA */}
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-wa mt-2">
             {WA_ICON}
             Consultar por WhatsApp
@@ -213,15 +105,17 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         </div>
       </div>
 
-      {/* Lightbox */}
-      {lightboxOpen && (
-        <Lightbox
-          images={images}
-          name={product.name}
-          startIdx={0}
-          onClose={() => setLightboxOpen(false)}
-        />
-      )}
+      <Lightbox
+        open={open}
+        close={() => setOpen(false)}
+        slides={slides}
+        plugins={[Thumbnails, Zoom]}
+        thumbnails={{ position: 'bottom', width: 80, height: 60, gap: 8, border: 2, borderRadius: 8 }}
+        zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 1.5 }}
+        styles={{
+          container: { backgroundColor: 'rgba(10,10,20,0.95)', backdropFilter: 'blur(12px)' },
+        }}
+      />
     </>
   );
 }
