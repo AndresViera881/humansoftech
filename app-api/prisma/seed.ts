@@ -1,14 +1,12 @@
 import 'dotenv/config';
 import { createHash } from 'crypto';
 import { PrismaClient } from '@prisma/client';
-import { PrismaPg } from '@prisma/adapter-pg';
 
 function hashPassword(raw: string): string {
   return createHash('sha256').update(raw + (process.env.PASSWORD_SALT ?? 'humansoftech_salt')).digest('hex');
 }
 
-const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 const categories = [
   {
