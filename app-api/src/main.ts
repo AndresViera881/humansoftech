@@ -31,7 +31,7 @@ async function bootstrap() {
     origin: [
       'https://humansoftech-frontend-production-334d.up.railway.app',
     ],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    methods: '*',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
