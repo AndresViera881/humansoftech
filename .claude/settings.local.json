@@ -5,7 +5,8 @@
       "Bash(npm run *)",
       "Bash(RAILWAY_TOKEN=b4e233ca-5c44-4108-ab9a-bb5512176036 railway whoami)",
       "Bash(curl -s -X POST https://backboard.railway.app/graphql/v2 -H 'Authorization: Bearer b4e233ca-5c44-4108-ab9a-bb5512176036' -H 'Content-Type: application/json' -d '{\"query\":\"{ me { name email } }\"}')",
-      "Bash(railway login *)"
+      "Bash(railway login *)",
+      "Bash(curl -s https://humansoftech-production.up.railway.app/api/auth/login -X POST -H 'Content-Type: application/json' -d '{\"email\":\"aviera@humansoftechs.com\",\"password\":\"#andres.Viera123!\"}')"
     ]
   }
 }
