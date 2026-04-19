@@ -6,8 +6,10 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // Prefijo global → /api
   app.setGlobalPrefix('api');
 
+  // Validaciones globales
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -16,19 +18,20 @@ async function bootstrap() {
     }),
   );
 
-  const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : true;
-
+  // CORS abierto para evitar problemas en producción
   app.enableCors({
     origin: true,
     methods: '*',
     credentials: true,
   });
 
-  await app.listen(process.env.PORT ?? 4000, '0.0.0.0');
-  console.log(`API running on port ${process.env.PORT ?? 4000}`);
+  // Puerto dinámico (IMPORTANTE en Railway)
+  const port = process.env.PORT || 4000;
+
+  await app.listen(port, '0.0.0.0');
+  console.log(`API running on port ${port}`);
 }
+
 bootstrap().catch(err => {
   console.error('Fatal error starting app:', err);
   process.exit(1);
