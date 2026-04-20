@@ -1,15 +1,25 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from './prisma/prisma.module';
-import { CategoriesModule } from './categories/categories.module';
-import { SubcategoriesModule } from './subcategories/subcategories.module';
-import { ProductsModule } from './products/products.module';
-import { AuthModule } from './auth/auth.module';
-import { UploadModule } from './upload/upload.module';
-import { UsersModule } from './users/users.module';
-import { RolesModule } from './roles/roles.module';
-import { VisitsModule } from './visits/visits.module';
+import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
+import { CategoriesModule } from './modules/categories/categories.module';
+import { SubcategoriesModule } from './modules/subcategories/subcategories.module';
+import { ProductsModule } from './modules/products/products.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UploadModule } from './modules/upload/upload.module';
+import { UsersModule } from './modules/users/users.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { VisitsModule } from './modules/visits/visits.module';
 
 @Module({
-  imports: [PrismaModule, CategoriesModule, SubcategoriesModule, ProductsModule, AuthModule, UploadModule, UsersModule, RolesModule, VisitsModule],
+  imports: [
+    PrismaModule,
+    CategoriesModule,
+    SubcategoriesModule,
+    ProductsModule,
+    AuthModule,
+    UploadModule,
+    UsersModule,
+    RolesModule,
+    VisitsModule,
+  ],
 })
 export class AppModule {}
