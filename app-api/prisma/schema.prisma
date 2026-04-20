@@ -113,9 +113,15 @@ model Product {
 }
 
 model PageView {
-  id        String   @id @default(cuid())
-  page      String   @default("/")
-  visitedAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  page       String   @default("/")
+  ip         String?
+  userAgent  String?
+  browser    String?
+  os         String?
+  device     String?
+  referrer   String?
+  visitedAt  DateTime @default(now())
 
   @@map("page_views")
 }

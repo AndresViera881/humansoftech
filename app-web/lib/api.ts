@@ -192,10 +192,16 @@ export const api = {
       request<void>(`/users/${id}`, { method: 'DELETE' }),
   },
   visits: {
-    record: (page: string) =>
-      request<void>('/visits', { method: 'POST', body: JSON.stringify({ page }) }),
+    record: (page: string, referrer: string) =>
+      request<void>('/visits', { method: 'POST', body: JSON.stringify({ page, referrer }) }),
     stats: () =>
-      request<{ total: number; today: number; week: number }>('/visits/stats'),
+      request<{
+        total: number; today: number; week: number;
+        recent: { id: string; ip: string | null; browser: string | null; os: string | null; device: string | null; referrer: string | null; visitedAt: string }[];
+        byBrowser: { label: string; count: number }[];
+        byOS: { label: string; count: number }[];
+        byDevice: { label: string; count: number }[];
+      }>('/visits/stats'),
   },
 };
 
