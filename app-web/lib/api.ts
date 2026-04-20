@@ -191,6 +191,12 @@ export const api = {
     delete: (id: string) =>
       request<void>(`/users/${id}`, { method: 'DELETE' }),
   },
+  visits: {
+    record: (page: string) =>
+      request<void>('/visits', { method: 'POST', body: JSON.stringify({ page }) }),
+    stats: () =>
+      request<{ total: number; today: number; week: number }>('/visits/stats'),
+  },
 };
 
 export function slugify(text: string) {

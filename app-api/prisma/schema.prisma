@@ -111,3 +111,11 @@ model Product {
 
   @@map("products")
 }
+
+model PageView {
+  id        String   @id @default(cuid())
+  page      String   @default("/")
+  visitedAt DateTime @default(now())
+
+  @@map("page_views")
+}

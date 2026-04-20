@@ -7,9 +7,10 @@ import Navbar from '@/components/Navbar';
 import AdminPanel from '@/components/AdminPanel';
 import AdminProductsGrid from '@/components/AdminProductsGrid';
 import AdminUsersGrid from '@/components/AdminUsersGrid';
+import AdminVisitsGrid from '@/components/AdminVisitsGrid';
 import { ApiProduct } from '@/lib/api';
 
-type Tab = 'inventory' | 'create' | 'users';
+type Tab = 'inventory' | 'create' | 'users' | 'visits';
 
 export default function AdminPage() {
   const { loggedUser } = useAuth();
@@ -78,6 +79,7 @@ export default function AdminPage() {
             { key: 'inventory', label: 'Inventario', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />, roles: ['admin', 'super_admin'] },
             { key: 'create', label: 'Nuevo Producto', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />, roles: ['admin', 'super_admin'] },
             { key: 'users', label: 'Usuarios', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-4a4 4 0 110-8 4 4 0 010 8zm6 4a3 3 0 100-6 3 3 0 000 6zM3 16a3 3 0 100-6 3 3 0 000 6z" />, roles: ['super_admin'] },
+            { key: 'visits', label: 'Visitas', icon: <><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></>, roles: ['super_admin'] },
           ] as { key: Tab; label: string; icon: React.ReactNode; roles: string[] }[])
           .filter(t => t.roles.includes(loggedUser.role))
           .map(({ key, label, icon }) => (
@@ -96,7 +98,9 @@ export default function AdminPage() {
 
       {/* Content */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-6 py-8">
-        {tab === 'users' ? (
+        {tab === 'visits' ? (
+          <AdminVisitsGrid />
+        ) : tab === 'users' ? (
           <AdminUsersGrid />
         ) : tab === 'inventory' ? (
           <AdminProductsGrid />

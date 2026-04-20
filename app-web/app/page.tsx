@@ -66,6 +66,7 @@ export default function Home() {
 
   useEffect(() => {
     api.categories.list().then(setCategories).catch(() => {});
+    api.visits.record('/').catch(() => {});
   }, []);
 
   useEffect(() => {

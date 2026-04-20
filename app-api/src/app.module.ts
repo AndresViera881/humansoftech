@@ -7,8 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { UploadModule } from './upload/upload.module';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
+import { VisitsModule } from './visits/visits.module';
 
 @Module({
-  imports: [PrismaModule, CategoriesModule, SubcategoriesModule, ProductsModule, AuthModule, UploadModule, UsersModule, RolesModule],
+  imports: [PrismaModule, CategoriesModule, SubcategoriesModule, ProductsModule, AuthModule, UploadModule, UsersModule, RolesModule, VisitsModule],
 })
 export class AppModule {}
