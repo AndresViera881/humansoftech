@@ -123,7 +123,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             className="w-full flex flex-col"
             style={{
               maxWidth: '480px',
-              height: '560px',
+              height: '440px',
               background: '#fff',
               borderRadius: '20px',
               boxShadow: '0 20px 60px rgba(0,0,0,0.22)',
@@ -172,7 +172,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
               {/* Image */}
               <div
                 className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in"
-                style={{ height: '180px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb', flexShrink: 0 }}
+                style={{ height: '140px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb', flexShrink: 0 }}
                 onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -180,7 +180,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
                   src={images[activeImg]}
                   alt={product.name}
                   className="object-contain"
-                  style={{ maxHeight: '155px', maxWidth: '88%', mixBlendMode: 'multiply' }}
+                  style={{ maxHeight: '115px', maxWidth: '88%', mixBlendMode: 'multiply' }}
                 />
                 <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
                   style={{ background: 'rgba(255,255,255,0.88)', color: '#6b7280', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
