@@ -36,14 +36,14 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
 
   return (
     <>
-      <div className={`card flex flex-col overflow-hidden ${isNew ? 'animate-new-product' : ''}`}
-        style={{ borderRadius: '16px' }}>
+      <div className={`card flex flex-col overflow-hidden cursor-pointer ${isNew ? 'animate-new-product' : ''}`}
+        style={{ borderRadius: '16px' }}
+        onClick={() => setDetailOpen(true)}>
 
-        {/* Image — click opens lightbox */}
+        {/* Image */}
         <div
-          className="relative flex items-center justify-center p-5 group cursor-zoom-in overflow-hidden"
+          className="relative flex items-center justify-center p-5 group overflow-hidden"
           style={{ background: '#fff', height: '200px', borderBottom: '1px solid var(--border)' }}
-          onClick={() => { setLightboxIdx(0); setLightboxOpen(true); }}
         >
           {product.badge && !isNew && (
             <span className="badge absolute top-3 left-3 z-10"
@@ -81,9 +81,8 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           )}
         </div>
 
-        {/* Content — click opens detail modal */}
-        <div className="flex flex-col flex-1 p-4 gap-2 cursor-pointer"
-          onClick={() => setDetailOpen(true)}>
+        {/* Content */}
+        <div className="flex flex-col flex-1 p-4 gap-2">
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {product.category}
           </p>
@@ -101,12 +100,9 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           }}>
             {product.description}
           </p>
-          <span className="text-xs font-semibold mt-1" style={{ color: '#2563eb' }}>
-            Ver más →
-          </span>
         </div>
 
-        {/* WhatsApp — outside clickable area */}
+        {/* WhatsApp */}
         <div className="px-4 pb-4">
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-wa"
             onClick={e => e.stopPropagation()}>
