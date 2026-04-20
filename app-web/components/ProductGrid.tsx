@@ -1,7 +1,10 @@
 'use client';
 
+import { useState, useMemo } from 'react';
 import { Product } from '@/lib/types';
 import ProductCard from './ProductCard';
+
+type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 
 interface ProductGridProps {
   products: Product[];
@@ -9,6 +12,16 @@ interface ProductGridProps {
 }
 
 export default function ProductGrid({ products, newestId }: ProductGridProps) {
+  const [sort, setSort] = useState<SortKey>('relevance');
+
+  const sorted = useMemo(() => {
+    const arr = [...products];
+    if (sort === 'price_asc') return arr.sort((a, b) => a.price - b.price);
+    if (sort === 'price_desc') return arr.sort((a, b) => b.price - a.price);
+    if (sort === 'newest') return arr.sort((a, b) => (a.id > b.id ? -1 : 1));
+    return arr;
+  }, [products, sort]);
+
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -29,19 +42,22 @@ export default function ProductGrid({ products, newestId }: ProductGridProps) {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm" style={{ color: '#6b7280' }}>Ordenar:</span>
-          <select className="text-sm font-medium rounded-lg px-3 py-1.5"
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortKey)}
+            className="text-sm font-medium rounded-lg px-3 py-1.5"
             style={{ border: '1.5px solid #e5e7eb', background: '#fff', color: '#374151', outline: 'none' }}>
-            <option>Relevancia</option>
-            <option>Menor precio</option>
-            <option>Mayor precio</option>
-            <option>Más recientes</option>
+            <option value="relevance">Relevancia</option>
+            <option value="price_asc">Menor precio</option>
+            <option value="price_desc">Mayor precio</option>
+            <option value="newest">Más recientes</option>
           </select>
         </div>
       </div>
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-        {products.map((product, i) => (
+        {sorted.map((product, i) => (
           <div key={product.id}
             className="animate-fade-in-up"
             style={{ animationDelay: `${Math.min(i * 0.05, 0.4)}s`, animationFillMode: 'both' }}>
