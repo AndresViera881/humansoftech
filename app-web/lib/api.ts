@@ -54,6 +54,8 @@ export interface ProductFilters {
   featured?: boolean;
   page?: number;
   limit?: number;
+  sortBy?: 'name' | 'price' | 'createdAt';
+  sortOrder?: 'asc' | 'desc';
 }
 
 export interface CreateProductPayload {

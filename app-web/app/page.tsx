@@ -25,6 +25,15 @@ function toDisplayProduct(p: ApiProduct) {
   };
 }
 
+type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
+
+const SORT_MAP: Record<SortKey, { sortBy: 'price' | 'createdAt'; sortOrder: 'asc' | 'desc' }> = {
+  relevance: { sortBy: 'createdAt', sortOrder: 'desc' },
+  price_asc:  { sortBy: 'price',     sortOrder: 'asc'  },
+  price_desc: { sortBy: 'price',     sortOrder: 'desc' },
+  newest:     { sortBy: 'createdAt', sortOrder: 'desc' },
+};
+
 export default function Home() {
   const { loggedUser, login } = useAuth();
   const [products, setProducts] = useState<ApiProduct[]>([]);
@@ -36,20 +45,24 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [showLogin, setShowLogin] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [sort, setSort] = useState<SortKey>('relevance');
 
   const loadProducts = useCallback(async () => {
     try {
-      const filters = selectedCategory !== 'Todos'
+      const filters: Record<string, unknown> = selectedCategory !== 'Todos'
         ? { categoryId: categories.find(c => c.name === selectedCategory)?.id }
         : {};
-      if (priceRange[1] < 3000) Object.assign(filters, { maxPrice: priceRange[1] });
+      if (priceRange[1] < 3000) filters.maxPrice = priceRange[1];
+      const { sortBy, sortOrder } = SORT_MAP[sort];
+      filters.sortBy = sortBy;
+      filters.sortOrder = sortOrder;
       const res = await api.products.list(filters);
       setProducts(res.data);
     } catch {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory, priceRange, categories]);
+  }, [selectedCategory, priceRange, categories, sort]);
 
   useEffect(() => {
     api.categories.list().then(setCategories).catch(() => {});
@@ -111,7 +124,7 @@ export default function Home() {
               <p className="text-sm font-medium" style={{ color: 'var(--text-muted)' }}>Cargando productos...</p>
             </div>
           ) : (
-            <ProductGrid products={displayProducts} newestId={undefined} />
+            <ProductGrid products={displayProducts} sort={sort} onSortChange={setSort} />
           )}
         </main>
       </div>
