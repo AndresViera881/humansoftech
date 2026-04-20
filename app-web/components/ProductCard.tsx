@@ -27,24 +27,23 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
   const images = product.images?.length ? product.images : [FALLBACK];
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [activeImg, setActiveImg] = useState(0);
   const [detailOpen, setDetailOpen] = useState(false);
 
   const slides = images.map(src => ({ src }));
-
   const waMessage = encodeURIComponent(`Hola! Estoy interesado en: ${product.name}. ¿Tiene disponibilidad y cuál es el precio?`);
   const waUrl = `https://wa.me/${WA_PHONE}?text=${waMessage}`;
 
   return (
     <>
-      <div className={`card flex flex-col overflow-hidden cursor-pointer ${isNew ? 'animate-new-product' : ''}`}
+      {/* ── Card ── */}
+      <div
+        className={`card flex flex-col overflow-hidden cursor-pointer group ${isNew ? 'animate-new-product' : ''}`}
         style={{ borderRadius: '16px' }}
-        onClick={() => setDetailOpen(true)}>
-
-        {/* Image */}
-        <div
-          className="relative flex items-center justify-center p-5 group overflow-hidden"
-          style={{ background: '#fff', height: '200px', borderBottom: '1px solid var(--border)' }}
-        >
+        onClick={() => setDetailOpen(true)}
+      >
+        <div className="relative flex items-center justify-center p-5 overflow-hidden"
+          style={{ background: '#f8faff', height: '200px', borderBottom: '1px solid var(--border)' }}>
           {product.badge && !isNew && (
             <span className="badge absolute top-3 left-3 z-10"
               style={{ background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a' }}>
@@ -61,15 +60,10 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
             {product.category}
           </span>
-
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={images[0]}
-            alt={product.name}
+          <img src={images[0]} alt={product.name}
             className="object-contain transition-transform duration-300 group-hover:scale-105"
-            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }}
-          />
-
+            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }} />
           {images.length > 1 && (
             <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
               style={{ background: 'rgba(37,99,235,0.12)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }}>
@@ -81,7 +75,6 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           )}
         </div>
 
-        {/* Content */}
         <div className="flex flex-col flex-1 p-4 gap-2">
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
             {product.category}
@@ -90,19 +83,14 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             {product.name}
           </h3>
           <p className="text-sm flex-1" style={{
-            color: 'var(--text-secondary)',
-            lineHeight: '1.6',
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            minHeight: '64px',
+            color: 'var(--text-secondary)', lineHeight: '1.6',
+            display: '-webkit-box', WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '64px',
           }}>
             {product.description}
           </p>
         </div>
 
-        {/* WhatsApp */}
         <div className="px-4 pb-4">
           <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-wa"
             onClick={e => e.stopPropagation()}>
@@ -112,7 +100,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         </div>
       </div>
 
-      {/* Lightbox */}
+      {/* ── Lightbox ── */}
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
@@ -121,108 +109,142 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         plugins={[Thumbnails, Zoom]}
         thumbnails={{ position: 'bottom', width: 80, height: 60, gap: 8, border: 2, borderRadius: 8 }}
         zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 1.5 }}
-        styles={{
-          container: { backgroundColor: 'rgba(10,10,20,0.95)', backdropFilter: 'blur(12px)' },
-        }}
+        styles={{ container: { backgroundColor: 'rgba(10,10,20,0.95)', backdropFilter: 'blur(12px)' } }}
       />
 
-      {/* Detail modal */}
+      {/* ── Detail modal ── */}
       {detailOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)' }}
+          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
           onClick={() => setDetailOpen(false)}
         >
           <div
-            className="w-full flex flex-col overflow-hidden"
-            style={{ maxWidth: '560px', maxHeight: '90vh', background: '#fff', borderRadius: '20px', boxShadow: '0 24px 64px rgba(0,0,0,0.22)' }}
+            className="w-full flex flex-col"
+            style={{
+              maxWidth: '480px',
+              height: '560px',
+              background: '#fff',
+              borderRadius: '20px',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.22)',
+              overflow: 'hidden',
+            }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Modal header */}
-            <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+            {/* Top accent */}
+            <div style={{ height: '3px', background: 'linear-gradient(90deg, #2563eb, #7c3aed)', flexShrink: 0 }} />
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="badge" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
+                <span className="badge" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', fontWeight: 700 }}>
                   {product.category}
                 </span>
                 {product.condition && (
                   <span className="badge" style={{
-                    background: product.condition === 'nuevo' ? '#dcfce7' : '#fef3c7',
-                    color: product.condition === 'nuevo' ? '#16a34a' : '#d97706',
+                    background: product.condition === 'nuevo' ? '#dcfce7' : '#fffbeb',
+                    color: product.condition === 'nuevo' ? '#15803d' : '#b45309',
                     border: `1px solid ${product.condition === 'nuevo' ? '#bbf7d0' : '#fde68a'}`,
+                    fontWeight: 700,
                   }}>
                     {product.condition === 'nuevo' ? 'Nuevo' : 'Seminuevo'}
                   </span>
                 )}
                 {product.badge && (
-                  <span className="badge" style={{ background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a' }}>
+                  <span className="badge" style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', fontWeight: 700 }}>
                     ⭐ {product.badge}
                   </span>
                 )}
               </div>
               <button
                 onClick={() => setDetailOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg flex-shrink-0"
-                style={{ background: 'var(--bg)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                className="w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0"
+                style={{ background: '#f3f4f6', color: '#6b7280' }}>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
             {/* Scrollable body */}
-            <div className="overflow-y-auto flex-1 p-5 flex flex-col gap-5">
+            <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
 
-              {/* Images */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {images.map((src, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setLightboxIdx(i); setLightboxOpen(true); }}
-                    className="flex-shrink-0 rounded-xl overflow-hidden border-2 transition-all"
-                    style={{
-                      width: images.length === 1 ? '100%' : '120px',
-                      height: '120px',
-                      borderColor: '#e5e7eb',
-                      background: '#fafafa',
-                    }}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt={product.name} className="w-full h-full object-contain p-2" style={{ mixBlendMode: 'multiply' }} />
-                  </button>
-                ))}
+              {/* Image */}
+              <div
+                className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in"
+                style={{ height: '180px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb', flexShrink: 0 }}
+                onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={images[activeImg]}
+                  alt={product.name}
+                  className="object-contain"
+                  style={{ maxHeight: '155px', maxWidth: '88%', mixBlendMode: 'multiply' }}
+                />
+                <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
+                  style={{ background: 'rgba(255,255,255,0.88)', color: '#6b7280', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
+                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
+                  </svg>
+                  Ampliar
+                </span>
               </div>
 
-              {/* Name */}
-              <h2 className="text-lg font-black leading-snug" style={{ color: 'var(--text)' }}>
-                {product.name}
-              </h2>
+              {/* Thumbnails */}
+              {images.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto">
+                  {images.map((src, i) => (
+                    <button key={i} onClick={() => setActiveImg(i)}
+                      className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-150"
+                      style={{
+                        width: '52px', height: '52px',
+                        border: `2px solid ${i === activeImg ? '#2563eb' : '#e5e7eb'}`,
+                        background: '#f8faff',
+                        opacity: i === activeImg ? 1 : 0.6,
+                      }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="w-full h-full object-contain p-1" style={{ mixBlendMode: 'multiply' }} />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-              {/* Description — full, no clamp */}
+              {/* Name + price */}
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-base font-black leading-tight flex-1" style={{ color: '#111827' }}>
+                  {product.name}
+                </h2>
+                {product.price > 0 && (
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-2xl font-black" style={{ color: '#2563eb', letterSpacing: '-0.5px' }}>
+                      ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div style={{ height: '1px', background: '#f3f4f6' }} />
+
+              {/* Description */}
               {product.description && (
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#2563eb' }}>
                     Descripción
                   </p>
-                  <p className="text-sm whitespace-pre-line" style={{ color: 'var(--text-secondary)', lineHeight: '1.75' }}>
+                  <p className="text-sm whitespace-pre-line" style={{ color: '#4b5563', lineHeight: '1.75' }}>
                     {product.description}
                   </p>
                 </div>
               )}
-
-              {/* Price */}
-              {product.price > 0 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>Precio:</span>
-                  <span className="text-xl font-black" style={{ color: '#2563eb' }}>
-                    ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
-                  </span>
-                </div>
-              )}
             </div>
 
-            {/* Footer CTA */}
-            <div className="px-5 py-4" style={{ borderTop: '1px solid var(--border)' }}>
-              <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-wa w-full justify-center">
+            {/* Footer */}
+            <div className="px-5 py-3" style={{ borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+              <a href={waUrl} target="_blank" rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white"
+                style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 14px rgba(22,163,74,0.3)' }}>
                 {WA_ICON}
                 Consultar por WhatsApp
               </a>
