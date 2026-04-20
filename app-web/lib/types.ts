@@ -10,4 +10,5 @@ export interface Product {
   badge?: string;
   isNew?: boolean;
   condition?: 'nuevo' | 'seminuevo';
+  createdAt?: string;
 }

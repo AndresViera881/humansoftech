@@ -18,7 +18,11 @@ export default function ProductGrid({ products, newestId }: ProductGridProps) {
     const arr = [...products];
     if (sort === 'price_asc') return arr.sort((a, b) => a.price - b.price);
     if (sort === 'price_desc') return arr.sort((a, b) => b.price - a.price);
-    if (sort === 'newest') return arr.sort((a, b) => (a.id > b.id ? -1 : 1));
+    if (sort === 'newest') return arr.sort((a, b) => {
+      const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return tb - ta;
+    });
     return arr;
   }, [products, sort]);
 

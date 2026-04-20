@@ -21,6 +21,7 @@ function toDisplayProduct(p: ApiProduct) {
     images: p.images?.length ? p.images : ['/products/laptop.svg'],
     badge: p.badge ?? undefined,
     condition: p.condition,
+    createdAt: p.createdAt,
   };
 }
 
