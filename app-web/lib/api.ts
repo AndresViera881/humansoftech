@@ -72,21 +72,6 @@ export interface CreateProductPayload {
   condition?: 'nuevo' | 'seminuevo';
 }
 
-async function request<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err.message ?? `API error ${res.status}`);
-  }
-  if (res.status === 204 || res.headers.get('content-length') === '0') {
-    return undefined as T;
-  }
-  return res.json() as Promise<T>;
-}
-
 export interface AuthUser {
   id: string;
   name: string;
@@ -96,10 +81,44 @@ export interface AuthUser {
   cedula?: string | null;
 }
 
+export interface ApiMenuItem {
+  id: string;
+  label: string;
+  icon: string | null;
+  path: string | null;
+  children?: ApiMenuItem[];
+}
+
+export interface LoginResponse {
+  token: string;
+  user: AuthUser;
+  menus: ApiMenuItem[];
+  permissions: string[];
+}
+
 export interface ApiRole {
   id: string;
   name: string;
   description: string | null;
+}
+
+export interface ApiMenu {
+  id: string;
+  label: string;
+  icon: string | null;
+  path: string | null;
+  parentId: string | null;
+  sortOrder: number;
+  active: boolean;
+  children?: ApiMenu[];
+}
+
+export interface ApiPermission {
+  id: string;
+  name: string;
+  description: string | null;
+  resource: string;
+  action: string;
 }
 
 export interface ApiUser {
@@ -133,12 +152,43 @@ export interface UpdateUserPayload {
   cedula?: string;
 }
 
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const saved = localStorage.getItem('tc_session');
+    if (saved) return JSON.parse(saved).token ?? null;
+  } catch { /* */ }
+  return null;
+}
+
+async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const token = getToken();
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}${path}`, {
+    ...options,
+    headers: { ...headers, ...(options?.headers as Record<string, string> ?? {}) },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error((err as { message?: string }).message ?? `API error ${res.status}`);
+  }
+  if (res.status === 204 || res.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
+  return res.json() as Promise<T>;
+}
+
 export const api = {
   upload: {
     image: async (file: File): Promise<{ url: string; publicId: string }> => {
+      const token = getToken();
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData, headers });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? `Upload error ${res.status}`);
@@ -146,9 +196,12 @@ export const api = {
       return res.json() as Promise<{ url: string; publicId: string }>;
     },
     images: async (files: File[]): Promise<{ url: string; publicId: string }[]> => {
+      const token = getToken();
       const formData = new FormData();
       files.forEach(f => formData.append('files', f));
-      const res = await fetch(`${API_URL}/upload/multiple`, { method: 'POST', body: formData });
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${API_URL}/upload/multiple`, { method: 'POST', body: formData, headers });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error((err as { message?: string }).message ?? `Upload error ${res.status}`);
@@ -158,12 +211,12 @@ export const api = {
   },
   auth: {
     login: (cedula: string, password: string) =>
-      request<{ user: AuthUser }>('/auth/login', {
+      request<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ cedula, password }),
       }),
     register: (name: string, cedula: string, password: string) =>
-      request<{ user: AuthUser }>('/auth/register', {
+      request<LoginResponse>('/auth/register', {
         method: 'POST',
         body: JSON.stringify({ name, cedula, password }),
       }),
@@ -212,6 +265,27 @@ export const api = {
   },
   roles: {
     list: () => request<ApiRole[]>('/roles'),
+    getAccess: (id: string) => request<{ menuIds: string[]; permissionIds: string[] }>(`/roles/${id}/access`),
+    setMenus: (id: string, menuIds: string[]) =>
+      request<{ success: boolean }>(`/roles/${id}/menus`, { method: 'PUT', body: JSON.stringify({ menuIds }) }),
+    setPermissions: (id: string, permissionIds: string[]) =>
+      request<{ success: boolean }>(`/roles/${id}/permissions`, { method: 'PUT', body: JSON.stringify({ permissionIds }) }),
+  },
+  menus: {
+    list: () => request<ApiMenu[]>('/menus'),
+    create: (payload: { label: string; icon?: string; path?: string; parentId?: string; sortOrder?: number }) =>
+      request<ApiMenu>('/menus', { method: 'POST', body: JSON.stringify(payload) }),
+    update: (id: string, payload: { label?: string; icon?: string; path?: string; parentId?: string | null; sortOrder?: number; active?: boolean }) =>
+      request<ApiMenu>(`/menus/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+    delete: (id: string) => request<void>(`/menus/${id}`, { method: 'DELETE' }),
+  },
+  permissions: {
+    list: () => request<ApiPermission[]>('/permissions'),
+    create: (payload: { name: string; description?: string; resource: string; action: string }) =>
+      request<ApiPermission>('/permissions', { method: 'POST', body: JSON.stringify(payload) }),
+    update: (id: string, payload: { name?: string; description?: string; resource?: string; action?: string }) =>
+      request<ApiPermission>(`/permissions/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+    delete: (id: string) => request<void>(`/permissions/${id}`, { method: 'DELETE' }),
   },
   users: {
     list: () => request<ApiUser[]>('/users'),

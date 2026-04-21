@@ -235,7 +235,7 @@ export default function CartSidebar() {
       {/* Customer auth modal */}
       {showAuthModal && (
         <CustomerAuthModal
-          onLogin={user => { login(user); setShowAuthModal(false); }}
+          onLogin={session => { login(session); setShowAuthModal(false); }}
           onClose={() => setShowAuthModal(false)}
         />
       )}

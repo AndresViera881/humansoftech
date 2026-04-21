@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { api, AuthUser } from '@/lib/api';
+import { api, LoginResponse } from '@/lib/api';
 import { LogoIcon } from '@/components/Logo';
 
 interface LoginModalProps {
-  onLogin: (user: AuthUser) => void;
+  onLogin: (session: LoginResponse) => void;
   onClose: () => void;
 }
 
@@ -34,8 +34,8 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
     setLoading(true);
     setError('');
     try {
-      const { user } = await api.auth.login(cedula, password);
-      onLogin(user);
+      const session = await api.auth.login(cedula, password);
+      onLogin(session);
     } catch {
       setError('Cédula o contraseña incorrectos');
     } finally {

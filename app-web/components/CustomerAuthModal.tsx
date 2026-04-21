@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { api, AuthUser } from '@/lib/api';
+import { api, LoginResponse } from '@/lib/api';
 
 interface CustomerAuthModalProps {
-  onLogin: (user: AuthUser) => void;
+  onLogin: (session: LoginResponse) => void;
   onClose: () => void;
 }
 
@@ -43,11 +43,11 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
     setError('');
     try {
       if (tab === 'login') {
-        const { user } = await api.auth.login(cedula, password);
-        onLogin(user);
+        const session = await api.auth.login(cedula, password);
+        onLogin(session);
       } else {
-        const { user } = await api.auth.register(name.trim(), cedula, password);
-        onLogin(user);
+        const session = await api.auth.register(name.trim(), cedula, password);
+        onLogin(session);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Error inesperado';
