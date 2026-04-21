@@ -150,7 +150,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer style={{ background: '#f0ebe0', borderTop: '1px solid var(--border)' }}>
+      <footer style={{ background: '#111827', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
 
         {/* Main footer content */}
         <div className="max-w-7xl mx-auto px-6 py-10">
@@ -159,10 +159,10 @@ export default function Home() {
             {/* Brand + slogan */}
             <div className="flex flex-col gap-4">
               <Logo size={26} textSize="text-sm" />
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'var(--text-muted)', letterSpacing: '0.12em' }}>
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
                 Desarrollo de Software Web y Móvil
               </p>
-              <p className="text-sm italic" style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+              <p className="text-sm italic" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
                 "Innovamos con propósito,<br />creamos con pasión"
               </p>
               {/* Social icons */}
@@ -179,20 +179,20 @@ export default function Home() {
                     target={href ? '_blank' : undefined}
                     rel={href ? 'noopener noreferrer' : undefined}
                     className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200"
-                    style={{ background: 'rgba(139,109,56,0.07)', border: '1px solid var(--border)', color: href ? 'var(--text-muted)' : 'rgba(160,136,120,0.4)', cursor: href ? 'pointer' : 'default', opacity: href ? 1 : 0.5 }}
-                    onMouseEnter={href ? e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(37,99,235,0.1)'; (e.currentTarget as HTMLAnchorElement).style.color = '#2563eb'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'rgba(37,99,235,0.25)'; } : undefined}
-                    onMouseLeave={href ? e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(139,109,56,0.07)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--text-muted)'; (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--border)'; } : undefined}
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: href ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)', cursor: href ? 'pointer' : 'default', opacity: href ? 1 : 0.4 }}
+                    onMouseEnter={href ? e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.14)'; (e.currentTarget as HTMLAnchorElement).style.color = '#fff'; } : undefined}
+                    onMouseLeave={href ? e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(255,255,255,0.06)'; (e.currentTarget as HTMLAnchorElement).style.color = 'rgba(255,255,255,0.5)'; } : undefined}
                     title={href ? label : `${label} — próximamente`}>
                     <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d={path} /></svg>
                   </a>
                 ))}
               </div>
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>@HumanSoftechs</p>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>@HumanSoftechs</p>
             </div>
 
             {/* Contact info */}
             <div className="flex flex-col gap-4">
-              <h4 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Contacto</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>Contacto</h4>
               {[
                 {
                   icon: <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />,
@@ -210,13 +210,13 @@ export default function Home() {
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 transition-all duration-150 group"
                   style={{ textDecoration: 'none' }}>
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-150"
-                    style={{ background: 'rgba(139,109,56,0.07)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>{icon}</svg>
                   </div>
                   <div>
-                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{label}</p>
-                    <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{value}</p>
+                    <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</p>
+                    <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>{value}</p>
                   </div>
                 </a>
               ))}
@@ -224,20 +224,20 @@ export default function Home() {
 
             {/* Address */}
             <div className="flex flex-col gap-4">
-              <h4 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Dirección</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>Dirección</h4>
               <div className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
-                  style={{ background: 'rgba(139,109,56,0.07)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+                  style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)' }}>
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                  <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
                     Atahualpa<br />
                     Calle Conflictos Limítrofes y Guabillos<br />
-                    <span style={{ color: 'var(--text-muted)' }}>Ambato - Ecuador</span>
+                    <span style={{ color: 'rgba(255,255,255,0.35)' }}>Ambato - Ecuador</span>
                   </p>
                 </div>
               </div>
@@ -245,9 +245,9 @@ export default function Home() {
               {/* WhatsApp CTA */}
               <a href={`https://wa.me/${WA_PHONE}`} target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 mt-2"
-                style={{ background: 'rgba(22,163,74,0.08)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)', textDecoration: 'none', width: 'fit-content' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(22,163,74,0.15)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(22,163,74,0.08)'; }}>
+                style={{ background: 'rgba(22,163,74,0.15)', color: '#4ade80', border: '1px solid rgba(22,163,74,0.3)', textDecoration: 'none', width: 'fit-content' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(22,163,74,0.25)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = 'rgba(22,163,74,0.15)'; }}>
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.126 1.533 5.864L.054 23.25a.75.75 0 00.916.916l5.455-1.476A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.88 0-3.645-.5-5.17-1.373l-.37-.217-3.828 1.037 1.044-3.742-.24-.386A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
@@ -258,13 +258,13 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Bottom bar with slogan */}
-        <div style={{ borderTop: '1px solid var(--border)', background: 'rgba(139,109,56,0.04)' }}>
+        {/* Bottom bar */}
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'var(--text-muted)', letterSpacing: '0.15em' }}>
+            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.25)', letterSpacing: '0.15em' }}>
               Desarrollo de Software Web y Móvil
             </span>
-            <span className="text-xs tracking-widest uppercase" style={{ color: 'var(--text-muted)', letterSpacing: '0.1em', opacity: 0.7 }}>
+            <span className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em' }}>
               Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Human Softechs
             </span>
           </div>

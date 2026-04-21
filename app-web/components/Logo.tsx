@@ -30,23 +30,44 @@ export function LogoIconGradient({ size = 36 }: { size?: number }) {
 }
 
 export default function Logo({ size = 36, showText = true, textSize = 'text-base' }: LogoProps) {
+  const iconBox = size + 10;
   return (
     <div className="flex items-center gap-2.5">
+      {/* Icon — dark square matching brand identity */}
       <div
         className="flex-shrink-0 rounded-xl flex items-center justify-center"
         style={{
-          width: size + 10,
-          height: size + 10,
-          background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #a855f7 100%)',
-          padding: '5px',
+          width: iconBox,
+          height: iconBox,
+          background: '#111827',
+          padding: '6px',
         }}
       >
         <LogoIcon size={size} />
       </div>
+
       {showText && (
-        <span className={`font-black tracking-tight ${textSize}`} style={{ lineHeight: 1.1 }}>
-          <span style={{ color: '#1c1410' }}>Human</span><span style={{ color: '#2563eb' }}>Softechs</span>
-        </span>
+        <div className="flex flex-col leading-none">
+          <span className={`tracking-tight ${textSize}`} style={{ lineHeight: 1.15 }}>
+            <span style={{ color: '#111827', fontWeight: 900 }}>Human</span>
+            <span style={{ color: '#111827', fontWeight: 400 }}>Softechs</span>
+          </span>
+          {/* Decorative dots matching brand image */}
+          <span className="flex gap-0.5 mt-1">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  width: '3px',
+                  height: '3px',
+                  borderRadius: '50%',
+                  background: i < 3 ? '#111827' : '#d1d5db',
+                  display: 'inline-block',
+                }}
+              />
+            ))}
+          </span>
+        </div>
       )}
     </div>
   );

@@ -113,19 +113,6 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
 
   return (
     <div className="flex flex-col h-full" style={{ minHeight: 0 }}>
-      {/* Panel header */}
-      <div className="flex-shrink-0 px-5 pt-5 pb-4" style={{ borderBottom: '1px solid var(--border)' }}>
-        <div className="flex items-center gap-2 mb-1">
-          <div className="w-6 h-6 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)' }}>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="#2563eb" strokeWidth={2}><path d="M12 4v16m8-8H4" /></svg>
-          </div>
-          <span className="text-xs font-bold tracking-widest uppercase" style={{ color: '#2563eb' }}>Nuevo Producto</span>
-          <div className="w-2 h-2 rounded-full animate-pulse-neon ml-1" style={{ background: '#2563eb' }} />
-        </div>
-        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Completa los campos y publica el producto</p>
-      </div>
-
       {/* Form */}
       <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
 
@@ -198,9 +185,9 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
                 onClick={() => setForm(f => ({ ...f, condition: value }))}
                 className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
                 style={{
-                  background: form.condition === value ? '#2563eb' : 'var(--bg)',
+                  background: form.condition === value ? '#111827' : 'var(--bg)',
                   color: form.condition === value ? '#fff' : 'var(--text-secondary)',
-                  border: `1.5px solid ${form.condition === value ? '#2563eb' : 'rgba(139,109,56,0.2)'}`,
+                  border: `1.5px solid ${form.condition === value ? '#111827' : 'var(--border)'}`,
                 }}>
                 {label}
               </button>
@@ -221,8 +208,8 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
               <div onClick={() => setForm(f => ({ ...f, featured: !f.featured }))}
                 className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
                 style={{
-                  background: form.featured ? '#2563eb' : 'rgba(139,109,56,0.15)',
-                  boxShadow: form.featured ? '0 0 8px rgba(37,99,235,0.25)' : 'none',
+                  background: form.featured ? '#111827' : '#e5e7eb',
+                  boxShadow: 'none',
                 }}>
                 <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm"
                   style={{ left: form.featured ? '17px' : '1px' }} />
@@ -245,7 +232,7 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
         <div>
           <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>
             Imágenes del Producto
-            <span className="ml-1.5 normal-case font-normal" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            <span className="ml-1.5 normal-case font-normal" style={{ color: 'var(--text-muted)' }}>
               (hasta 10)
             </span>
           </label>
@@ -257,22 +244,22 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             onClick={() => fileRef.current?.click()}
             className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-4 transition-all duration-200"
             style={{
-              border: `2px dashed ${dragging ? '#2563eb' : 'rgba(139,109,56,0.2)'}`,
-              background: dragging ? 'rgba(37,99,235,0.04)' : 'var(--bg)',
+              border: `2px dashed ${dragging ? '#111827' : 'rgba(0,0,0,0.12)'}`,
+              background: dragging ? 'rgba(0,0,0,0.03)' : 'var(--bg)',
               minHeight: '70px',
             }}>
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFile} />
             {uploadingCount > 0 ? (
               <>
                 <div className="w-5 h-5 rounded-full border-2 animate-spin"
-                  style={{ borderColor: 'rgba(37,99,235,0.15)', borderTopColor: '#2563eb' }} />
-                <span className="text-xs" style={{ color: '#2563eb' }}>
+                  style={{ borderColor: 'rgba(0,0,0,0.12)', borderTopColor: '#111827' }} />
+                <span className="text-xs" style={{ color: '#111827' }}>
                   Subiendo {uploadingCount} {uploadingCount === 1 ? 'imagen' : 'imágenes'}...
                 </span>
               </>
             ) : (
               <>
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke={dragging ? '#2563eb' : 'var(--text-muted)'} strokeWidth={1.5}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke={dragging ? '#111827' : 'var(--text-muted)'} strokeWidth={1.5}>
                   <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
@@ -292,7 +279,7 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
                   <img src={url} alt={`img-${i}`} className="w-full h-full object-cover" />
                   {i === 0 && (
                     <span className="absolute bottom-1 left-1 text-[9px] font-bold px-1 rounded"
-                      style={{ background: 'rgba(37,99,235,0.85)', color: '#fff' }}>Principal</span>
+                      style={{ background: 'rgba(0,0,0,0.85)', color: '#fff' }}>Principal</span>
                   )}
                   <button onClick={() => removeImage(url)}
                     className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -309,10 +296,10 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
 
         {/* Status messages */}
         {saveState === 'loading' && (
-          <div className="rounded-xl overflow-hidden animate-fade-in" style={{ background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.2)' }}>
+          <div className="rounded-xl overflow-hidden animate-fade-in" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.15)' }}>
             <div className="px-3 py-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full animate-pulse-neon" style={{ background: '#2563eb' }} />
-              <span className="text-xs font-bold tracking-widest" style={{ color: '#2563eb' }}>Publicando en API...</span>
+              <div className="w-2 h-2 rounded-full animate-pulse-neon" style={{ background: '#111827' }} />
+              <span className="text-xs font-bold tracking-widest" style={{ color: '#111827' }}>Publicando en API...</span>
             </div>
             <div className="loading-bar" />
           </div>
@@ -340,10 +327,10 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
         <button onClick={handleSave} disabled={!isValid || saveState !== 'idle'}
           className="w-full py-3 rounded-xl font-black text-sm tracking-widest uppercase transition-all duration-200"
           style={{
-            background: !isValid || saveState !== 'idle' ? 'rgba(139,109,56,0.06)' : '#2563eb',
-            border: `1px solid ${!isValid || saveState !== 'idle' ? 'var(--border)' : '#2563eb'}`,
+            background: !isValid || saveState !== 'idle' ? '#f3f4f6' : '#111827',
+            border: `1px solid ${!isValid || saveState !== 'idle' ? 'var(--border)' : '#111827'}`,
             color: !isValid || saveState !== 'idle' ? 'var(--text-muted)' : '#fff',
-            boxShadow: isValid && saveState === 'idle' ? '0 4px 16px rgba(37,99,235,0.2)' : 'none',
+            boxShadow: isValid && saveState === 'idle' ? '0 4px 16px rgba(0,0,0,0.15)' : 'none',
             cursor: !isValid || saveState !== 'idle' ? 'not-allowed' : 'pointer',
           }}>
           {uploadingCount > 0 ? `Esperando imágenes...` :

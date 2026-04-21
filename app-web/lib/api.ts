@@ -92,6 +92,8 @@ export interface AuthUser {
   name: string;
   email: string;
   role: string;
+  photo?: string | null;
+  cedula?: string | null;
 }
 
 export interface ApiRole {
@@ -104,6 +106,8 @@ export interface ApiUser {
   id: string;
   name: string;
   email: string;
+  photo: string | null;
+  cedula: string | null;
   active: boolean;
   createdAt: string;
   role: { id: string; name: string };
@@ -115,6 +119,8 @@ export interface CreateUserPayload {
   password: string;
   roleId: string;
   active?: boolean;
+  photo?: string;
+  cedula?: string;
 }
 
 export interface UpdateUserPayload {
@@ -123,6 +129,8 @@ export interface UpdateUserPayload {
   password?: string;
   roleId?: string;
   active?: boolean;
+  photo?: string;
+  cedula?: string;
 }
 
 export const api = {
@@ -149,19 +157,42 @@ export const api = {
     },
   },
   auth: {
-    login: (email: string, password: string) =>
+    login: (cedula: string, password: string) =>
       request<{ user: AuthUser }>('/auth/login', {
         method: 'POST',
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ cedula, password }),
+      }),
+    register: (name: string, cedula: string, password: string) =>
+      request<{ user: AuthUser }>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ name, cedula, password }),
+      }),
+    changePassword: (userId: string, currentPassword: string, newPassword: string) =>
+      request<{ message: string }>('/auth/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ userId, currentPassword, newPassword }),
       }),
   },
   categories: {
     list: (includeSubcategories = false) =>
       request<ApiCategory[]>(`/categories${includeSubcategories ? '?include=subcategories' : ''}`),
+    create: (payload: { name: string; slug: string; description?: string; sortOrder?: number }) =>
+      request<ApiCategory>('/categories', { method: 'POST', body: JSON.stringify(payload) }),
+    update: (id: string, payload: { name?: string; slug?: string; description?: string; active?: boolean; sortOrder?: number }) =>
+      request<ApiCategory>(`/categories/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+    delete: (id: string) =>
+      request<void>(`/categories/${id}`, { method: 'DELETE' }),
   },
   subcategories: {
+    list: () => request<ApiSubcategory[]>('/subcategories'),
     listByCategory: (categoryId: string) =>
       request<ApiSubcategory[]>(`/subcategories?categoryId=${categoryId}`),
+    create: (payload: { name: string; slug: string; description?: string; categoryId: string }) =>
+      request<ApiSubcategory>('/subcategories', { method: 'POST', body: JSON.stringify(payload) }),
+    update: (id: string, payload: { name?: string; slug?: string; description?: string }) =>
+      request<ApiSubcategory>(`/subcategories/${id}`, { method: 'PATCH', body: JSON.stringify(payload) }),
+    delete: (id: string) =>
+      request<void>(`/subcategories/${id}`, { method: 'DELETE' }),
   },
   products: {
     list: (filters: ProductFilters = {}) => {

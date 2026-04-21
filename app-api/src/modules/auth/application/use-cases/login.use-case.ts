@@ -8,9 +8,9 @@ import { hashPassword } from '../../../../shared/utils/hash-password';
 export class LoginUseCase {
   constructor(private readonly prisma: PrismaService) {}
 
-  async execute(dto: LoginDto): Promise<{ user: { id: string; name: string; email: string; role: string } }> {
+  async execute(dto: LoginDto): Promise<{ user: { id: string; name: string; email: string; role: string; photo: string | null } }> {
     const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
+      where: { cedula: dto.cedula },
       include: { role: true },
     });
 
@@ -29,6 +29,7 @@ export class LoginUseCase {
         name: user.name,
         email: user.email,
         role: user.role.name,
+        photo: user.photo,
       },
     };
   }

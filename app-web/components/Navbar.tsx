@@ -1,7 +1,9 @@
 'use client';
 
+import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
+import { useCart } from '@/lib/cart-context';
 import Logo from '@/components/Logo';
 
 const WA_PHONE = '5930995351473';
@@ -15,7 +17,20 @@ interface NavbarProps {
 
 export default function Navbar({ onLoginClick, onSearchChange, searchValue = '', onFilterClick }: NavbarProps) {
   const { loggedUser, logout } = useAuth();
+  const { count, openCart } = useCart();
   const router = useRouter();
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   return (
     <header style={{ background: '#fff', borderBottom: '1px solid var(--border)', boxShadow: '0 1px 8px rgba(139,109,56,0.06)' }}>
@@ -50,6 +65,22 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
 
         {/* Right actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Cart button */}
+          <button
+            onClick={openCart}
+            className="relative flex items-center justify-center w-9 h-9 rounded-xl"
+            style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)', color: '#2563eb' }}
+            title="Ver carrito">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            {count > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 flex items-center justify-center rounded-full text-white text-xs font-bold"
+                style={{ background: '#ef4444', fontSize: '10px' }}>
+                {count > 9 ? '9+' : count}
+              </span>
+            )}
+          </button>
           {/* WhatsApp — desktop only */}
           <a href={`https://wa.me/${WA_PHONE}`} target="_blank" rel="noopener noreferrer"
             className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold"
@@ -73,18 +104,69 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
                 </svg>
                 <span className="hidden sm:inline">Admin</span>
               </button>
-              <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0"
-                style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff' }}>
-                {loggedUser.name[0].toUpperCase()}
+              {/* Profile avatar + dropdown */}
+              <div ref={profileRef} className="relative flex-shrink-0">
+                <button
+                  onClick={() => setProfileOpen(v => !v)}
+                  className="flex-shrink-0 rounded-full transition-all duration-150"
+                  style={{ outline: profileOpen ? '2px solid #2563eb' : '2px solid #e5e7eb', outlineOffset: '1px' }}
+                  title={loggedUser.name}>
+                  {loggedUser.photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={loggedUser.photo} alt={loggedUser.name}
+                      className="w-8 h-8 rounded-full object-cover block" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
+                      style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff' }}>
+                      {loggedUser.name[0].toUpperCase()}
+                    </div>
+                  )}
+                </button>
+
+                {profileOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl overflow-hidden z-50 animate-fade-in-up"
+                    style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 12px 40px rgba(0,0,0,0.12)' }}>
+
+                    {/* User info */}
+                    <div className="flex flex-col items-center px-5 pt-5 pb-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      {loggedUser.photo ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={loggedUser.photo} alt={loggedUser.name}
+                          className="w-14 h-14 rounded-full object-cover mb-3"
+                          style={{ border: '3px solid #e5e7eb' }} />
+                      ) : (
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center font-black text-xl mb-3"
+                          style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff' }}>
+                          {loggedUser.name[0].toUpperCase()}
+                        </div>
+                      )}
+                      <p className="text-sm font-bold text-center" style={{ color: '#111827' }}>{loggedUser.name}</p>
+                      <span className="mt-1 px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
+                        style={{ background: 'rgba(37,99,235,0.08)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.15)' }}>
+                        {loggedUser.role.replace('_', ' ')}
+                      </span>
+                      {loggedUser.cedula && (
+                        <p className="mt-2 text-xs font-mono" style={{ color: '#9ca3af' }}>CI: {loggedUser.cedula}</p>
+                      )}
+                    </div>
+
+                    {/* Logout */}
+                    <div className="p-2">
+                      <button
+                        onClick={() => { setProfileOpen(false); logout(); }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150"
+                        style={{ color: '#dc2626', background: 'transparent' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,38,38,0.06)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}>
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        Cerrar sesión
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <button onClick={logout}
-                className="w-8 h-8 flex items-center justify-center rounded-xl"
-                style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-muted)' }}
-                title="Cerrar sesión">
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-              </button>
             </div>
           ) : (
             <button onClick={onLoginClick}

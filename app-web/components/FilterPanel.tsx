@@ -87,8 +87,7 @@ export default function FilterPanel({
       <div className="rounded-xl p-3 text-center"
         style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.16)' }}>
         <div className="text-base mb-1">🚀</div>
-        <div className="text-xs font-bold" style={{ color: '#16a34a' }}>Envío en 24hs</div>
-        <div className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Todo el país</div>
+        <div className="text-xs font-bold" style={{ color: '#16a34a' }}>Envíos a todo el país</div>
       </div>
     </div>
   );

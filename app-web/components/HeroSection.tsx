@@ -57,7 +57,7 @@ export default function HeroSection() {
             {[
               { value: '500+', label: 'Productos' },
               { value: '50+', label: 'Marcas' },
-              { value: '24h', label: 'Entrega' },
+              { value: '🚀', label: 'Envíos nacionales' },
             ].map(({ value, label }) => (
               <div key={label} className="text-center">
                 <div className="text-xl font-black" style={{ color: '#2563eb' }}>{value}</div>

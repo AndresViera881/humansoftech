@@ -18,4 +18,12 @@ export class CreateUserDto {
 
   @IsOptional()
   active?: boolean;
+
+  @IsOptional()
+  @IsString()
+  photo?: string;
+
+  @IsOptional()
+  @IsString()
+  cedula?: string;
 }

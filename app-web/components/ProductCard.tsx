@@ -7,6 +7,7 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { Product } from '@/lib/types';
+import { useCart } from '@/lib/cart-context';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -29,6 +30,15 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
   const [lightboxIdx, setLightboxIdx] = useState(0);
   const [activeImg, setActiveImg] = useState(0);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [added, setAdded] = useState(false);
+  const { addItem } = useCart();
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    addItem(product);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
 
   const slides = images.map(src => ({ src }));
   const waMessage = encodeURIComponent(`Hola! Estoy interesado en: ${product.name}. ¿Tiene disponibilidad y cuál es el precio?`);
@@ -91,8 +101,33 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           </p>
         </div>
 
-        <div className="px-4 pb-4">
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-wa"
+        <div className="px-4 pb-4 flex flex-col gap-2">
+          <button
+            onClick={handleAddToCart}
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200"
+            style={{
+              background: added ? '#16a34a' : '#111827',
+              boxShadow: added ? '0 4px 14px rgba(22,163,74,0.25)' : '0 2px 8px rgba(0,0,0,0.18)',
+            }}>
+            {added ? (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                ¡Agregado!
+              </>
+            ) : (
+              <>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Agregar al carrito
+              </>
+            )}
+          </button>
+          <a href={waUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
+            style={{ background: '#fff', color: '#15803d', border: '1.5px solid rgba(22,163,74,0.35)' }}
             onClick={e => e.stopPropagation()}>
             {WA_ICON}
             Consultar por WhatsApp
@@ -117,7 +152,6 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
-          onClick={() => setDetailOpen(false)}
         >
           <div
             className="w-full flex flex-col"
@@ -132,7 +166,6 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             onClick={e => e.stopPropagation()}
           >
             {/* Top accent */}
-            <div style={{ height: '3px', background: 'linear-gradient(90deg, #2563eb, #7c3aed)', flexShrink: 0 }} />
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
@@ -241,12 +274,30 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             </div>
 
             {/* Footer */}
-            <div className="px-5 py-3" style={{ borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+            <div className="px-5 py-3 flex gap-3" style={{ borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
+              <button
+                onClick={handleAddToCart}
+                title={added ? '¡Agregado!' : 'Agregar al carrito'}
+                className="flex-1 flex items-center justify-center py-3 rounded-xl text-white transition-all duration-200"
+                style={{
+                  background: added ? '#16a34a' : '#111827',
+                  boxShadow: added ? '0 4px 14px rgba(22,163,74,0.25)' : '0 2px 8px rgba(0,0,0,0.18)',
+                }}>
+                {added ? (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                )}
+              </button>
               <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold text-white"
-                style={{ background: 'linear-gradient(135deg, #16a34a, #15803d)', boxShadow: '0 4px 14px rgba(22,163,74,0.3)' }}>
+                title="Consultar por WhatsApp"
+                className="flex-1 flex items-center justify-center py-3 rounded-xl transition-all duration-200"
+                style={{ background: '#fff', color: '#15803d', border: '1.5px solid rgba(22,163,74,0.35)' }}>
                 {WA_ICON}
-                Consultar por WhatsApp
               </a>
             </div>
           </div>

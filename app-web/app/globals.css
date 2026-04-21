@@ -1,20 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --primary-light: rgba(37,99,235,0.08);
-  --accent: #7c3aed;
+  --primary: #111827;
+  --primary-dark: #000000;
+  --primary-light: rgba(0,0,0,0.06);
+  --accent: #374151;
   --wa-green: #16a34a;
   --wa-dark: #15803d;
-  --bg: #faf7f2;
+  --bg: #f4f4f4;
   --surface: #ffffff;
-  --surface-2: #f5f0e8;
-  --border: rgba(139,109,56,0.14);
-  --border-light: rgba(139,109,56,0.08);
-  --text: #1c1410;
-  --text-secondary: #6b5244;
-  --text-muted: #a08878;
+  --surface-2: #f9f9f9;
+  --border: rgba(0,0,0,0.1);
+  --border-light: rgba(0,0,0,0.05);
+  --text: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
 }
 
 * { box-sizing: border-box; }
@@ -32,21 +32,21 @@ body {
 }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #ede8df; }
-::-webkit-scrollbar-thumb { background: rgba(139,109,56,0.22); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(139,109,56,0.38); }
+::-webkit-scrollbar-track { background: #e5e7eb; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.35); }
 
 /* Card */
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 1px 4px rgba(139,109,56,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
   transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
 .card:hover {
-  box-shadow: 0 6px 28px rgba(37,99,235,0.1), 0 2px 6px rgba(0,0,0,0.05);
-  border-color: rgba(37,99,235,0.28);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.2);
   transform: translateY(-2px);
 }
 
@@ -91,7 +91,7 @@ body {
 /* Input */
 .input {
   background: #fff;
-  border: 1.5px solid rgba(139,109,56,0.2);
+  border: 1.5px solid rgba(0,0,0,0.15);
   border-radius: 10px;
   color: var(--text);
   padding: 10px 14px;
@@ -101,8 +101,8 @@ body {
 }
 .input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,0.08);
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.08);
 }
 .input::placeholder { color: var(--text-muted); }
 select.input option { background: #fff; color: var(--text); }

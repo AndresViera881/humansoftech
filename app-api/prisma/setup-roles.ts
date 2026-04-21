@@ -22,6 +22,12 @@ async function main() {
     create: { name: 'admin', description: 'Gestión de productos, sin acceso a usuarios' },
   });
 
+  await prisma.role.upsert({
+    where: { name: 'customer' },
+    update: { description: 'Cliente de la tienda' },
+    create: { name: 'customer', description: 'Cliente de la tienda' },
+  });
+
   console.log('✅ Roles creados/actualizados');
 
   // Andres Viera → super_admin

@@ -9,6 +9,8 @@ const SELECT = {
   id: true,
   name: true,
   email: true,
+  photo: true,
+  cedula: true,
   active: true,
   createdAt: true,
   role: { select: { id: true, name: true } },
@@ -34,6 +36,8 @@ export class PrismaUserRepository implements UserRepository {
         password: hashPassword(dto.password),
         roleId: dto.roleId,
         active: dto.active ?? true,
+        photo: dto.photo,
+        cedula: dto.cedula,
       },
       select: SELECT,
     });
