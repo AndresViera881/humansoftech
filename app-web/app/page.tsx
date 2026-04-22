@@ -265,9 +265,6 @@ export default function Home() {
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.25)', letterSpacing: '0.15em' }}>
-              Compra celulares y laptops al mejor precio en Ecuador, equipos nuevos y seminuevos con garantía
-            </span>
             <span className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em' }}>
               Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Humansoftechs
             </span>
