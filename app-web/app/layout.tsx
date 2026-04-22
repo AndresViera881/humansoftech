@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Human Softechs — Software Web y Móvil",
-  description: "Innovamos con propósito, creamos con excelencia. Tecnología premium al mejor precio.",
+  title: "Humansoftechs",
+  description: "Compra celulares y laptops al mejor precio en Ecuador, equipos nuevos y seminuevos con garantía",
   icons: {
     icon: '/logo.png',
     apple: '/logo.png',

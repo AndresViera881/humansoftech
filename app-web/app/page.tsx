@@ -166,7 +166,7 @@ export default function Home() {
             <div className="flex flex-col gap-4">
               <Logo size={26} textSize="text-sm" />
               <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
-                Desarrollo de Software Web y Móvil
+                Compra celulares y laptops al mejor precio en Ecuador, equipos nuevos y seminuevos con garantía
               </p>
               <p className="text-sm italic" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
                 "Innovamos con propósito,<br />creamos con pasión"
@@ -209,8 +209,8 @@ export default function Home() {
                 {
                   icon: <><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9" /></>,
                   label: 'Web',
-                  value: 'humansoftechs.vercel.app',
-                  href: 'https://humansoftechs.vercel.app/',
+                  value: 'humansoftechs.com',
+                  href: 'https://humansoftechs.com',
                 },
               ].map(({ icon, label, value, href }) => (
                 <a key={label} href={href} target="_blank" rel="noopener noreferrer"
@@ -266,10 +266,10 @@ export default function Home() {
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
             <span className="text-xs font-bold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.25)', letterSpacing: '0.15em' }}>
-              Desarrollo de Software Web y Móvil
+              Compra celulares y laptops al mejor precio en Ecuador, equipos nuevos y seminuevos con garantía
             </span>
             <span className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em' }}>
-              Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Human Softechs
+              Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Humansoftechs
             </span>
           </div>
         </div>

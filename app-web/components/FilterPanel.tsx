@@ -1,5 +1,7 @@
 'use client';
 
+import { Slider } from "./ui/slider";
+
 interface FilterPanelProps {
   categoryNames: string[];
   selectedCategory: string;
@@ -51,15 +53,67 @@ export default function FilterPanel({
 
       {/* Price range */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: 'var(--primary)' }}>
-          Precio Máximo
+        <h3
+          className="text-xs font-semibold uppercase tracking-widest mb-3"
+          style={{ color: "var(--primary)" }}
+        >
+          Rango de Precio
         </h3>
-        <input type="range" min={0} max={3000} value={priceRange[1]}
-          onChange={e => onPriceChange([priceRange[0], Number(e.target.value)])}
-          className="w-full" style={{ accentColor: '#2563eb' }} />
-        <div className="flex justify-between text-xs mt-2 font-medium" style={{ color: 'var(--text-muted)' }}>
-          <span>$0</span>
-          <span style={{ color: '#2563eb', fontWeight: 700 }}>${priceRange[1].toLocaleString()}</span>
+
+        <div
+          className="rounded-xl p-4"
+          style={{
+            background: "#fff",
+            border: "1px solid var(--border)",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+          }}
+        >
+          {/* Min y Max */}
+          <div className="flex justify-between mb-4">
+            <div>
+              <p
+                className="text-xs"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Min
+              </p>
+              <p className="font-bold text-green-600">
+                ${priceRange[0].toLocaleString()}
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p
+                className="text-xs"
+                style={{ color: "var(--text-muted)" }}
+              >
+                Max
+              </p>
+              <p className="font-bold text-green-600">
+                ${priceRange[1].toLocaleString()}
+              </p>
+            </div>
+          </div>
+
+          {/* Slider doble */}
+          <Slider
+            min={0}
+            max={3000}
+            step={50}
+            value={priceRange}
+            onValueChange={(value) =>
+              onPriceChange(value as [number, number])
+            }
+            className="w-full"
+          />
+
+          <div
+            className="flex justify-between text-xs mt-3"
+            style={{ color: "var(--text-muted)" }}
+          >
+            <span>$0</span>
+            <span>$3000+</span>
+          </div>
         </div>
       </div>
 
