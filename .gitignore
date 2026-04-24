@@ -37,3 +37,6 @@ next-env.d.ts
 *.rar
 *.zip
 coverage/
+
+# Claude Code (contains local permission settings and tokens)
+.claude/
