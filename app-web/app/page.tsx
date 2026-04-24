@@ -7,7 +7,7 @@ import Navbar from '@/components/Navbar';
 import FilterPanel from '@/components/FilterPanel';
 import ProductGrid from '@/components/ProductGrid';
 import LoginModal from '@/components/LoginModal';
-import Logo from '@/components/Logo';
+import Logo, { LogoFooter, LogoIconGradient } from '@/components/Logo';
 import { api, ApiCategory, ApiProduct } from '@/lib/api';
 
 const WA_PHONE = '5930995351473';
@@ -164,11 +164,11 @@ export default function Home() {
 
             {/* Brand + slogan */}
             <div className="flex flex-col gap-4">
-              <Logo size={26} textSize="text-sm" />
-              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
+              <LogoFooter size={28} textSize="text-sm" />
+              <p className="text-xs font-semibold tracking-widest uppercase" style={{ color: '#ffffff', letterSpacing: '0.12em' }}>
                 Compra celulares y laptops al mejor precio en Ecuador, equipos nuevos y seminuevos con garantía
               </p>
-              <p className="text-sm italic" style={{ color: 'rgba(255,255,255,0.55)', lineHeight: 1.6 }}>
+              <p className="text-sm italic" style={{ color: '#ffffff', lineHeight: 1.6 }}>
                 "Innovamos con propósito,<br />creamos con pasión"
               </p>
               {/* Social icons */}
@@ -193,7 +193,7 @@ export default function Home() {
                   </a>
                 ))}
               </div>
-              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>@HumanSoftechs</p>
+              <p className="text-xs" style={{ color: '#ffffff' }}>@Humansoftechs</p>
             </div>
 
             {/* Contact info */}
@@ -222,7 +222,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-xs" style={{ color: 'rgba(255,255,255,0.35)' }}>{label}</p>
-                    <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>{value}</p>
+                    <p className="text-sm font-semibold" style={{ color: '#ffffff' }}>{value}</p>
                   </div>
                 </a>
               ))}
@@ -240,8 +240,8 @@ export default function Home() {
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium" style={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-                    <span style={{ color: 'rgba(255,255,255,0.35)' }}>Ambato - Ecuador</span>
+                  <p className="text-sm font-semibold" style={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
+                    <span style={{ color: '#ffffff' }}>Ambato - Ecuador</span>
                   </p>
                 </div>
               </div>
@@ -264,8 +264,14 @@ export default function Home() {
 
         {/* Bottom bar */}
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2">
-            <span className="text-xs tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em' }}>
+          <div className="w-full px-6 py-3 flex items-center justify-center text-center">
+            <span
+              className="text-xs tracking-widest uppercase"
+              style={{
+                color: '#ffffff',
+                letterSpacing: '0.1em'
+              }}
+            >
               Innovamos con propósito, creamos con pasión &nbsp;·&nbsp; © {new Date().getFullYear()} Humansoftechs
             </span>
           </div>

@@ -1,15 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import Swal from 'sweetalert2';
+import { toast } from 'sonner';
 import { api, ApiCategory, slugify } from '@/lib/api';
-
-const inputStyle: React.CSSProperties = {
-  background: '#fff', border: '1.5px solid rgba(0,0,0,0.12)',
-  borderRadius: '8px', color: '#111827', padding: '8px 12px',
-  fontSize: '13px', width: '100%', outline: 'none',
-};
-const labelStyle: React.CSSProperties = { color: '#4b5563', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' };
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 type ModalMode = 'create' | 'edit';
 
@@ -26,6 +24,7 @@ export default function AdminCategoriesGrid() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<ApiCategory | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -36,30 +35,18 @@ export default function AdminCategoriesGrid() {
 
   useEffect(() => { load(); }, [load]);
 
-  const filtered = categories.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
-  const openCreate = () => {
-    setForm(emptyForm());
-    setEditTarget(null);
-    setSaveError('');
-    setModalMode('create');
-  };
-
+  const openCreate = () => { setForm(emptyForm()); setEditTarget(null); setSaveError(''); setModalMode('create'); };
   const openEdit = (c: ApiCategory) => {
     setForm({ name: c.name, slug: c.slug, description: c.description ?? '', sortOrder: String(c.sortOrder), active: c.active });
-    setEditTarget(c);
-    setSaveError('');
-    setModalMode('edit');
+    setEditTarget(c); setSaveError(''); setModalMode('edit');
   };
-
   const setName = (name: string) => setForm(f => ({ ...f, name, slug: slugify(name) }));
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
-    setSaving(true);
-    setSaveError('');
+    setSaving(true); setSaveError('');
     try {
       if (modalMode === 'create') {
         const created = await api.categories.create({ name: form.name, slug: form.slug || slugify(form.name), description: form.description || undefined, sortOrder: Number(form.sortOrder) });
@@ -69,30 +56,21 @@ export default function AdminCategoriesGrid() {
         setCategories(prev => prev.map(c => c.id === updated.id ? updated : c));
       }
       setModalMode(null);
-    } catch (e) {
-      setSaveError(e instanceof Error ? e.message : 'Error al guardar');
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { setSaveError(e instanceof Error ? e.message : 'Error al guardar'); }
+    finally { setSaving(false); }
   };
 
-  const handleDelete = async (c: ApiCategory) => {
-    const result = await Swal.fire({
-      title: '¿Eliminar categoría?',
-      html: `<span style="color:#4b5563;font-size:14px"><b style="color:#111827">${c.name}</b><br/>Se eliminará permanentemente.</span>`,
-      icon: 'warning', showCancelButton: true,
-      confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar',
-      background: '#f9fafb', color: '#111827',
-      confirmButtonColor: '#ef4444', cancelButtonColor: '#e8dfd3',
-      customClass: { popup: 'swal-dark-popup', cancelButton: 'swal-cancel-btn' },
-    });
-    if (!result.isConfirmed) return;
-    setDeletingId(c.id);
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirm) return;
+    setDeletingId(deleteConfirm.id);
+    const cat = deleteConfirm;
+    setDeleteConfirm(null);
     try {
-      await api.categories.delete(c.id);
-      setCategories(prev => prev.filter(x => x.id !== c.id));
+      await api.categories.delete(cat.id);
+      setCategories(prev => prev.filter(x => x.id !== cat.id));
+      toast.success('Categoría eliminada');
     } catch {
-      Swal.fire({ title: 'Error', text: 'No se pudo eliminar.', icon: 'error', background: '#f9fafb', color: '#111827', confirmButtonColor: '#111827' });
+      toast.error('No se pudo eliminar la categoría');
     } finally { setDeletingId(null); }
   };
 
@@ -109,111 +87,95 @@ export default function AdminCategoriesGrid() {
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: '#9ca3af' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
           </svg>
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar categoría..." style={{ ...inputStyle, paddingLeft: '36px' }} />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar categoría..." className="pl-9" />
         </div>
-        <button onClick={load} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold flex-shrink-0"
-          style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.12)', color: '#111827' }}
-          onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.1)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.05)'; }}>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <Button variant="outline" onClick={load} className="flex-shrink-0">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Actualizar
-        </button>
-        <button onClick={openCreate} className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold flex-shrink-0"
-          style={{ background: '#111827', border: '1px solid #111827', color: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.18)' }}
-          onMouseEnter={e => { e.currentTarget.style.background = '#374151'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = '#111827'; }}>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        </Button>
+        <Button onClick={openCreate} className="flex-shrink-0">
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Agregar
-        </button>
+        </Button>
       </div>
 
-      <p className="text-xs" style={{ color: '#9ca3af' }}>{filtered.length} categoría{filtered.length !== 1 ? 's' : ''}</p>
+      <p className="text-xs text-muted-foreground">{filtered.length} categoría{filtered.length !== 1 ? 's' : ''}</p>
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
-        <div className="hidden sm:grid text-xs font-semibold uppercase tracking-widest px-4 py-3"
-          style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px', background: '#f9fafb', borderBottom: '1px solid rgba(0,0,0,0.07)', color: '#9ca3af' }}>
+      <div className="rounded-2xl overflow-hidden border shadow-sm">
+        <div className="hidden sm:grid text-xs font-semibold uppercase tracking-widest px-4 py-3 text-muted-foreground bg-muted/40 border-b"
+          style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px' }}>
           <span>Categoría</span><span>Slug</span><span>Descripción</span>
           <span className="text-center">Activa</span><span className="text-center">Acciones</span>
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16 gap-3" style={{ background: '#fff' }}>
-            <div className="w-5 h-5 rounded-full border-2 animate-spin" style={{ borderColor: 'rgba(0,0,0,0.1)', borderTopColor: '#111827' }} />
-            <span className="text-sm" style={{ color: '#9ca3af' }}>Cargando...</span>
+          <div className="flex items-center justify-center py-16 gap-3 bg-white">
+            <div className="w-5 h-5 rounded-full border-2 animate-spin border-border border-t-foreground" />
+            <span className="text-sm text-muted-foreground">Cargando...</span>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2" style={{ background: '#fff' }}>
-            <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="#d1d5db" strokeWidth={1}><path d="M3 7h18M3 12h18M3 17h18" /></svg>
-            <span className="text-sm" style={{ color: '#9ca3af' }}>Sin categorías</span>
+          <div className="flex flex-col items-center justify-center py-16 gap-2 bg-white">
+            <svg className="w-10 h-10 text-muted-foreground/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path d="M3 7h18M3 12h18M3 17h18" /></svg>
+            <span className="text-sm text-muted-foreground">Sin categorías</span>
           </div>
         ) : (
           <>
             {/* Desktop rows */}
             <div className="hidden sm:block">
               {filtered.map((c, i) => (
-                <div key={c.id} className="grid items-center px-4 py-3 transition-colors duration-100"
-                  style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px', background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: i < filtered.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(0,0,0,0.02)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = i % 2 === 0 ? '#fff' : '#f9fafb'; }}>
-                  <span className="text-sm font-semibold truncate pr-3" style={{ color: '#111827' }}>{c.name}</span>
-                  <span className="text-xs truncate font-mono" style={{ color: '#6b7280' }}>{c.slug}</span>
-                  <span className="text-xs truncate" style={{ color: '#9ca3af' }}>{c.description ?? '—'}</span>
+                <div key={c.id} className="grid items-center px-4 py-3 transition-colors hover:bg-muted/20"
+                  style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px', background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: i < filtered.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+                  <span className="text-sm font-semibold truncate pr-3">{c.name}</span>
+                  <span className="text-xs truncate font-mono text-muted-foreground">{c.slug}</span>
+                  <span className="text-xs truncate text-muted-foreground">{c.description ?? '—'}</span>
                   <div className="flex justify-center">
                     <button onClick={() => toggleActive(c)}
                       className="w-9 h-5 rounded-full relative transition-all duration-200"
                       style={{ background: c.active ? '#111827' : '#e5e7eb' }}>
-                      <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200"
-                        style={{ left: c.active ? '17px' : '1px' }} />
+                      <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200" style={{ left: c.active ? '17px' : '1px' }} />
                     </button>
                   </div>
                   <div className="flex items-center justify-center gap-1.5">
-                    <button onClick={() => openEdit(c)}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
-                      style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.1)', color: '#374151' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.08)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.04)'; }}>
+                    <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => openEdit(c)}>
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                      Editar
-                    </button>
-                    <button onClick={() => handleDelete(c)} disabled={deletingId === c.id}
-                      className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
-                      style={{ background: 'rgba(220,38,38,0.06)', border: '1px solid rgba(220,38,38,0.14)', color: '#dc2626' }}
-                      onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,38,38,0.12)'; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = 'rgba(220,38,38,0.06)'; }}>
-                      {deletingId === c.id ? <div className="w-3 h-3 rounded-full border animate-spin" style={{ borderColor: 'rgba(220,38,38,0.2)', borderTopColor: '#dc2626' }} /> : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
-                    </button>
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setDeleteConfirm(c)} disabled={deletingId === c.id}>
+                      {deletingId === c.id
+                        ? <div className="w-3 h-3 rounded-full border animate-spin border-destructive/30 border-t-destructive" />
+                        : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>}
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Mobile cards */}
-            <div className="flex sm:hidden flex-col divide-y" style={{ borderColor: 'rgba(0,0,0,0.06)' }}>
+            <div className="flex sm:hidden flex-col divide-y">
               {filtered.map(c => (
-                <div key={c.id} className="px-4 py-3 flex items-center gap-3" style={{ background: '#fff' }}>
+                <div key={c.id} className="px-4 py-3 flex items-center gap-3 bg-white">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate" style={{ color: '#111827' }}>{c.name}</p>
-                    <p className="text-xs font-mono truncate mt-0.5" style={{ color: '#9ca3af' }}>{c.slug}</p>
+                    <p className="text-sm font-semibold truncate">{c.name}</p>
+                    <p className="text-xs font-mono truncate mt-0.5 text-muted-foreground">{c.slug}</p>
                   </div>
-                  <button onClick={() => toggleActive(c)}
-                    className="w-9 h-5 rounded-full relative transition-all duration-200 flex-shrink-0"
-                    style={{ background: c.active ? '#111827' : '#e5e7eb' }}>
+                  <button onClick={() => toggleActive(c)} className="w-9 h-5 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: c.active ? '#111827' : '#e5e7eb' }}>
                     <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200" style={{ left: c.active ? '17px' : '1px' }} />
                   </button>
-                  <button onClick={() => openEdit(c)} className="p-2 rounded-lg flex-shrink-0" style={{ background: 'rgba(0,0,0,0.04)', color: '#374151' }}>
+                  <Button variant="outline" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => openEdit(c)}>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                  </button>
-                  <button onClick={() => handleDelete(c)} className="p-2 rounded-lg flex-shrink-0" style={{ background: 'rgba(220,38,38,0.06)', color: '#dc2626' }}>
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setDeleteConfirm(c)}>
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -221,71 +183,74 @@ export default function AdminCategoriesGrid() {
         )}
       </div>
 
-      {/* Modal */}
-      {modalMode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="w-full max-w-md rounded-2xl overflow-hidden animate-fade-in-up flex flex-col"
-            style={{ background: '#fff', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 24px 64px rgba(0,0,0,0.15)', maxHeight: '90vh' }}>
+      {/* Delete confirm */}
+      <Dialog open={!!deleteConfirm} onOpenChange={open => !open && setDeleteConfirm(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Eliminar categoría?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">{deleteConfirm?.name}</span> — Se eliminará permanentemente.
+          </p>
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleDeleteConfirm}>Eliminar</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-            <div className="flex items-center justify-between px-6 py-4 flex-shrink-0"
-              style={{ borderBottom: '1px solid rgba(0,0,0,0.07)', background: '#f9fafb' }}>
-              <h2 className="font-black text-base" style={{ color: '#111827' }}>
-                {modalMode === 'create' ? 'Nueva Categoría' : 'Editar Categoría'}
-              </h2>
-              <button onClick={() => setModalMode(null)}
-                className="w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-150"
-                style={{ background: 'rgba(0,0,0,0.06)', color: '#9ca3af' }}
-                onMouseEnter={e => { e.currentTarget.style.background = 'rgba(220,38,38,0.08)'; e.currentTarget.style.color = '#dc2626'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; e.currentTarget.style.color = '#9ca3af'; }}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-              </button>
+      {/* Create / Edit Dialog */}
+      <Dialog open={!!modalMode} onOpenChange={open => !open && setModalMode(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{modalMode === 'create' ? 'Nueva Categoría' : 'Editar Categoría'}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre</Label>
+              <Input value={form.name} onChange={e => setName(e.target.value)} placeholder="ej. Laptops" />
             </div>
-
-            <div className="overflow-y-auto px-6 py-5 flex flex-col gap-4" style={{ minHeight: 0 }}>
-              <div>
-                <label className="block mb-1.5" style={labelStyle}>Nombre</label>
-                <input type="text" value={form.name} onChange={e => setName(e.target.value)} style={inputStyle} placeholder="ej. Laptops" />
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Slug</Label>
+              <Input value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} placeholder="ej. laptops" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Descripción</Label>
+              <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} className="resize-none" placeholder="Descripción opcional..." />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orden</Label>
+              <Input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: e.target.value }))} />
+            </div>
+            {modalMode === 'edit' && (
+              <label className="flex items-center gap-3 cursor-pointer">
+                <div onClick={() => setForm(f => ({ ...f, active: !f.active }))}
+                  className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
+                  style={{ background: form.active ? '#111827' : '#e5e7eb' }}>
+                  <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300" style={{ left: form.active ? '17px' : '1px' }} />
+                </div>
+                <span className="text-sm font-medium text-muted-foreground">Categoría activa</span>
+              </label>
+            )}
+            {saveError && (
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20">
+                <span className="text-xs font-medium text-destructive">{saveError}</span>
               </div>
-              <div>
-                <label className="block mb-1.5" style={labelStyle}>Slug</label>
-                <input type="text" value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))} style={inputStyle} placeholder="ej. laptops" />
-              </div>
-              <div>
-                <label className="block mb-1.5" style={labelStyle}>Descripción</label>
-                <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} style={{ ...inputStyle, resize: 'none' }} placeholder="Descripción opcional..." />
-              </div>
-              <div>
-                <label className="block mb-1.5" style={labelStyle}>Orden</label>
-                <input type="number" value={form.sortOrder} onChange={e => setForm(f => ({ ...f, sortOrder: e.target.value }))} style={inputStyle} />
-              </div>
-              {modalMode === 'edit' && (
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <div onClick={() => setForm(f => ({ ...f, active: !f.active }))}
-                    className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
-                    style={{ background: form.active ? '#111827' : '#e5e7eb' }}>
-                    <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300" style={{ left: form.active ? '17px' : '1px' }} />
-                  </div>
-                  <span className="text-sm font-medium" style={{ color: '#4b5563' }}>Categoría activa</span>
-                </label>
-              )}
-              {saveError && <p className="text-xs font-semibold rounded-lg px-3 py-2" style={{ background: 'rgba(220,38,38,0.06)', color: '#dc2626', border: '1px solid rgba(220,38,38,0.15)' }}>{saveError}</p>}
-              <div className="flex gap-3 pt-1">
-                <button onClick={() => setModalMode(null)}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                  style={{ background: '#f9fafb', border: '1px solid rgba(0,0,0,0.12)', color: '#4b5563' }}>
-                  Cancelar
-                </button>
-                <button onClick={handleSave} disabled={saving || !form.name.trim()}
-                  className="flex-1 py-2.5 rounded-xl text-sm font-bold transition-all duration-150"
-                  style={{ background: saving || !form.name.trim() ? 'rgba(0,0,0,0.1)' : '#111827', color: saving || !form.name.trim() ? 'rgba(0,0,0,0.3)' : '#fff', cursor: saving || !form.name.trim() ? 'not-allowed' : 'pointer' }}>
-                  {saving ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
+            )}
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setModalMode(null)}>Cancelar</Button>
+              <Button className="flex-1" onClick={handleSave} disabled={saving || !form.name.trim()}>
+                {saving ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
+                    Guardando...
+                  </span>
+                ) : 'Guardar'}
+              </Button>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

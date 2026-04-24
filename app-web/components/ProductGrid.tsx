@@ -2,6 +2,7 @@
 
 import { Product } from '@/lib/types';
 import ProductCard from './ProductCard';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type SortKey = 'relevance' | 'price_asc' | 'price_desc' | 'newest';
 
@@ -16,8 +17,8 @@ export default function ProductGrid({ products, sort, onSortChange }: ProductGri
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
         <div className="text-5xl mb-4">📦</div>
-        <p className="text-base font-semibold" style={{ color: '#374151' }}>Sin productos en esta categoría</p>
-        <p className="text-sm mt-1" style={{ color: '#9ca3af' }}>Probá con otra categoría o ajustá el filtro de precio</p>
+        <p className="text-base font-semibold text-foreground">Sin productos en esta categoría</p>
+        <p className="text-sm mt-1 text-muted-foreground">Probá con otra categoría o ajustá el filtro de precio</p>
       </div>
     );
   }
@@ -27,21 +28,22 @@ export default function ProductGrid({ products, sort, onSortChange }: ProductGri
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h2 className="text-xl font-black" style={{ color: '#111827' }}>Productos</h2>
-          <p className="text-sm" style={{ color: '#9ca3af' }}>{products.length} resultado{products.length !== 1 ? 's' : ''}</p>
+          <h2 className="text-xl font-black text-foreground">Productos</h2>
+          <p className="text-sm text-muted-foreground">{products.length} resultado{products.length !== 1 ? 's' : ''}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm" style={{ color: '#6b7280' }}>Ordenar:</span>
-          <select
-            value={sort}
-            onChange={e => onSortChange(e.target.value as SortKey)}
-            className="text-sm font-medium rounded-lg px-3 py-1.5"
-            style={{ border: '1.5px solid #e5e7eb', background: '#fff', color: '#374151', outline: 'none' }}>
-            <option value="relevance">Relevancia</option>
-            <option value="price_asc">Menor precio</option>
-            <option value="price_desc">Mayor precio</option>
-            <option value="newest">Más recientes</option>
-          </select>
+          <span className="text-sm text-muted-foreground hidden sm:inline">Ordenar:</span>
+          <Select value={sort} onValueChange={v => onSortChange(v as SortKey)}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevance">Relevancia</SelectItem>
+              <SelectItem value="price_asc">Menor precio</SelectItem>
+              <SelectItem value="price_desc">Mayor precio</SelectItem>
+              <SelectItem value="newest">Más recientes</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

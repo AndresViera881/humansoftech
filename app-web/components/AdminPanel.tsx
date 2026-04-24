@@ -2,6 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { api, ApiCategory, ApiSubcategory, ApiProduct, slugify } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface AdminPanelProps {
   onPublish: (product: ApiProduct) => void;
@@ -109,73 +114,69 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
 
   const isValid = form.name.trim() && form.price.trim() && form.categoryId && uploadingCount === 0;
 
-  const labelStyle = { color: 'var(--text-secondary)' };
-
   return (
     <div className="flex flex-col h-full" style={{ minHeight: 0 }}>
-      {/* Form */}
-      <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
+      <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
 
         {/* Product name */}
-        <div>
-          <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
             Nombre del Producto
-          </label>
-          <input type="text" value={form.name}
+          </Label>
+          <Input type="text" value={form.name}
             onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-            placeholder="ej. Laptop Pro X1"
-            className="input-neon w-full px-3 py-2 rounded-lg text-sm" />
+            placeholder="ej. Laptop Pro X1" />
         </div>
 
         {/* Category */}
-        <div>
-          <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>
-            Categoría
-          </label>
-          <select value={form.categoryId}
-            onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}
-            className="input-neon w-full px-3 py-2 rounded-lg text-sm"
-            style={{ colorScheme: 'light' }}>
-            <option value="">— Selecciona categoría —</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Categoría</Label>
+          <Select value={form.categoryId || '_none'} onValueChange={v => setForm(f => ({ ...f, categoryId: v === '_none' ? '' : v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="— Selecciona categoría —" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_none">— Selecciona categoría —</SelectItem>
+              {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Subcategory */}
         {subcategories.length > 0 && (
-          <div>
-            <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>
-              Subcategoría
-            </label>
-            <select value={form.subcategoryId}
-              onChange={e => setForm(f => ({ ...f, subcategoryId: e.target.value }))}
-              className="input-neon w-full px-3 py-2 rounded-lg text-sm"
-              style={{ colorScheme: 'light' }}>
-              <option value="">— Opcional —</option>
-              {subcategories.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-            </select>
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Subcategoría</Label>
+            <Select value={form.subcategoryId || '_none'} onValueChange={v => setForm(f => ({ ...f, subcategoryId: v === '_none' ? '' : v }))}>
+              <SelectTrigger>
+                <SelectValue placeholder="— Opcional —" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="_none">— Opcional —</SelectItem>
+                {subcategories.map(s => <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </div>
         )}
 
         {/* Price + Stock row */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>Precio ($)</label>
-            <input type="number" value={form.price}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Precio ($)</Label>
+            <Input type="number" value={form.price}
               onChange={e => setForm(f => ({ ...f, price: e.target.value }))}
-              placeholder="1299" className="input-neon w-full px-3 py-2 rounded-lg text-sm" />
+              placeholder="1299" />
           </div>
-          <div>
-            <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>Stock</label>
-            <input type="number" value={form.stock}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Stock</Label>
+            <Input type="number" value={form.stock}
               onChange={e => setForm(f => ({ ...f, stock: e.target.value }))}
-              placeholder="0" className="input-neon w-full px-3 py-2 rounded-lg text-sm" />
+              placeholder="0" />
           </div>
         </div>
 
         {/* Condition */}
-        <div>
-          <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>Condición</label>
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Condición</Label>
           <div className="flex gap-2">
             {([
               { value: 'nuevo', label: 'Nuevo' },
@@ -185,9 +186,9 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
                 onClick={() => setForm(f => ({ ...f, condition: value }))}
                 className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
                 style={{
-                  background: form.condition === value ? '#111827' : 'var(--bg)',
-                  color: form.condition === value ? '#fff' : 'var(--text-secondary)',
-                  border: `1.5px solid ${form.condition === value ? '#111827' : 'var(--border)'}`,
+                  background: form.condition === value ? '#111827' : '#f9fafb',
+                  color: form.condition === value ? '#fff' : '#4b5563',
+                  border: `1.5px solid ${form.condition === value ? '#111827' : 'rgba(0,0,0,0.1)'}`,
                 }}>
                 {label}
               </button>
@@ -197,47 +198,41 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
 
         {/* Badge + Featured row */}
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>Badge</label>
-            <input type="text" value={form.badge}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Badge</Label>
+            <Input type="text" value={form.badge}
               onChange={e => setForm(f => ({ ...f, badge: e.target.value }))}
-              placeholder="ej. NUEVO" className="input-neon w-full px-3 py-2 rounded-lg text-sm" />
+              placeholder="ej. NUEVO" />
           </div>
           <div className="flex flex-col justify-end">
-            <label className="flex items-center gap-2 cursor-pointer pb-2">
+            <label className="flex items-center gap-2 cursor-pointer pb-1">
               <div onClick={() => setForm(f => ({ ...f, featured: !f.featured }))}
                 className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
-                style={{
-                  background: form.featured ? '#111827' : '#e5e7eb',
-                  boxShadow: 'none',
-                }}>
+                style={{ background: form.featured ? '#111827' : '#e5e7eb' }}>
                 <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm"
                   style={{ left: form.featured ? '17px' : '1px' }} />
               </div>
-              <span className="text-xs font-semibold uppercase" style={labelStyle}>Destacado</span>
+              <span className="text-xs font-semibold uppercase text-muted-foreground">Destacado</span>
             </label>
           </div>
         </div>
 
         {/* Description */}
-        <div>
-          <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>Descripción Corta</label>
-          <textarea value={form.description}
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">Descripción Corta</Label>
+          <Textarea value={form.description}
             onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
             placeholder="Especificaciones clave del producto..." rows={2}
-            className="input-neon w-full px-3 py-2 rounded-lg text-sm resize-none" />
+            className="resize-none" />
         </div>
 
-        {/* Image upload — multiple */}
-        <div>
-          <label className="block text-xs font-semibold tracking-wider mb-1.5 uppercase" style={labelStyle}>
-            Imágenes del Producto
-            <span className="ml-1.5 normal-case font-normal" style={{ color: 'var(--text-muted)' }}>
-              (hasta 10)
-            </span>
-          </label>
+        {/* Image upload */}
+        <div className="flex flex-col gap-1.5">
+          <Label className="text-xs font-semibold tracking-wider uppercase text-muted-foreground">
+            Imágenes del Producto{' '}
+            <span className="normal-case font-normal text-muted-foreground/60">(hasta 10)</span>
+          </Label>
 
-          {/* Drop zone */}
           <div onDragOver={e => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
@@ -245,36 +240,35 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-4 transition-all duration-200"
             style={{
               border: `2px dashed ${dragging ? '#111827' : 'rgba(0,0,0,0.12)'}`,
-              background: dragging ? 'rgba(0,0,0,0.03)' : 'var(--bg)',
+              background: dragging ? 'rgba(0,0,0,0.03)' : '#f9fafb',
               minHeight: '70px',
             }}>
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFile} />
             {uploadingCount > 0 ? (
               <>
-                <div className="w-5 h-5 rounded-full border-2 animate-spin"
-                  style={{ borderColor: 'rgba(0,0,0,0.12)', borderTopColor: '#111827' }} />
-                <span className="text-xs" style={{ color: '#111827' }}>
+                <div className="w-5 h-5 rounded-full border-2 animate-spin border-border border-t-foreground" />
+                <span className="text-xs text-foreground">
                   Subiendo {uploadingCount} {uploadingCount === 1 ? 'imagen' : 'imágenes'}...
                 </span>
               </>
             ) : (
               <>
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke={dragging ? '#111827' : 'var(--text-muted)'} strokeWidth={1.5}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24"
+                  stroke={dragging ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
                   <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <span className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
+                <span className="text-xs text-center text-muted-foreground">
                   {dragging ? 'Suelta aquí' : 'Arrastra varias imágenes o haz clic'}
                 </span>
               </>
             )}
           </div>
 
-          {/* Image grid previews */}
           {images.length > 0 && (
-            <div className="mt-2 grid grid-cols-3 gap-2">
+            <div className="mt-1 grid grid-cols-3 gap-2">
               {images.map((url, i) => (
                 <div key={url} className="relative rounded-lg overflow-hidden group"
-                  style={{ aspectRatio: '1', background: 'var(--bg)', border: '1px solid var(--border)' }}>
+                  style={{ aspectRatio: '1', background: '#f9fafb', border: '1px solid rgba(0,0,0,0.1)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`img-${i}`} className="w-full h-full object-cover" />
                   {i === 0 && (
@@ -296,48 +290,38 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
 
         {/* Status messages */}
         {saveState === 'loading' && (
-          <div className="rounded-xl overflow-hidden animate-fade-in" style={{ background: 'rgba(0,0,0,0.03)', border: '1px solid rgba(0,0,0,0.15)' }}>
-            <div className="px-3 py-2 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full animate-pulse-neon" style={{ background: '#111827' }} />
-              <span className="text-xs font-bold tracking-widest" style={{ color: '#111827' }}>Publicando en API...</span>
-            </div>
-            <div className="loading-bar" />
+          <div className="rounded-xl px-3 py-2 flex items-center gap-2 bg-muted/40 border">
+            <div className="w-2 h-2 rounded-full animate-pulse bg-foreground" />
+            <span className="text-xs font-bold tracking-widest text-foreground">Publicando en API...</span>
           </div>
         )}
         {saveState === 'success' && (
-          <div className="animate-fade-in-up rounded-xl px-3 py-2.5 flex items-center gap-2"
-            style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}>
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#16a34a" strokeWidth={2.5}>
+          <div className="animate-fade-in-up rounded-xl px-3 py-2.5 flex items-center gap-2 bg-green-50 border border-green-200">
+            <svg className="w-4 h-4 flex-shrink-0 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            <span className="text-xs font-bold" style={{ color: '#16a34a' }}>¡Actualizado en la página principal!</span>
+            <span className="text-xs font-bold text-green-600">¡Actualizado en la página principal!</span>
           </div>
         )}
         {saveState === 'error' && (
-          <div className="animate-fade-in rounded-xl px-3 py-2.5 flex items-center gap-2"
-            style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#dc2626" strokeWidth={2}>
+          <div className="rounded-xl px-3 py-2.5 flex items-center gap-2 bg-destructive/10 border border-destructive/20">
+            <svg className="w-4 h-4 flex-shrink-0 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" strokeLinecap="round" />
             </svg>
-            <span className="text-xs font-bold" style={{ color: '#dc2626' }}>{errorMsg || 'Error al guardar'}</span>
+            <span className="text-xs font-bold text-destructive">{errorMsg || 'Error al guardar'}</span>
           </div>
         )}
 
         {/* Save button */}
-        <button onClick={handleSave} disabled={!isValid || saveState !== 'idle'}
-          className="w-full py-3 rounded-xl font-black text-sm tracking-widest uppercase transition-all duration-200"
-          style={{
-            background: !isValid || saveState !== 'idle' ? '#f3f4f6' : '#111827',
-            border: `1px solid ${!isValid || saveState !== 'idle' ? 'var(--border)' : '#111827'}`,
-            color: !isValid || saveState !== 'idle' ? 'var(--text-muted)' : '#fff',
-            boxShadow: isValid && saveState === 'idle' ? '0 4px 16px rgba(0,0,0,0.15)' : 'none',
-            cursor: !isValid || saveState !== 'idle' ? 'not-allowed' : 'pointer',
-          }}>
-          {uploadingCount > 0 ? `Esperando imágenes...` :
+        <Button
+          onClick={handleSave}
+          disabled={!isValid || saveState !== 'idle'}
+          className="w-full uppercase tracking-widest text-sm font-black">
+          {uploadingCount > 0 ? 'Esperando imágenes...' :
             saveState === 'loading' ? 'Publicando...' :
             saveState === 'success' ? '✓ Publicado con éxito' :
             'Guardar y publicar'}
-        </button>
+        </Button>
 
       </div>
     </div>

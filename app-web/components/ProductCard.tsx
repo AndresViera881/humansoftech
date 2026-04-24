@@ -8,6 +8,10 @@ import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cart-context';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -55,21 +59,18 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         <div className="relative flex items-center justify-center p-5 overflow-hidden"
           style={{ background: '#f8faff', height: '200px', borderBottom: '1px solid var(--border)' }}>
           {product.badge && !isNew && (
-            <span className="badge absolute top-3 left-3 z-10"
-              style={{ background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a' }}>
+            <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
               ⭐ {product.badge}
-            </span>
+            </Badge>
           )}
           {isNew && (
-            <span className="badge absolute top-3 left-3 z-10"
-              style={{ background: '#dcfce7', color: '#16a34a', border: '1px solid #bbf7d0' }}>
+            <Badge className="absolute top-3 left-3 z-10 bg-green-50 text-green-600 border-green-200 hover:bg-green-50">
               ✨ Nuevo
-            </span>
+            </Badge>
           )}
-          <span className="badge absolute top-3 right-3 z-10"
-            style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe' }}>
+          <Badge variant="outline" className="absolute top-3 right-3 z-10 bg-blue-50 text-blue-600 border-blue-200">
             {product.category}
-          </span>
+          </Badge>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={images[0]} alt={product.name}
             className="object-contain transition-transform duration-300 group-hover:scale-105"
@@ -86,14 +87,14 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         </div>
 
         <div className="flex flex-col flex-1 p-4 gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {product.category}
           </p>
-          <h3 className="font-bold text-base leading-snug" style={{ color: 'var(--text)', lineHeight: '1.35' }}>
+          <h3 className="font-bold text-base leading-snug text-foreground" style={{ lineHeight: '1.35' }}>
             {product.name}
           </h3>
-          <p className="text-sm flex-1" style={{
-            color: 'var(--text-secondary)', lineHeight: '1.6',
+          <p className="text-sm flex-1 text-muted-foreground" style={{
+            lineHeight: '1.6',
             display: '-webkit-box', WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '64px',
           }}>
@@ -102,35 +103,30 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         </div>
 
         <div className="px-4 pb-4 flex flex-col gap-2">
-          <button
+          <Button
             onClick={handleAddToCart}
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200"
-            style={{
-              background: added ? '#16a34a' : '#111827',
-              boxShadow: added ? '0 4px 14px rgba(22,163,74,0.25)' : '0 2px 8px rgba(0,0,0,0.18)',
-            }}>
+            className={`w-full transition-all duration-200 ${added ? 'bg-green-600 hover:bg-green-700' : ''}`}>
             {added ? (
               <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 ¡Agregado!
               </>
             ) : (
               <>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Agregar al carrito
               </>
             )}
-          </button>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-semibold transition-all duration-200"
-            style={{ background: '#fff', color: '#15803d', border: '1.5px solid rgba(22,163,74,0.35)' }}
-            onClick={e => e.stopPropagation()}>
-            {WA_ICON}
-            Consultar por WhatsApp
+          </Button>
+          <a href={waUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
+            <Button variant="outline" className="w-full text-green-700 border-green-200 bg-white hover:bg-green-50 hover:text-green-800">
+              {WA_ICON}
+              <span className="ml-2">Consultar por WhatsApp</span>
+            </Button>
           </a>
         </div>
       </div>
@@ -148,161 +144,126 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
       />
 
       {/* ── Detail modal ── */}
-      {detailOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(6px)' }}
-        >
-          <div
-            className="w-full flex flex-col"
-            style={{
-              maxWidth: '480px',
-              height: '350px',
-              background: '#fff',
-              borderRadius: '20px',
-              boxShadow: '0 20px 60px rgba(0,0,0,0.22)',
-              overflow: 'hidden',
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Top accent */}
+      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
+        <DialogContent className="max-w-[480px] flex flex-col p-0 gap-0 h-[350px]" onClick={e => e.stopPropagation()}>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid #f3f4f6', flexShrink: 0 }}>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="badge" style={{ background: '#eff6ff', color: '#2563eb', border: '1px solid #bfdbfe', fontWeight: 700 }}>
-                  {product.category}
-                </span>
-                {product.condition && (
-                  <span className="badge" style={{
-                    background: product.condition === 'nuevo' ? '#dcfce7' : '#fffbeb',
-                    color: product.condition === 'nuevo' ? '#15803d' : '#b45309',
-                    border: `1px solid ${product.condition === 'nuevo' ? '#bbf7d0' : '#fde68a'}`,
-                    fontWeight: 700,
-                  }}>
-                    {product.condition === 'nuevo' ? 'Nuevo' : 'Seminuevo'}
-                  </span>
-                )}
-                {product.badge && (
-                  <span className="badge" style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', fontWeight: 700 }}>
-                    ⭐ {product.badge}
-                  </span>
-                )}
-              </div>
-              <button
-                onClick={() => setDetailOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0"
-                style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
-
-              {/* Image */}
-              <div
-                className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in"
-                style={{ height: '100px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb', flexShrink: 0 }}
-                onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={images[activeImg]}
-                  alt={product.name}
-                  className="object-contain"
-                  style={{ maxHeight: '80px', maxWidth: '88%', mixBlendMode: 'multiply' }}
-                />
-                <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs"
-                  style={{ background: 'rgba(255,255,255,0.88)', color: '#6b7280', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}>
-                  <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
-                  </svg>
-                  Ampliar
-                </span>
-              </div>
-
-              {/* Thumbnails */}
-              {images.length > 1 && (
-                <div className="flex gap-2 overflow-x-auto">
-                  {images.map((src, i) => (
-                    <button key={i} onClick={() => setActiveImg(i)}
-                      className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-150"
-                      style={{
-                        width: '52px', height: '52px',
-                        border: `2px solid ${i === activeImg ? '#2563eb' : '#e5e7eb'}`,
-                        background: '#f8faff',
-                        opacity: i === activeImg ? 1 : 0.6,
-                      }}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={src} alt="" className="w-full h-full object-contain p-1" style={{ mixBlendMode: 'multiply' }} />
-                    </button>
-                  ))}
-                </div>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-3 border-b flex-shrink-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 font-bold">
+                {product.category}
+              </Badge>
+              {product.condition && (
+                <Badge variant="outline" className={product.condition === 'nuevo'
+                  ? 'bg-green-50 text-green-700 border-green-200 font-bold'
+                  : 'bg-amber-50 text-amber-700 border-amber-200 font-bold'}>
+                  {product.condition === 'nuevo' ? 'Nuevo' : 'Seminuevo'}
+                </Badge>
               )}
-
-              {/* Name + price */}
-              <div className="flex items-start justify-between gap-3">
-                <h2 className="text-base font-black leading-tight flex-1" style={{ color: '#111827' }}>
-                  {product.name}
-                </h2>
-                {product.price > 0 && (
-                  <div className="flex-shrink-0 text-right">
-                    <p className="text-2xl font-black" style={{ color: '#2563eb', letterSpacing: '-0.5px' }}>
-                      ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div style={{ height: '1px', background: '#f3f4f6' }} />
-
-              {/* Description */}
-              {product.description && (
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: '#2563eb' }}>
-                    Descripción
-                  </p>
-                  <p className="text-sm whitespace-pre-line" style={{ color: '#4b5563', lineHeight: '1.75' }}>
-                    {product.description}
-                  </p>
-                </div>
+              {product.badge && (
+                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 font-bold">
+                  ⭐ {product.badge}
+                </Badge>
               )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 py-3 flex gap-3" style={{ borderTop: '1px solid #f3f4f6', flexShrink: 0 }}>
-              <button
-                onClick={handleAddToCart}
-                title={added ? '¡Agregado!' : 'Agregar al carrito'}
-                className="flex-1 flex items-center justify-center py-3 rounded-xl text-white transition-all duration-200"
-                style={{
-                  background: added ? '#16a34a' : '#111827',
-                  boxShadow: added ? '0 4px 14px rgba(22,163,74,0.25)' : '0 2px 8px rgba(0,0,0,0.18)',
-                }}>
-                {added ? (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                )}
-              </button>
-              <a href={waUrl} target="_blank" rel="noopener noreferrer"
-                title="Consultar por WhatsApp"
-                className="flex-1 flex items-center justify-center py-3 rounded-xl transition-all duration-200"
-                style={{ background: '#fff', color: '#15803d', border: '1.5px solid rgba(22,163,74,0.35)' }}>
-                {WA_ICON}
-              </a>
             </div>
           </div>
-        </div>
-      )}
+
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
+
+            {/* Image */}
+            <div
+              className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in flex-shrink-0"
+              style={{ height: '100px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb' }}
+              onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={images[activeImg]}
+                alt={product.name}
+                className="object-contain"
+                style={{ maxHeight: '80px', maxWidth: '88%', mixBlendMode: 'multiply' }}
+              />
+              <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-white/90 text-muted-foreground shadow-sm">
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
+                </svg>
+                Ampliar
+              </span>
+            </div>
+
+            {/* Thumbnails */}
+            {images.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto">
+                {images.map((src, i) => (
+                  <button key={i} onClick={() => setActiveImg(i)}
+                    className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-150"
+                    style={{
+                      width: '52px', height: '52px',
+                      border: `2px solid ${i === activeImg ? '#2563eb' : '#e5e7eb'}`,
+                      background: '#f8faff',
+                      opacity: i === activeImg ? 1 : 0.6,
+                    }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt="" className="w-full h-full object-contain p-1" style={{ mixBlendMode: 'multiply' }} />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Name + price */}
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-base font-black leading-tight flex-1 text-foreground">
+                {product.name}
+              </h2>
+              {product.price > 0 && (
+                <div className="flex-shrink-0 text-right">
+                  <p className="text-2xl font-black text-blue-600" style={{ letterSpacing: '-0.5px' }}>
+                    ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Description */}
+            {product.description && (
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2 text-blue-600">
+                  Descripción
+                </p>
+                <p className="text-sm whitespace-pre-line text-muted-foreground" style={{ lineHeight: '1.75' }}>
+                  {product.description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Footer */}
+          <div className="px-5 py-3 flex gap-3 border-t flex-shrink-0">
+            <Button
+              onClick={handleAddToCart}
+              className={`flex-1 transition-all duration-200 ${added ? 'bg-green-600 hover:bg-green-700' : ''}`}
+              title={added ? '¡Agregado!' : 'Agregar al carrito'}>
+              {added ? (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              )}
+            </Button>
+            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+              <Button variant="outline" className="w-full text-green-700 border-green-200 hover:bg-green-50" title="Consultar por WhatsApp">
+                {WA_ICON}
+              </Button>
+            </a>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -1,6 +1,10 @@
 'use client';
 
-import { Slider } from "./ui/slider";
+import { Slider } from '@/components/ui/slider';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 interface FilterPanelProps {
   categoryNames: string[];
@@ -10,7 +14,6 @@ interface FilterPanelProps {
   onPriceChange: (range: [number, number]) => void;
   conditions: ('nuevo' | 'seminuevo')[];
   onConditionsChange: (conditions: ('nuevo' | 'seminuevo')[]) => void;
-  // mobile drawer
   mobileOpen?: boolean;
   onMobileClose?: () => void;
 }
@@ -30,7 +33,7 @@ export default function FilterPanel({
     <div className="flex flex-col gap-4 p-4 h-full overflow-y-auto">
       {/* Categories */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest mb-2.5" style={{ color: 'var(--primary)' }}>
+        <h3 className="text-xs font-semibold uppercase tracking-widest mb-2.5 text-primary">
           Categorías
         </h3>
         <div className="flex flex-col gap-0.5">
@@ -49,99 +52,68 @@ export default function FilterPanel({
         </div>
       </div>
 
-      <div style={{ height: '1px', background: 'var(--border)' }} />
+      <Separator />
 
       {/* Price range */}
       <div>
-        <h3
-          className="text-xs font-semibold uppercase tracking-widest mb-3"
-          style={{ color: "var(--primary)" }}
-        >
+        <h3 className="text-xs font-semibold uppercase tracking-widest mb-3 text-primary">
           Rango de Precio
         </h3>
-
-        <div
-          className="rounded-xl p-4"
-          style={{
-            background: "#fff",
-            border: "1px solid var(--border)",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
-          }}
-        >
-          {/* Min y Max */}
+        <div className="rounded-xl p-4 bg-white border shadow-sm">
           <div className="flex justify-between mb-4">
             <div>
-              <p
-                className="text-xs"
-                style={{ color: "var(--text-muted)" }}
-              >
-                Min
-              </p>
-              <p className="font-bold text-green-600">
-                ${priceRange[0].toLocaleString()}
-              </p>
+              <p className="text-xs text-muted-foreground">Min</p>
+              <p className="font-bold text-green-600">${priceRange[0].toLocaleString()}</p>
             </div>
-
             <div className="text-right">
-              <p
-                className="text-xs"
-                style={{ color: "var(--text-muted)" }}
-              >
-                Max
-              </p>
-              <p className="font-bold text-green-600">
-                ${priceRange[1].toLocaleString()}
-              </p>
+              <p className="text-xs text-muted-foreground">Max</p>
+              <p className="font-bold text-green-600">${priceRange[1].toLocaleString()}</p>
             </div>
           </div>
-
-          {/* Slider doble */}
           <Slider
             min={0}
             max={3000}
             step={50}
             value={priceRange}
-            onValueChange={(value) =>
-              onPriceChange(value as [number, number])
-            }
+            onValueChange={(value) => onPriceChange(value as [number, number])}
             className="w-full"
           />
-
-          <div
-            className="flex justify-between text-xs mt-3"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <div className="flex justify-between text-xs mt-3 text-muted-foreground">
             <span>$0</span>
             <span>$3000+</span>
           </div>
         </div>
       </div>
 
-      <div style={{ height: '1px', background: 'var(--border)' }} />
+      <Separator />
 
       {/* Condition */}
       <div>
-        <h3 className="text-xs font-semibold uppercase tracking-widest mb-2.5" style={{ color: 'var(--primary)' }}>Condición</h3>
-        <div className="flex flex-col gap-1.5">
+        <h3 className="text-xs font-semibold uppercase tracking-widest mb-2.5 text-primary">Condición</h3>
+        <div className="flex flex-col gap-2">
           {([
             { value: 'nuevo', label: 'Nuevo' },
             { value: 'seminuevo', label: 'Seminuevo' },
           ] as { value: 'nuevo' | 'seminuevo'; label: string }[]).map(({ value, label }) => (
-            <label key={value} className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={conditions.includes(value)} onChange={() => toggleCondition(value)}
-                style={{ accentColor: '#2563eb', width: '14px', height: '14px' }} />
-              <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
-            </label>
+            <div key={value} className="flex items-center gap-2">
+              <Checkbox
+                id={`condition-${value}`}
+                checked={conditions.includes(value)}
+                onCheckedChange={() => toggleCondition(value)}
+              />
+              <label htmlFor={`condition-${value}`} className="text-sm font-medium cursor-pointer text-muted-foreground">
+                {label}
+              </label>
+            </div>
           ))}
         </div>
       </div>
 
-      <div style={{ height: '1px', background: 'var(--border)' }} />
+      <Separator />
 
-      <div className="rounded-xl p-3 text-center"
-        style={{ background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(22,163,74,0.16)' }}>
+      <div className="rounded-xl p-3 text-center bg-green-50 border border-green-100">
         <div className="text-base mb-1">🚀</div>
-        <div className="text-xs font-bold" style={{ color: '#16a34a' }}>Envíos a todo el país</div>
+        <div className="text-xs font-bold text-green-700">Envíos a todo el país</div>
       </div>
     </div>
   );
@@ -149,34 +121,19 @@ export default function FilterPanel({
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-52 flex-shrink-0 flex-col"
-        style={{ background: '#fff', borderRight: '1px solid var(--border)' }}>
+      <aside className="hidden md:flex w-52 flex-shrink-0 flex-col bg-white border-r">
         {content}
       </aside>
 
-      {/* Mobile drawer overlay */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-40 md:hidden" onClick={onMobileClose}
-          style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)' }}>
-          <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] flex flex-col"
-            style={{ background: '#fff', boxShadow: '4px 0 24px rgba(0,0,0,0.15)' }}
-            onClick={e => e.stopPropagation()}>
-            {/* Drawer header */}
-            <div className="flex items-center justify-between px-4 py-4"
-              style={{ borderBottom: '1px solid var(--border)' }}>
-              <h2 className="text-sm font-bold" style={{ color: 'var(--text)' }}>Filtros</h2>
-              <button onClick={onMobileClose}
-                className="w-8 h-8 flex items-center justify-center rounded-lg"
-                style={{ background: 'var(--bg)', color: 'var(--text-muted)' }}>
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            {content}
-          </div>
-        </div>
-      )}
+      {/* Mobile drawer using Sheet */}
+      <Sheet open={mobileOpen} onOpenChange={open => !open && onMobileClose?.()}>
+        <SheetContent side="left" className="w-72 max-w-[85vw] p-0">
+          <SheetHeader className="px-4 py-4 border-b">
+            <SheetTitle className="text-sm font-bold">Filtros</SheetTitle>
+          </SheetHeader>
+          {content}
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

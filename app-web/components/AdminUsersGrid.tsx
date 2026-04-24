@@ -4,6 +4,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { api, ApiUser, ApiRole } from '@/lib/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type CropArea = { x: number; y: number; width: number; height: number };
 
@@ -16,8 +23,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: CropArea): Promise<Bl
   });
   const canvas = document.createElement('canvas');
   const SIZE = 400;
-  canvas.width = SIZE;
-  canvas.height = SIZE;
+  canvas.width = SIZE; canvas.height = SIZE;
   const ctx = canvas.getContext('2d')!;
   ctx.drawImage(img, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, SIZE, SIZE);
   return new Promise<Blob>((resolve, reject) =>
@@ -26,10 +32,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: CropArea): Promise<Bl
 }
 
 function PhotoCropper({ src, onConfirm, onCancel, uploading }: {
-  src: string;
-  onConfirm: (blob: Blob) => void;
-  onCancel: () => void;
-  uploading: boolean;
+  src: string; onConfirm: (blob: Blob) => void; onCancel: () => void; uploading: boolean;
 }) {
   const [crop, setCrop] = useState({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
@@ -47,56 +50,33 @@ function PhotoCropper({ src, onConfirm, onCancel, uploading }: {
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      <p className="text-xs font-semibold text-center" style={{ color: '#6b7280' }}>
+      <p className="text-xs font-semibold text-center text-muted-foreground">
         Arrastra y ajusta el zoom para encuadrar el rostro
       </p>
-
-      {/* Crop canvas */}
       <div style={{ position: 'relative', width: '100%', height: '240px', borderRadius: '12px', overflow: 'hidden', background: '#111' }}>
-        <Cropper
-          image={src}
-          crop={crop}
-          zoom={zoom}
-          aspect={1}
-          cropShape="round"
-          showGrid={false}
-          onCropChange={setCrop}
-          onZoomChange={setZoom}
-          onCropComplete={onCropComplete}
-        />
+        <Cropper image={src} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false}
+          onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onCropComplete} />
       </div>
-
-      {/* Zoom slider */}
       <div className="flex items-center gap-3 px-1">
-        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={2}>
+        <svg className="w-3.5 h-3.5 flex-shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
         </svg>
-        <input
-          type="range" min={1} max={3} step={0.05} value={zoom}
-          onChange={e => setZoom(Number(e.target.value))}
-          className="flex-1" style={{ accentColor: '#111827' }}
-        />
-        <svg className="w-4.5 h-4.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#9ca3af" strokeWidth={2}>
+        <input type="range" min={1} max={3} step={0.05} value={zoom}
+          onChange={e => setZoom(Number(e.target.value))} className="flex-1" style={{ accentColor: '#111827' }} />
+        <svg className="w-4 h-4 flex-shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 3a9 9 0 110 18 9 9 0 010-18z" />
         </svg>
       </div>
-
       <div className="flex gap-2 w-full">
-        <button type="button" onClick={onCancel}
-          className="flex-1 py-2 rounded-xl text-xs font-semibold"
-          style={{ background: '#f3f4f6', color: '#6b7280' }}>
-          Cambiar foto
-        </button>
-        <button type="button" onClick={confirm} disabled={uploading}
-          className="flex-1 py-2 rounded-xl text-xs font-bold text-white"
-          style={{ background: uploading ? 'rgba(0,0,0,0.5)' : '#111827' }}>
+        <Button variant="outline" type="button" className="flex-1" onClick={onCancel}>Cambiar foto</Button>
+        <Button type="button" className="flex-1" onClick={confirm} disabled={uploading}>
           {uploading ? (
-            <span className="flex items-center justify-center gap-1.5">
-              <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-3 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
               Subiendo...
             </span>
           ) : 'Confirmar recorte'}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -105,18 +85,12 @@ function PhotoCropper({ src, onConfirm, onCancel, uploading }: {
 type ModalMode = 'create' | 'edit';
 
 interface UserForm {
-  name: string;
-  email: string;
-  password: string;
-  roleId: string;
-  active: boolean;
-  photo: string;
-  cedula: string;
+  name: string; email: string; password: string; roleId: string; active: boolean; photo: string; cedula: string;
 }
 
 const EMPTY_FORM: UserForm = { name: '', email: '', password: '', roleId: '', active: true, photo: '', cedula: '' };
 
-function Avatar({ user, size = 36 }: { user: ApiUser; size?: number }) {
+function UserAvatar({ user, size = 36 }: { user: ApiUser; size?: number }) {
   if (user.photo) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
@@ -167,26 +141,17 @@ export default function AdminUsersGrid() {
 
   function openCreate() {
     setForm({ ...EMPTY_FORM, roleId: roles[0]?.id ?? '' });
-    setEditingId(null);
-    setModalMode('create');
-    setFormError('');
-    setCropSrc(null);
-    setModalOpen(true);
+    setEditingId(null); setModalMode('create'); setFormError(''); setCropSrc(null); setModalOpen(true);
   }
 
   function openEdit(user: ApiUser) {
     setForm({ name: user.name, email: user.email, password: '', roleId: user.role.id, active: user.active, photo: user.photo ?? '', cedula: user.cedula ?? '' });
-    setEditingId(user.id);
-    setModalMode('edit');
-    setFormError('');
-    setCropSrc(null);
-    setModalOpen(true);
+    setEditingId(user.id); setModalMode('edit'); setFormError(''); setCropSrc(null); setModalOpen(true);
   }
 
   function loadPhotoForCrop(file: File) {
     if (!file.type.startsWith('image/')) return;
-    const preview = URL.createObjectURL(file);
-    setCropSrc(preview);
+    setCropSrc(URL.createObjectURL(file));
   }
 
   async function handleCropConfirm(blob: Blob) {
@@ -198,9 +163,7 @@ export default function AdminUsersGrid() {
       setCropSrc(null);
     } catch {
       setFormError('Error al subir la foto');
-    } finally {
-      setUploadingPhoto(false);
-    }
+    } finally { setUploadingPhoto(false); }
   }
 
   function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -210,8 +173,7 @@ export default function AdminUsersGrid() {
   }
 
   function handlePhotoDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setDraggingPhoto(false);
+    e.preventDefault(); setDraggingPhoto(false);
     const file = e.dataTransfer.files?.[0];
     if (file) loadPhotoForCrop(file);
   }
@@ -233,9 +195,7 @@ export default function AdminUsersGrid() {
       setModalOpen(false);
     } catch (e: unknown) {
       setFormError(e instanceof Error ? e.message : 'Error al guardar');
-    } finally {
-      setSaving(false);
-    }
+    } finally { setSaving(false); }
   }
 
   async function handleDelete() {
@@ -247,83 +207,81 @@ export default function AdminUsersGrid() {
       setDeleteId(null);
     } catch (e: unknown) {
       setDeleteError(e instanceof Error ? e.message : 'Error al eliminar usuario');
-    } finally {
-      setDeleting(false);
-    }
+    } finally { setDeleting(false); }
   }
 
   if (loading) return (
     <div className="flex items-center justify-center py-24">
-      <div className="w-8 h-8 rounded-full border-2 animate-spin" style={{ borderColor: '#111827', borderTopColor: 'transparent' }} />
+      <div className="w-8 h-8 rounded-full border-2 animate-spin border-border border-t-foreground" />
     </div>
   );
 
-  if (error) return <p className="text-center py-16 text-sm" style={{ color: '#ef4444' }}>{error}</p>;
+  if (error) return <p className="text-center py-16 text-sm text-destructive">{error}</p>;
 
   return (
     <>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text)' }}>Usuarios</h2>
-          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>{users.length} usuario{users.length !== 1 ? 's' : ''} registrado{users.length !== 1 ? 's' : ''}</p>
+          <h2 className="text-lg font-bold">Usuarios</h2>
+          <p className="text-sm text-muted-foreground">{users.length} usuario{users.length !== 1 ? 's' : ''} registrado{users.length !== 1 ? 's' : ''}</p>
         </div>
-        <button onClick={openCreate}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90"
-          style={{ background: '#111827' }}>
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+        <Button onClick={openCreate}>
+          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Nuevo usuario
-        </button>
+        </Button>
       </div>
 
-      {/* ── Desktop table (sm+) ── */}
-      <div className="hidden sm:block rounded-2xl overflow-hidden" style={{ background: '#fff', border: '1px solid var(--border)', boxShadow: '0 2px 16px rgba(0,0,0,0.04)' }}>
+      {/* Desktop table */}
+      <div className="hidden sm:block rounded-2xl overflow-hidden bg-white border shadow-sm">
         <div style={{ height: '3px', background: 'linear-gradient(90deg, #111827, #374151)' }} />
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}>
+              <tr className="bg-muted/40 border-b">
                 {['Colaborador', 'Cédula', 'Email', 'Rol', 'Estado', 'Creado', 'Acciones'].map(h => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>{h}</th>
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {users.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm" style={{ color: 'var(--text-muted)' }}>No hay usuarios registrados</td></tr>
+                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">No hay usuarios registrados</td></tr>
               )}
               {users.map((user, i) => (
                 <tr key={user.id} style={{ borderBottom: i < users.length - 1 ? '1px solid var(--border)' : 'none' }}
-                  className="transition-colors hover:bg-blue-50/30">
+                  className="transition-colors hover:bg-muted/20">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <button onClick={() => setViewUser(user)} className="flex-shrink-0 hover:opacity-80 transition-opacity">
-                        <Avatar user={user} size={36} />
+                        <UserAvatar user={user} size={36} />
                       </button>
-                      <span className="font-medium" style={{ color: 'var(--text)' }}>{user.name}</span>
+                      <span className="font-medium">{user.name}</span>
                     </div>
                   </td>
                   <td className="px-4 py-3">
                     {user.cedula
-                      ? <span className="font-mono text-xs px-2 py-1 rounded-lg" style={{ background: '#f3f4f6', color: '#374151' }}>{user.cedula}</span>
-                      : <span style={{ color: '#d1d5db' }}>—</span>}
+                      ? <span className="font-mono text-xs px-2 py-1 rounded-lg bg-muted text-foreground/70">{user.cedula}</span>
+                      : <span className="text-muted-foreground/40">—</span>}
                   </td>
-                  <td className="px-4 py-3" style={{ color: 'var(--text-secondary)' }}>{user.email}</td>
+                  <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
                   <td className="px-4 py-3">
-                    <span className="badge" style={{ background: '#f3f4f6', color: '#111827', border: '1px solid rgba(0,0,0,0.1)' }}>{user.role.name}</span>
+                    <Badge variant="secondary">{user.role.name}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="badge" style={{ background: user.active ? '#dcfce7' : '#f3f4f6', color: user.active ? '#16a34a' : '#6b7280', border: `1px solid ${user.active ? '#bbf7d0' : '#e5e7eb'}` }}>
+                    <Badge variant={user.active ? 'default' : 'secondary'}
+                      className={user.active ? 'bg-green-100 text-green-700 hover:bg-green-100' : ''}>
                       {user.active ? 'Activo' : 'Inactivo'}
-                    </span>
+                    </Badge>
                   </td>
-                  <td className="px-4 py-3 text-xs" style={{ color: 'var(--text-muted)' }}>{new Date(user.createdAt).toLocaleDateString('es-EC')}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">{new Date(user.createdAt).toLocaleDateString('es-EC')}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => openEdit(user)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'rgba(0,0,0,0.05)', color: '#111827' }}>Editar</button>
-                      <button onClick={() => setDeleteId(user.id)} className="px-3 py-1.5 rounded-lg text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}>Eliminar</button>
+                      <Button variant="outline" size="sm" className="h-7 text-xs" onClick={() => openEdit(user)}>Editar</Button>
+                      <Button variant="ghost" size="sm" className="h-7 text-xs text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeleteId(user.id)}>Eliminar</Button>
                     </div>
                   </td>
                 </tr>
@@ -333,75 +291,68 @@ export default function AdminUsersGrid() {
         </div>
       </div>
 
-      {/* ── Mobile accordion (xs only) ── */}
+      {/* Mobile accordion */}
       <div className="flex sm:hidden flex-col gap-2">
         {users.length === 0 ? (
-          <div className="flex items-center justify-center py-14 rounded-2xl text-sm" style={{ background: '#fff', border: '1px solid var(--border)', color: 'var(--text-muted)' }}>
+          <div className="flex items-center justify-center py-14 rounded-2xl text-sm bg-white border text-muted-foreground">
             No hay usuarios registrados
           </div>
         ) : users.map(user => {
           const isOpen = expandedId === user.id;
           return (
-            <div key={user.id} className="rounded-2xl overflow-hidden"
-              style={{ background: '#fff', border: '1px solid var(--border)', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-
-              {/* Header */}
+            <div key={user.id} className="rounded-2xl overflow-hidden bg-white border shadow-sm">
               <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
                 onClick={() => setExpandedId(isOpen ? null : user.id)}>
                 <button onClick={e => { e.stopPropagation(); setViewUser(user); }} className="flex-shrink-0 hover:opacity-80 transition-opacity">
-                  <Avatar user={user} size={38} />
+                  <UserAvatar user={user} size={38} />
                 </button>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate" style={{ color: 'var(--text)' }}>{user.name}</p>
+                  <p className="text-sm font-semibold truncate">{user.name}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="badge" style={{ background: '#f3f4f6', color: '#111827', border: '1px solid rgba(0,0,0,0.1)', fontSize: '10px' }}>{user.role.name}</span>
-                    <span className="badge" style={{ background: user.active ? '#dcfce7' : '#f3f4f6', color: user.active ? '#16a34a' : '#6b7280', border: `1px solid ${user.active ? '#bbf7d0' : '#e5e7eb'}`, fontSize: '10px' }}>
+                    <Badge variant="secondary" className="text-[10px] h-4">{user.role.name}</Badge>
+                    <Badge variant={user.active ? 'default' : 'secondary'}
+                      className={`text-[10px] h-4 ${user.active ? 'bg-green-100 text-green-700 hover:bg-green-100' : ''}`}>
                       {user.active ? 'Activo' : 'Inactivo'}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
-                <svg className="w-4 h-4 flex-shrink-0 transition-transform duration-200"
-                  style={{ color: 'var(--text-muted)', transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                <svg className={`w-4 h-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                   fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </button>
 
-              {/* Body */}
               {isOpen && (
-                <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid var(--border)' }}>
+                <div className="px-4 pb-4 flex flex-col gap-3 border-t">
                   <div className="grid grid-cols-2 gap-2 pt-3">
                     {[
                       { label: 'Cédula', value: user.cedula ?? '—', mono: true },
                       { label: 'Creado', value: new Date(user.createdAt).toLocaleDateString('es-EC') },
                     ].map(({ label, value, mono }) => (
-                      <div key={label} className="rounded-xl px-3 py-2" style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}>
-                        <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>{label}</p>
-                        <p className={`text-sm font-bold truncate ${mono ? 'font-mono' : ''}`} style={{ color: 'var(--text)' }}>{value}</p>
+                      <div key={label} className="rounded-xl px-3 py-2 bg-muted/40 border">
+                        <p className="text-xs font-semibold uppercase tracking-wider mb-0.5 text-muted-foreground">{label}</p>
+                        <p className={`text-sm font-bold truncate ${mono ? 'font-mono' : ''}`}>{value}</p>
                       </div>
                     ))}
                   </div>
-                  <div className="rounded-xl px-3 py-2" style={{ background: 'var(--bg)', border: '1px solid var(--border)' }}>
-                    <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: 'var(--text-muted)' }}>Email</p>
-                    <p className="text-sm truncate" style={{ color: 'var(--text-secondary)' }}>{user.email}</p>
+                  <div className="rounded-xl px-3 py-2 bg-muted/40 border">
+                    <p className="text-xs font-semibold uppercase tracking-wider mb-0.5 text-muted-foreground">Email</p>
+                    <p className="text-sm truncate text-muted-foreground">{user.email}</p>
                   </div>
                   <div className="flex gap-2 pt-1">
-                    <button onClick={() => openEdit(user)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: 'rgba(0,0,0,0.05)', border: '1px solid rgba(0,0,0,0.12)', color: '#111827' }}>
+                    <Button variant="outline" className="flex-1 gap-1.5" onClick={() => openEdit(user)}>
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                       Editar
-                    </button>
-                    <button onClick={() => setDeleteId(user.id)}
-                      className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold"
-                      style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444' }}>
+                    </Button>
+                    <Button variant="ghost" className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => setDeleteId(user.id)}>
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                       Eliminar
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -411,269 +362,176 @@ export default function AdminUsersGrid() {
       </div>
 
       {/* Create / Edit Modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="w-full rounded-2xl overflow-hidden overflow-y-auto"
-            style={{ maxWidth: '520px', maxHeight: '90vh', background: '#fff', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-base font-bold" style={{ color: 'var(--text)' }}>
-                  {modalMode === 'create' ? 'Nuevo colaborador' : 'Editar colaborador'}
-                </h3>
-                <button onClick={() => setModalOpen(false)}
-                  className="w-7 h-7 flex items-center justify-center rounded-full transition-colors"
-                  style={{ background: '#f3f4f6', color: '#9ca3af' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#e5e7eb'; e.currentTarget.style.color = '#374151'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#9ca3af'; }}>
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+      <Dialog open={modalOpen} onOpenChange={open => !open && setModalOpen(false)}>
+        <DialogContent className="sm:max-w-[520px] overflow-y-auto max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>{modalMode === 'create' ? 'Nuevo colaborador' : 'Editar colaborador'}</DialogTitle>
+          </DialogHeader>
+
+          {/* Photo upload */}
+          <div className="flex flex-col gap-1.5">
+            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Foto del colaborador</Label>
+
+            {cropSrc ? (
+              <div className="flex flex-col items-center p-4 rounded-xl bg-muted/40 border">
+                <PhotoCropper src={cropSrc} onConfirm={handleCropConfirm}
+                  onCancel={() => { setCropSrc(null); URL.revokeObjectURL(cropSrc); }} uploading={uploadingPhoto} />
               </div>
-
-              {/* Photo upload */}
-              <div className="mb-5">
-                <label className="block text-xs font-semibold mb-1.5 uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                  Foto del colaborador
-                </label>
-
-                {cropSrc ? (
-                  /* Drag-to-reposition cropper */
-                  <div className="flex flex-col items-center p-4 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                    <PhotoCropper
-                      src={cropSrc}
-                      onConfirm={handleCropConfirm}
-                      onCancel={() => { setCropSrc(null); URL.revokeObjectURL(cropSrc); }}
-                      uploading={uploadingPhoto}
-                    />
-                  </div>
-                ) : form.photo ? (
-                  /* Preview — click to re-crop */
-                  <div className="flex items-center gap-4 p-4 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #e5e7eb' }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={form.photo} alt="Foto"
-                      className="rounded-full object-cover flex-shrink-0"
-                      style={{ width: 72, height: 72, border: '3px solid #111827' }} />
-                    <div className="flex flex-col gap-2">
-                      <p className="text-xs font-semibold" style={{ color: '#111827' }}>Foto cargada</p>
-                      <button type="button" onClick={() => photoInputRef.current?.click()}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold"
-                        style={{ background: 'rgba(0,0,0,0.05)', color: '#111827', border: '1px solid rgba(0,0,0,0.12)' }}>
-                        Cambiar foto
-                      </button>
-                      <button type="button" onClick={() => setForm(f => ({ ...f, photo: '' }))}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold"
-                        style={{ background: 'rgba(239,68,68,0.07)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.2)' }}>
-                        Eliminar foto
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* Drop zone */
-                  <div
-                    onDragOver={e => { e.preventDefault(); setDraggingPhoto(true); }}
-                    onDragLeave={() => setDraggingPhoto(false)}
-                    onDrop={handlePhotoDrop}
-                    onClick={() => photoInputRef.current?.click()}
-                    className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-8 transition-all duration-200"
-                    style={{
-                      border: `2px dashed ${draggingPhoto ? '#111827' : '#d1d5db'}`,
-                      background: draggingPhoto ? 'rgba(0,0,0,0.03)' : '#f9fafb',
-                      minHeight: '100px',
-                    }}>
-                    <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24"
-                      stroke={draggingPhoto ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    <span className="text-xs text-center" style={{ color: '#9ca3af' }}>
-                      {draggingPhoto ? 'Suelta aquí' : 'Arrastra la foto o haz clic para seleccionar'}
-                    </span>
-                    <span className="text-xs" style={{ color: '#d1d5db' }}>JPG, PNG — recomendado cuadrada</span>
-                  </div>
-                )}
-                <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Nombre completo</span>
-                  <input className="input" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nombre completo" />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Cédula de identidad</span>
-                  <input className="input" value={form.cedula} onChange={e => setForm(f => ({ ...f, cedula: e.target.value }))}
-                    placeholder="0912345678" maxLength={13} />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Email</span>
-                  <input className="input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@ejemplo.com" />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
-                    Contraseña {modalMode === 'edit' && <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>(dejar vacío para no cambiar)</span>}
-                  </span>
-                  <input className="input" type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Mínimo 6 caracteres" />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>Rol</span>
-                  <select className="input" value={form.roleId} onChange={e => setForm(f => ({ ...f, roleId: e.target.value }))}>
-                    <option value="">Seleccionar rol...</option>
-                    {roles.filter(r => r.name !== 'customer').map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                  </select>
-                </label>
-
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input type="checkbox" checked={form.active} onChange={e => setForm(f => ({ ...f, active: e.target.checked }))}
-                    className="w-4 h-4 rounded" style={{ accentColor: '#111827' }} />
-                  <span className="text-sm font-medium" style={{ color: 'var(--text)' }}>Usuario activo</span>
-                </label>
-              </div>
-
-              {formError && (
-                <p className="mt-4 text-xs rounded-lg px-3 py-2" style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}>
-                  {formError}
-                </p>
-              )}
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold"
-                  style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                  Cancelar
-                </button>
-                <button onClick={handleSave} disabled={saving || uploadingPhoto}
-                  className="px-5 py-2 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-60"
-                  style={{ background: '#111827' }}>
-                  {saving ? 'Guardando...' : modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* View user detail modal */}
-      {viewUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)' }}>
-          <div className="w-full rounded-2xl overflow-hidden"
-            style={{ maxWidth: '360px', background: '#fff', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
-
-            {/* Photo hero */}
-            <div className="relative flex flex-col items-center pt-8 pb-5 px-6"
-              style={{ background: 'linear-gradient(to bottom, #f0f4ff, #fff)' }}>
-              <button onClick={() => setViewUser(null)}
-                className="absolute top-3 right-3 w-7 h-7 flex items-center justify-center rounded-full transition-colors"
-                style={{ background: 'rgba(0,0,0,0.06)', color: '#9ca3af' }}
-                onMouseEnter={e => { e.currentTarget.style.background = '#e5e7eb'; e.currentTarget.style.color = '#374151'; }}
-                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(0,0,0,0.06)'; e.currentTarget.style.color = '#9ca3af'; }}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-              <Avatar user={viewUser} size={88} />
-              <h3 className="mt-4 text-lg font-black text-center" style={{ color: '#111827' }}>{viewUser.name}</h3>
-              <span className="mt-1 px-3 py-1 rounded-full text-xs font-bold"
-                style={{ background: '#f3f4f6', color: '#111827', border: '1px solid rgba(0,0,0,0.1)' }}>
-                {viewUser.role.name}
-              </span>
-            </div>
-
-            {/* Info */}
-            <div className="px-6 pb-6 flex flex-col gap-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#6b7280" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-                <span className="text-sm" style={{ color: '#374151' }}>{viewUser.email}</span>
-              </div>
-
-              {viewUser.cedula && (
-                <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="#6b7280" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
-                  </svg>
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-wider mb-0.5" style={{ color: '#9ca3af' }}>Cédula</p>
-                    <p className="font-mono text-sm font-bold" style={{ color: '#111827' }}>{viewUser.cedula}</p>
-                  </div>
+            ) : form.photo ? (
+              <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={form.photo} alt="Foto" className="rounded-full object-cover flex-shrink-0"
+                  style={{ width: 72, height: 72, border: '3px solid #111827' }} />
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs font-semibold">Foto cargada</p>
+                  <Button variant="outline" size="sm" type="button" onClick={() => photoInputRef.current?.click()}>Cambiar foto</Button>
+                  <Button variant="ghost" size="sm" type="button" className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    onClick={() => setForm(f => ({ ...f, photo: '' }))}>Eliminar foto</Button>
                 </div>
-              )}
-
-              <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: '#f9fafb', border: '1px solid #f3f4f6' }}>
-                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#9ca3af' }}>Estado</span>
-                <span className="badge" style={{
-                  background: viewUser.active ? '#dcfce7' : '#f3f4f6',
-                  color: viewUser.active ? '#16a34a' : '#6b7280',
-                  border: `1px solid ${viewUser.active ? '#bbf7d0' : '#e5e7eb'}`,
-                }}>
-                  {viewUser.active ? 'Activo' : 'Inactivo'}
+              </div>
+            ) : (
+              <div
+                onDragOver={e => { e.preventDefault(); setDraggingPhoto(true); }}
+                onDragLeave={() => setDraggingPhoto(false)}
+                onDrop={handlePhotoDrop}
+                onClick={() => photoInputRef.current?.click()}
+                className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-8 transition-all duration-200"
+                style={{ border: `2px dashed ${draggingPhoto ? '#111827' : '#d1d5db'}`, background: draggingPhoto ? 'rgba(0,0,0,0.03)' : '#f9fafb', minHeight: '100px' }}>
+                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke={draggingPhoto ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span className="text-xs text-center text-muted-foreground">
+                  {draggingPhoto ? 'Suelta aquí' : 'Arrastra la foto o haz clic para seleccionar'}
                 </span>
+                <span className="text-xs text-muted-foreground/50">JPG, PNG — recomendado cuadrada</span>
               </div>
+            )}
+            <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+          </div>
 
-              <div className="flex gap-3 mt-2">
-                <button onClick={() => { setViewUser(null); openEdit(viewUser); }}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold"
-                  style={{ background: 'rgba(0,0,0,0.05)', color: '#111827', border: '1px solid rgba(0,0,0,0.12)' }}>
-                  Editar
-                </button>
-                <button onClick={() => setViewUser(null)}
-                  className="flex-1 py-2 rounded-xl text-sm font-semibold"
-                  style={{ background: '#f3f4f6', color: '#6b7280' }}>
-                  Cerrar
-                </button>
-              </div>
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre completo</Label>
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nombre completo" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cédula de identidad</Label>
+              <Input value={form.cedula} onChange={e => setForm(f => ({ ...f, cedula: e.target.value }))} placeholder="0912345678" maxLength={13} />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
+              <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@ejemplo.com" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Contraseña {modalMode === 'edit' && <span className="normal-case font-normal text-muted-foreground">(dejar vacío para no cambiar)</span>}
+              </Label>
+              <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Mínimo 6 caracteres" />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rol</Label>
+              <Select value={form.roleId || '_none'} onValueChange={v => setForm(f => ({ ...f, roleId: v === '_none' ? '' : v }))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleccionar rol..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none">Seleccionar rol...</SelectItem>
+                  {roles.filter(r => r.name !== 'customer').map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3">
+              <Checkbox id="user-active" checked={form.active} onCheckedChange={v => setForm(f => ({ ...f, active: !!v }))} />
+              <label htmlFor="user-active" className="text-sm font-medium cursor-pointer">Usuario activo</label>
             </div>
           </div>
-        </div>
-      )}
+
+          {formError && (
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20">
+              <span className="text-xs font-medium text-destructive">{formError}</span>
+            </div>
+          )}
+
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={saving || uploadingPhoto}>
+              {saving ? 'Guardando...' : modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* View user modal */}
+      <Dialog open={!!viewUser} onOpenChange={open => !open && setViewUser(null)}>
+        <DialogContent className="max-w-sm p-0 overflow-hidden">
+          <div className="relative flex flex-col items-center pt-8 pb-5 px-6"
+            style={{ background: 'linear-gradient(to bottom, #f0f4ff, #fff)' }}>
+            <UserAvatar user={viewUser!} size={88} />
+            <h3 className="mt-4 text-lg font-black text-center">{viewUser?.name}</h3>
+            <Badge variant="secondary" className="mt-1">{viewUser?.role.name}</Badge>
+          </div>
+
+          <div className="px-6 pb-6 flex flex-col gap-3">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border">
+              <svg className="w-4 h-4 flex-shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <span className="text-sm">{viewUser?.email}</span>
+            </div>
+
+            {viewUser?.cedula && (
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 border">
+                <svg className="w-4 h-4 flex-shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0" />
+                </svg>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider mb-0.5 text-muted-foreground">Cédula</p>
+                  <p className="font-mono text-sm font-bold">{viewUser.cedula}</p>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border">
+              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Estado</span>
+              <Badge variant={viewUser?.active ? 'default' : 'secondary'}
+                className={viewUser?.active ? 'bg-green-100 text-green-700 hover:bg-green-100' : ''}>
+                {viewUser?.active ? 'Activo' : 'Inactivo'}
+              </Badge>
+            </div>
+
+            <div className="flex gap-3 mt-2">
+              <Button variant="outline" className="flex-1" onClick={() => { setViewUser(null); if (viewUser) openEdit(viewUser); }}>Editar</Button>
+              <Button variant="secondary" className="flex-1" onClick={() => setViewUser(null)}>Cerrar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Delete confirmation */}
-      {deleteId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
-          style={{ background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="relative w-full rounded-2xl p-6"
-            style={{ maxWidth: '400px', background: '#fff', boxShadow: '0 24px 64px rgba(0,0,0,0.2)' }}>
-            <button onClick={() => { setDeleteId(null); setDeleteError(''); }}
-              className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full transition-colors"
-              style={{ background: '#f3f4f6', color: '#9ca3af' }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#e5e7eb'; e.currentTarget.style.color = '#374151'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#f3f4f6'; e.currentTarget.style.color = '#9ca3af'; }}>
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-            <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4"
-              style={{ background: 'rgba(239,68,68,0.1)' }}>
-              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="#ef4444" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-              </svg>
-            </div>
-            <h3 className="text-base font-bold text-center mb-2" style={{ color: 'var(--text)' }}>¿Eliminar colaborador?</h3>
-            <p className="text-sm text-center mb-6" style={{ color: 'var(--text-muted)' }}>Esta acción no se puede deshacer.</p>
-            {deleteError && (
-              <p className="text-xs rounded-lg px-3 py-2 mb-4" style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}>
-                {deleteError}
-              </p>
-            )}
-            <div className="flex gap-3">
-              <button onClick={() => { setDeleteId(null); setDeleteError(''); }} className="flex-1 py-2 rounded-xl text-sm font-semibold"
-                style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                Cancelar
-              </button>
-              <button onClick={handleDelete} disabled={deleting} className="flex-1 py-2 rounded-xl text-sm font-semibold text-white"
-                style={{ background: '#ef4444' }}>
-                {deleting ? 'Eliminando...' : 'Eliminar'}
-              </button>
-            </div>
+      <Dialog open={!!deleteId} onOpenChange={open => { if (!open) { setDeleteId(null); setDeleteError(''); } }}>
+        <DialogContent className="max-w-sm">
+          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 bg-destructive/10">
+            <svg className="w-6 h-6 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
           </div>
-        </div>
-      )}
+          <DialogHeader>
+            <DialogTitle className="text-center">¿Eliminar colaborador?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-center text-muted-foreground mb-2">Esta acción no se puede deshacer.</p>
+          {deleteError && (
+            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20 mb-2">
+              <span className="text-xs font-medium text-destructive">{deleteError}</span>
+            </div>
+          )}
+          <div className="flex gap-3">
+            <Button variant="outline" className="flex-1" onClick={() => { setDeleteId(null); setDeleteError(''); }}>Cancelar</Button>
+            <Button variant="destructive" className="flex-1" onClick={handleDelete} disabled={deleting}>
+              {deleting ? 'Eliminando...' : 'Eliminar'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
