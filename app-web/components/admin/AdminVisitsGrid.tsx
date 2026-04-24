@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { api } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
 
 type Stats = Awaited<ReturnType<typeof api.visits.stats>>;
 
@@ -15,13 +16,8 @@ function Bar({ count, max }: { count: number; max: number }) {
 }
 
 export default function AdminVisitsGrid() {
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-
-  useEffect(() => {
-    api.visits.stats().then(setStats).catch(() => {}).finally(() => setLoading(false));
-  }, []);
+  const { data: stats, loading, error } = useApiData<Stats>(() => api.visits.stats());
 
   if (loading) return (
     <div className="flex items-center justify-center py-24">
@@ -30,7 +26,7 @@ export default function AdminVisitsGrid() {
     </div>
   );
 
-  if (!stats) return <p className="text-center py-16 text-sm" style={{ color: '#ef4444' }}>Error al cargar estadísticas</p>;
+  if (error || !stats) return <p className="text-center py-16 text-sm" style={{ color: '#ef4444' }}>Error al cargar estadísticas</p>;
 
   const topCards = [
     { label: 'Hoy', value: stats.today, color: '#16a34a', bg: 'rgba(22,163,74,0.06)', border: 'rgba(22,163,74,0.15)' },

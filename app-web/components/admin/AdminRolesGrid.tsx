@@ -1,30 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiRole, ApiMenu, ApiPermission } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
-interface RoleAccess {
-  menuIds: string[];
-  permissionIds: string[];
-}
+interface RoleAccess { menuIds: string[]; permissionIds: string[] }
 
 export default function AdminRolesGrid() {
-  const [roles, setRoles] = useState<ApiRole[]>([]);
-  const [menus, setMenus] = useState<ApiMenu[]>([]);
-  const [permissions, setPermissions] = useState<ApiPermission[]>([]);
   const [selectedRole, setSelectedRole] = useState<ApiRole | null>(null);
   const [access, setAccess] = useState<RoleAccess>({ menuIds: [], permissionIds: [] });
-  const [saving, setSaving] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const { data, loading } = useApiData(() =>
     Promise.all([api.roles.list(), api.menus.list(), api.permissions.list()])
-      .then(([r, m, p]) => { setRoles(r); setMenus(m); setPermissions(p); })
-      .finally(() => setLoading(false));
-  }, []);
+      .then(([roles, menus, permissions]) => ({ roles, menus, permissions }))
+  );
+  const roles: ApiRole[] = data?.roles ?? [];
+  const menus: ApiMenu[] = data?.menus ?? [];
+  const permissions: ApiPermission[] = data?.permissions ?? [];
+
+  const { mutate: saveAccess, loading: saving } = useMutation(
+    () => Promise.all([
+      api.roles.setMenus(selectedRole!.id, access.menuIds),
+      api.roles.setPermissions(selectedRole!.id, access.permissionIds),
+    ]),
+    { onSuccess: () => toast.success('Accesos guardados correctamente'), onError: () => toast.error('Error al guardar accesos') }
+  );
 
   async function selectRole(role: ApiRole) {
     setSelectedRole(role);
@@ -44,22 +48,6 @@ export default function AdminRolesGrid() {
       ...prev,
       permissionIds: prev.permissionIds.includes(id) ? prev.permissionIds.filter(x => x !== id) : [...prev.permissionIds, id],
     }));
-  }
-
-  async function save() {
-    if (!selectedRole) return;
-    setSaving(true);
-    try {
-      await Promise.all([
-        api.roles.setMenus(selectedRole.id, access.menuIds),
-        api.roles.setPermissions(selectedRole.id, access.permissionIds),
-      ]);
-      toast.success('Accesos guardados correctamente');
-    } catch {
-      toast.error('Error al guardar accesos');
-    } finally {
-      setSaving(false);
-    }
   }
 
   const parentMenus = menus.filter(m => !m.parentId);
@@ -108,18 +96,12 @@ export default function AdminRolesGrid() {
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden bg-white border shadow-sm">
-
-            {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b">
               <div>
-                <h2 className="text-base font-black text-foreground">
-                  {selectedRole.name.replace('_', ' ')}
-                </h2>
-                {selectedRole.description && (
-                  <p className="text-xs mt-0.5 text-muted-foreground">{selectedRole.description}</p>
-                )}
+                <h2 className="text-base font-black text-foreground">{selectedRole.name.replace('_', ' ')}</h2>
+                {selectedRole.description && <p className="text-xs mt-0.5 text-muted-foreground">{selectedRole.description}</p>}
               </div>
-              <Button onClick={save} disabled={saving}>
+              <Button onClick={() => saveAccess()} disabled={saving}>
                 {saving ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
@@ -137,7 +119,6 @@ export default function AdminRolesGrid() {
             </div>
 
             <div className="grid grid-cols-2 divide-x">
-
               {/* Menus */}
               <div className="p-6">
                 <p className="text-xs font-bold tracking-widest uppercase mb-4 text-muted-foreground">Menús</p>
@@ -147,25 +128,13 @@ export default function AdminRolesGrid() {
                     return (
                       <div key={parent.id}>
                         <div className="flex items-center gap-2.5">
-                          <Checkbox
-                            id={`menu-${parent.id}`}
-                            checked={access.menuIds.includes(parent.id)}
-                            onCheckedChange={() => toggleMenu(parent.id)}
-                          />
-                          <label htmlFor={`menu-${parent.id}`} className="text-sm font-semibold cursor-pointer text-foreground">
-                            {parent.label}
-                          </label>
+                          <Checkbox id={`menu-${parent.id}`} checked={access.menuIds.includes(parent.id)} onCheckedChange={() => toggleMenu(parent.id)} />
+                          <label htmlFor={`menu-${parent.id}`} className="text-sm font-semibold cursor-pointer text-foreground">{parent.label}</label>
                         </div>
                         {children.map(child => (
                           <div key={child.id} className="flex items-center gap-2.5 mt-1.5 ml-6">
-                            <Checkbox
-                              id={`menu-${child.id}`}
-                              checked={access.menuIds.includes(child.id)}
-                              onCheckedChange={() => toggleMenu(child.id)}
-                            />
-                            <label htmlFor={`menu-${child.id}`} className="text-sm cursor-pointer text-muted-foreground">
-                              {child.label}
-                            </label>
+                            <Checkbox id={`menu-${child.id}`} checked={access.menuIds.includes(child.id)} onCheckedChange={() => toggleMenu(child.id)} />
+                            <label htmlFor={`menu-${child.id}`} className="text-sm cursor-pointer text-muted-foreground">{child.label}</label>
                           </div>
                         ))}
                       </div>
@@ -180,16 +149,10 @@ export default function AdminRolesGrid() {
                 <div className="flex flex-col gap-2.5">
                   {permissions.map(perm => (
                     <div key={perm.id} className="flex items-center gap-2.5">
-                      <Checkbox
-                        id={`perm-${perm.id}`}
-                        checked={access.permissionIds.includes(perm.id)}
-                        onCheckedChange={() => togglePermission(perm.id)}
-                      />
+                      <Checkbox id={`perm-${perm.id}`} checked={access.permissionIds.includes(perm.id)} onCheckedChange={() => togglePermission(perm.id)} />
                       <label htmlFor={`perm-${perm.id}`} className="cursor-pointer">
                         <p className="text-sm font-semibold text-foreground">{perm.name}</p>
-                        {perm.description && (
-                          <p className="text-xs text-muted-foreground">{perm.description}</p>
-                        )}
+                        {perm.description && <p className="text-xs text-muted-foreground">{perm.description}</p>}
                       </label>
                     </div>
                   ))}

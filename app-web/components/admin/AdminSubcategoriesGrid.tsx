@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiCategory, ApiSubcategory, slugify } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,29 +17,33 @@ interface FormState { name: string; slug: string; description: string; categoryI
 const emptyForm = (): FormState => ({ name: '', slug: '', description: '', categoryId: '' });
 
 export default function AdminSubcategoriesGrid() {
-  const [subcategories, setSubcategories] = useState<ApiSubcategory[]>([]);
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterCategoryId, setFilterCategoryId] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<ApiSubcategory | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm());
-  const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<ApiSubcategory | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [subs, cats] = await Promise.all([api.subcategories.list(), api.categories.list()]);
-      setSubcategories(subs); setCategories(cats);
-    } catch { setSubcategories([]); }
-    finally { setLoading(false); }
-  }, []);
+  const { data, loading, refetch } = useApiData(() =>
+    Promise.all([api.subcategories.list(), api.categories.list()])
+      .then(([subs, cats]) => ({ subs, cats }))
+  );
+  const subcategories = data?.subs ?? [];
+  const categories: ApiCategory[] = data?.cats ?? [];
 
-  useEffect(() => { load(); }, [load]);
+  const { mutate: saveSubcategory, loading: saving } = useMutation(
+    async (f: FormState) => {
+      if (!editTarget) {
+        return api.subcategories.create({ name: f.name, slug: f.slug || slugify(f.name), description: f.description || undefined, categoryId: f.categoryId });
+      }
+      return api.subcategories.update(editTarget.id, { name: f.name, slug: f.slug, description: f.description || undefined });
+    },
+    { onSuccess: () => { refetch(); setModalOpen(false); }, onError: setSaveError }
+  );
+
+  const { mutate: deleteSubcategory } = useMutation((id: string) => api.subcategories.delete(id));
 
   const filtered = subcategories.filter(s => {
     const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase());
@@ -49,36 +56,22 @@ export default function AdminSubcategoriesGrid() {
     setForm({ name: s.name, slug: s.slug, description: s.description ?? '', categoryId: s.categoryId });
     setEditTarget(s); setSaveError(''); setModalOpen(true);
   };
-  const setName = (name: string) => setForm(f => ({ ...f, name, slug: slugify(name) }));
 
-  const handleSave = async () => {
-    if (!form.name.trim() || !form.categoryId) return;
-    setSaving(true); setSaveError('');
-    try {
-      if (!editTarget) {
-        const created = await api.subcategories.create({ name: form.name, slug: form.slug || slugify(form.name), description: form.description || undefined, categoryId: form.categoryId });
-        setSubcategories(prev => [...prev, created]);
-      } else {
-        const updated = await api.subcategories.update(editTarget.id, { name: form.name, slug: form.slug, description: form.description || undefined });
-        setSubcategories(prev => prev.map(s => s.id === updated.id ? updated : s));
-      }
-      setModalOpen(false);
-    } catch (e) { setSaveError(e instanceof Error ? e.message : 'Error al guardar'); }
-    finally { setSaving(false); }
-  };
+  const handleSave = () => { if (form.name.trim() && (editTarget || form.categoryId)) saveSubcategory(form); };
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfirm) return;
-    setDeletingId(deleteConfirm.id);
-    const sub = deleteConfirm;
+    const { id, name } = deleteConfirm;
     setDeleteConfirm(null);
-    try {
-      await api.subcategories.delete(sub.id);
-      setSubcategories(prev => prev.filter(x => x.id !== sub.id));
-      toast.success('Subcategoría eliminada');
-    } catch {
+    setDeletingId(id);
+    const result = await deleteSubcategory(id);
+    setDeletingId(null);
+    if (result !== null) {
+      refetch();
+      toast.success(`"${name}" eliminada`);
+    } else {
       toast.error('No se pudo eliminar la subcategoría');
-    } finally { setDeletingId(null); }
+    }
   };
 
   const getCategoryName = (id: string) => categories.find(c => c.id === id)?.name ?? '—';
@@ -104,7 +97,7 @@ export default function AdminSubcategoriesGrid() {
             {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={load} className="flex-shrink-0">
+        <Button variant="outline" onClick={refetch} className="flex-shrink-0">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -139,7 +132,6 @@ export default function AdminSubcategoriesGrid() {
           </div>
         ) : (
           <>
-            {/* Desktop rows */}
             <div className="hidden sm:block">
               {filtered.map((s, i) => (
                 <div key={s.id} className="grid items-center px-4 py-3 transition-colors hover:bg-muted/20"
@@ -164,8 +156,6 @@ export default function AdminSubcategoriesGrid() {
                 </div>
               ))}
             </div>
-
-            {/* Mobile cards */}
             <div className="flex sm:hidden flex-col divide-y">
               {filtered.map(s => (
                 <div key={s.id} className="px-4 py-3 flex items-center gap-3 bg-white">
@@ -186,21 +176,13 @@ export default function AdminSubcategoriesGrid() {
         )}
       </div>
 
-      {/* Delete confirm */}
-      <Dialog open={!!deleteConfirm} onOpenChange={open => !open && setDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>¿Eliminar subcategoría?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{deleteConfirm?.name}</span> — Se eliminará permanentemente.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDeleteConfirm}>Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!deleteConfirm}
+        title="¿Eliminar subcategoría?"
+        itemName={deleteConfirm?.name}
+        onCancel={() => setDeleteConfirm(null)}
+        onConfirm={handleDeleteConfirm}
+      />
 
       {/* Create / Edit Dialog */}
       <Dialog open={modalOpen} onOpenChange={open => !open && setModalOpen(false)}>
@@ -211,7 +193,7 @@ export default function AdminSubcategoriesGrid() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre</Label>
-              <Input value={form.name} onChange={e => setName(e.target.value)} placeholder="ej. Gaming" />
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: slugify(e.target.value) }))} placeholder="ej. Gaming" />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Slug</Label>
@@ -221,9 +203,7 @@ export default function AdminSubcategoriesGrid() {
               <div className="flex flex-col gap-1.5">
                 <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Categoría padre</Label>
                 <Select value={form.categoryId || '_none'} onValueChange={v => setForm(f => ({ ...f, categoryId: v === '_none' ? '' : v }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="— Selecciona categoría —" />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue placeholder="— Selecciona categoría —" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="_none">— Selecciona categoría —</SelectItem>
                     {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}

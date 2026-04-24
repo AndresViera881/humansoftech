@@ -1,4 +1,5 @@
 export { default as AdminPanel } from './AdminPanel';
+export { default as ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 export { default as AdminProductsGrid } from './AdminProductsGrid';
 export { default as AdminCategoriesGrid } from './AdminCategoriesGrid';
 export { default as AdminSubcategoriesGrid } from './AdminSubcategoriesGrid';

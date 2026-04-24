@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiCategory, slugify } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,25 +18,30 @@ interface FormState { name: string; slug: string; description: string; sortOrder
 const emptyForm = (): FormState => ({ name: '', slug: '', description: '', sortOrder: '0', active: true });
 
 export default function AdminCategoriesGrid() {
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
-  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [modalMode, setModalMode] = useState<ModalMode | null>(null);
   const [editTarget, setEditTarget] = useState<ApiCategory | null>(null);
   const [form, setForm] = useState<FormState>(emptyForm());
-  const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<ApiCategory | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try { setCategories(await api.categories.list()); }
-    catch { setCategories([]); }
-    finally { setLoading(false); }
-  }, []);
+  const { data, loading, refetch } = useApiData(() => api.categories.list());
+  const categories = data ?? [];
 
-  useEffect(() => { load(); }, [load]);
+  const { mutate: saveCategory, loading: saving } = useMutation(
+    async (f: FormState) => {
+      if (modalMode === 'create') {
+        return api.categories.create({ name: f.name, slug: f.slug || slugify(f.name), description: f.description || undefined, sortOrder: Number(f.sortOrder) });
+      }
+      return api.categories.update(editTarget!.id, { name: f.name, slug: f.slug, description: f.description || undefined, active: f.active, sortOrder: Number(f.sortOrder) });
+    },
+    { onSuccess: () => { refetch(); setModalMode(null); }, onError: setSaveError }
+  );
+
+  const { mutate: deleteCategory } = useMutation(
+    (id: string) => api.categories.delete(id)
+  );
 
   const filtered = categories.filter(c => c.name.toLowerCase().includes(search.toLowerCase()));
 
@@ -42,42 +50,28 @@ export default function AdminCategoriesGrid() {
     setForm({ name: c.name, slug: c.slug, description: c.description ?? '', sortOrder: String(c.sortOrder), active: c.active });
     setEditTarget(c); setSaveError(''); setModalMode('edit');
   };
-  const setName = (name: string) => setForm(f => ({ ...f, name, slug: slugify(name) }));
 
-  const handleSave = async () => {
-    if (!form.name.trim()) return;
-    setSaving(true); setSaveError('');
-    try {
-      if (modalMode === 'create') {
-        const created = await api.categories.create({ name: form.name, slug: form.slug || slugify(form.name), description: form.description || undefined, sortOrder: Number(form.sortOrder) });
-        setCategories(prev => [...prev, created]);
-      } else if (editTarget) {
-        const updated = await api.categories.update(editTarget.id, { name: form.name, slug: form.slug, description: form.description || undefined, active: form.active, sortOrder: Number(form.sortOrder) });
-        setCategories(prev => prev.map(c => c.id === updated.id ? updated : c));
-      }
-      setModalMode(null);
-    } catch (e) { setSaveError(e instanceof Error ? e.message : 'Error al guardar'); }
-    finally { setSaving(false); }
-  };
+  const handleSave = () => { if (form.name.trim()) saveCategory(form); };
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfirm) return;
-    setDeletingId(deleteConfirm.id);
-    const cat = deleteConfirm;
+    const { id, name } = deleteConfirm;
     setDeleteConfirm(null);
-    try {
-      await api.categories.delete(cat.id);
-      setCategories(prev => prev.filter(x => x.id !== cat.id));
-      toast.success('Categoría eliminada');
-    } catch {
+    setDeletingId(id);
+    const result = await deleteCategory(id);
+    setDeletingId(null);
+    if (result !== null) {
+      refetch();
+      toast.success(`"${name}" eliminada`);
+    } else {
       toast.error('No se pudo eliminar la categoría');
-    } finally { setDeletingId(null); }
+    }
   };
 
   const toggleActive = async (c: ApiCategory) => {
     try {
-      const updated = await api.categories.update(c.id, { active: !c.active });
-      setCategories(prev => prev.map(x => x.id === updated.id ? updated : x));
+      await api.categories.update(c.id, { active: !c.active });
+      refetch();
     } catch { /* ignore */ }
   };
 
@@ -93,7 +87,7 @@ export default function AdminCategoriesGrid() {
           </svg>
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar categoría..." className="pl-9" />
         </div>
-        <Button variant="outline" onClick={load} className="flex-shrink-0">
+        <Button variant="outline" onClick={refetch} className="flex-shrink-0">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -183,21 +177,13 @@ export default function AdminCategoriesGrid() {
         )}
       </div>
 
-      {/* Delete confirm */}
-      <Dialog open={!!deleteConfirm} onOpenChange={open => !open && setDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>¿Eliminar categoría?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{deleteConfirm?.name}</span> — Se eliminará permanentemente.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDeleteConfirm}>Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!deleteConfirm}
+        title="¿Eliminar categoría?"
+        itemName={deleteConfirm?.name}
+        onCancel={() => setDeleteConfirm(null)}
+        onConfirm={handleDeleteConfirm}
+      />
 
       {/* Create / Edit Dialog */}
       <Dialog open={!!modalMode} onOpenChange={open => !open && setModalMode(null)}>
@@ -208,7 +194,7 @@ export default function AdminCategoriesGrid() {
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre</Label>
-              <Input value={form.name} onChange={e => setName(e.target.value)} placeholder="ej. Laptops" />
+              <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: slugify(e.target.value) }))} placeholder="ej. Laptops" />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Slug</Label>

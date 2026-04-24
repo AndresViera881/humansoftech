@@ -1,9 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import Cropper from 'react-easy-crop';
 import 'react-easy-crop/react-easy-crop.css';
 import { api, ApiUser, ApiRole } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -108,36 +111,39 @@ function UserAvatar({ user, size = 36 }: { user: ApiUser; size?: number }) {
 }
 
 export default function AdminUsersGrid() {
-  const [users, setUsers] = useState<ApiUser[]>([]);
-  const [roles, setRoles] = useState<ApiRole[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
   const [modalMode, setModalMode] = useState<ModalMode>('create');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<UserForm>(EMPTY_FORM);
-  const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
-
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
-
   const [viewUser, setViewUser] = useState<ApiUser | null>(null);
-
   const photoInputRef = useRef<HTMLInputElement>(null);
   const [draggingPhoto, setDraggingPhoto] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  useEffect(() => {
+  const { data, loading, error, refetch } = useApiData(() =>
     Promise.all([api.users.list(), api.roles.list()])
-      .then(([u, r]) => { setUsers(u); setRoles(r); })
-      .catch(() => setError('Error al cargar usuarios'))
-      .finally(() => setLoading(false));
-  }, []);
+      .then(([users, roles]) => ({ users, roles }))
+  );
+  const users: ApiUser[] = data?.users ?? [];
+  const roles: ApiRole[] = data?.roles ?? [];
+
+  const { mutate: saveUser, loading: saving } = useMutation(
+    async (f: UserForm) => {
+      const base = { name: f.name, email: f.email, roleId: f.roleId, active: f.active, photo: f.photo || undefined, cedula: f.cedula || undefined };
+      if (modalMode === 'create') return api.users.create({ ...base, password: f.password });
+      return api.users.update(editingId!, { ...base, ...(f.password ? { password: f.password } : {}) });
+    },
+    { onSuccess: () => { refetch(); setModalOpen(false); }, onError: setFormError }
+  );
+
+  const { mutate: deleteUser, loading: deleting } = useMutation(
+    (id: string) => api.users.delete(id),
+    { onSuccess: () => { refetch(); setDeleteId(null); } }
+  );
 
   function openCreate() {
     setForm({ ...EMPTY_FORM, roleId: roles[0]?.id ?? '' });
@@ -147,6 +153,13 @@ export default function AdminUsersGrid() {
   function openEdit(user: ApiUser) {
     setForm({ name: user.name, email: user.email, password: '', roleId: user.role.id, active: user.active, photo: user.photo ?? '', cedula: user.cedula ?? '' });
     setEditingId(user.id); setModalMode('edit'); setFormError(''); setCropSrc(null); setModalOpen(true);
+  }
+
+  function handleSave() {
+    if (!form.name || !form.email || !form.roleId) { setFormError('Nombre, email y rol son obligatorios.'); return; }
+    if (modalMode === 'create' && !form.password) { setFormError('La contraseña es obligatoria para nuevos usuarios.'); return; }
+    setFormError('');
+    saveUser(form);
   }
 
   function loadPhotoForCrop(file: File) {
@@ -176,38 +189,6 @@ export default function AdminUsersGrid() {
     e.preventDefault(); setDraggingPhoto(false);
     const file = e.dataTransfer.files?.[0];
     if (file) loadPhotoForCrop(file);
-  }
-
-  async function handleSave() {
-    if (!form.name || !form.email || !form.roleId) { setFormError('Nombre, email y rol son obligatorios.'); return; }
-    if (modalMode === 'create' && !form.password) { setFormError('La contraseña es obligatoria para nuevos usuarios.'); return; }
-    setSaving(true); setFormError('');
-    try {
-      const base = { name: form.name, email: form.email, roleId: form.roleId, active: form.active, photo: form.photo || undefined, cedula: form.cedula || undefined };
-      if (modalMode === 'create') {
-        const created = await api.users.create({ ...base, password: form.password });
-        setUsers(prev => [created, ...prev]);
-      } else {
-        const payload = { ...base, ...(form.password ? { password: form.password } : {}) };
-        const updated = await api.users.update(editingId!, payload);
-        setUsers(prev => prev.map(u => u.id === editingId ? updated : u));
-      }
-      setModalOpen(false);
-    } catch (e: unknown) {
-      setFormError(e instanceof Error ? e.message : 'Error al guardar');
-    } finally { setSaving(false); }
-  }
-
-  async function handleDelete() {
-    if (!deleteId) return;
-    setDeleting(true); setDeleteError('');
-    try {
-      await api.users.delete(deleteId);
-      setUsers(prev => prev.filter(u => u.id !== deleteId));
-      setDeleteId(null);
-    } catch (e: unknown) {
-      setDeleteError(e instanceof Error ? e.message : 'Error al eliminar usuario');
-    } finally { setDeleting(false); }
   }
 
   if (loading) return (
@@ -455,7 +436,12 @@ export default function AdminUsersGrid() {
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>
             <Button onClick={handleSave} disabled={saving || uploadingPhoto}>
-              {saving ? 'Guardando...' : modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
+              {saving ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
+                  Guardando...
+                </span>
+              ) : modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
             </Button>
           </div>
         </DialogContent>
@@ -507,31 +493,12 @@ export default function AdminUsersGrid() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete confirmation */}
-      <Dialog open={!!deleteId} onOpenChange={open => { if (!open) { setDeleteId(null); setDeleteError(''); } }}>
-        <DialogContent className="max-w-sm">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2 bg-destructive/10">
-            <svg className="w-6 h-6 text-destructive" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            </svg>
-          </div>
-          <DialogHeader>
-            <DialogTitle className="text-center">¿Eliminar colaborador?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-center text-muted-foreground mb-2">Esta acción no se puede deshacer.</p>
-          {deleteError && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20 mb-2">
-              <span className="text-xs font-medium text-destructive">{deleteError}</span>
-            </div>
-          )}
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => { setDeleteId(null); setDeleteError(''); }}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={handleDelete} disabled={deleting}>
-              {deleting ? 'Eliminando...' : 'Eliminar'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!deleteId}
+        title="¿Eliminar colaborador?"
+        onCancel={() => setDeleteId(null)}
+        onConfirm={() => { if (deleteId) deleteUser(deleteId); }}
+      />
     </>
   );
 }

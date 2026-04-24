@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { api, LoginResponse } from '@/lib/api';
-import { LogoIcon } from '@/components/Logo';
+import { LogoIcon } from '@/components/layout/Logo';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

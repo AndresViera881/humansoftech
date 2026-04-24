@@ -1,6 +1,6 @@
 'use client';
 
-import { LogoIcon } from '@/components/Logo';
+import { LogoIcon } from './Logo';
 
 const WA_PHONE = '5930995351473';
 

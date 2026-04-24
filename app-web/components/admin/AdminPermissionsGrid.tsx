@@ -1,67 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiPermission } from '@/lib/api';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 
-interface PermForm {
-  name: string;
-  resource: string;
-  action: string;
-  description: string;
-}
-
+interface PermForm { name: string; resource: string; action: string; description: string }
 const EMPTY: PermForm = { name: '', resource: '', action: '', description: '' };
 
 export default function AdminPermissionsGrid() {
-  const [perms, setPerms] = useState<ApiPermission[]>([]);
-  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<PermForm>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  async function load() {
-    const data = await api.permissions.list();
-    setPerms(data);
-  }
+  const { data, loading, refetch } = useApiData(() => api.permissions.list());
+  const perms: ApiPermission[] = data ?? [];
 
-  useEffect(() => {
-    load().finally(() => setLoading(false));
-  }, []);
-
-  function startEdit(p: ApiPermission) {
-    setEditingId(p.id);
-    setForm({ name: p.name, resource: p.resource, action: p.action, description: p.description ?? '' });
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(EMPTY);
-  }
-
-  function syncName(p: PermForm): PermForm {
-    if (!editingId && p.resource && p.action) {
-      return { ...p, name: `${p.resource}:${p.action}` };
-    }
-    return p;
-  }
-
-  async function save() {
-    if (!form.name.trim() || !form.resource.trim() || !form.action.trim()) return;
-    setSaving(true);
-    try {
-      const payload = {
-        name: form.name.trim(),
-        resource: form.resource.trim(),
-        action: form.action.trim(),
-        description: form.description.trim() || undefined,
-      };
+  const { mutate: savePermission, loading: saving } = useMutation(
+    async (f: PermForm) => {
+      const payload = { name: f.name.trim(), resource: f.resource.trim(), action: f.action.trim(), description: f.description.trim() || undefined };
       if (editingId) {
         await api.permissions.update(editingId, payload);
         toast.success('Permiso actualizado');
@@ -69,25 +32,25 @@ export default function AdminPermissionsGrid() {
         await api.permissions.create(payload);
         toast.success('Permiso creado');
       }
-      cancelEdit();
-      await load();
-    } catch {
-      toast.error('Error al guardar');
-    } finally {
-      setSaving(false);
-    }
+    },
+    { onSuccess: () => { cancelEdit(); refetch(); }, onError: () => toast.error('Error al guardar') }
+  );
+
+  const { mutate: deletePermission } = useMutation(
+    async (id: string) => { await api.permissions.delete(id); toast.success('Permiso eliminado'); },
+    { onSuccess: refetch, onError: () => toast.error('Error al eliminar') }
+  );
+
+  function startEdit(p: ApiPermission) {
+    setEditingId(p.id);
+    setForm({ name: p.name, resource: p.resource, action: p.action, description: p.description ?? '' });
   }
 
-  async function remove(id: string) {
-    try {
-      await api.permissions.delete(id);
-      toast.success('Permiso eliminado');
-      await load();
-    } catch {
-      toast.error('Error al eliminar');
-    } finally {
-      setConfirmDelete(null);
-    }
+  function cancelEdit() { setEditingId(null); setForm(EMPTY); }
+
+  function syncName(p: PermForm): PermForm {
+    if (!editingId && p.resource && p.action) return { ...p, name: `${p.resource}:${p.action}` };
+    return p;
   }
 
   const grouped = perms.reduce<Record<string, ApiPermission[]>>((acc, p) => {
@@ -108,9 +71,7 @@ export default function AdminPermissionsGrid() {
 
       {/* Form */}
       <div className="rounded-2xl p-6 bg-white border shadow-sm">
-        <h2 className="text-sm font-black mb-4 text-foreground">
-          {editingId ? 'Editar permiso' : 'Nuevo permiso'}
-        </h2>
+        <h2 className="text-sm font-black mb-4 text-foreground">{editingId ? 'Editar permiso' : 'Nuevo permiso'}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recurso *</Label>
@@ -136,13 +97,11 @@ export default function AdminPermissionsGrid() {
           </div>
         </div>
         <div className="flex gap-2 mt-4">
-          <Button onClick={save} disabled={saving || !form.name.trim() || !form.resource.trim() || !form.action.trim()}>
+          <Button onClick={() => savePermission(form)} disabled={saving || !form.name.trim() || !form.resource.trim() || !form.action.trim()}>
             {saving && <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin mr-2" />}
             {editingId ? 'Guardar cambios' : 'Crear permiso'}
           </Button>
-          {editingId && (
-            <Button variant="outline" onClick={cancelEdit}>Cancelar</Button>
-          )}
+          {editingId && <Button variant="outline" onClick={cancelEdit}>Cancelar</Button>}
         </div>
       </div>
 
@@ -185,19 +144,12 @@ export default function AdminPermissionsGrid() {
         ))}
       </div>
 
-      {/* Delete confirm dialog */}
-      <Dialog open={!!confirmDelete} onOpenChange={open => !open && setConfirmDelete(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>¿Eliminar permiso?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">Esta acción no se puede deshacer.</p>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={() => confirmDelete && remove(confirmDelete)}>Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!confirmDelete}
+        title="¿Eliminar permiso?"
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) { deletePermission(confirmDelete); setConfirmDelete(null); } }}
+      />
     </div>
   );
 }

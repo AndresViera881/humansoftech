@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
-import Logo from '@/components/Logo';
+import Logo from './Logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {

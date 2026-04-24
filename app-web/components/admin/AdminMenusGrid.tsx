@@ -1,67 +1,35 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { api, ApiMenu } from '@/lib/api';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-interface MenuForm {
-  label: string;
-  icon: string;
-  path: string;
-  parentId: string;
-  sortOrder: string;
-}
-
+interface MenuForm { label: string; icon: string; path: string; parentId: string; sortOrder: string }
 const EMPTY_FORM: MenuForm = { label: '', icon: '', path: '', parentId: '', sortOrder: '0' };
 
 export default function AdminMenusGrid() {
-  const [menus, setMenus] = useState<ApiMenu[]>([]);
-  const [loading, setLoading] = useState(true);
   const [form, setForm] = useState<MenuForm>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  async function load() {
-    const data = await api.menus.list();
-    setMenus(data);
-  }
+  const { data, loading, refetch } = useApiData(() => api.menus.list());
+  const menus: ApiMenu[] = data ?? [];
 
-  useEffect(() => {
-    load().finally(() => setLoading(false));
-  }, []);
-
-  function startEdit(menu: ApiMenu) {
-    setEditingId(menu.id);
-    setForm({
-      label: menu.label,
-      icon: menu.icon ?? '',
-      path: menu.path ?? '',
-      parentId: menu.parentId ?? '',
-      sortOrder: String(menu.sortOrder),
-    });
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(EMPTY_FORM);
-  }
-
-  async function save() {
-    if (!form.label.trim()) return;
-    setSaving(true);
-    try {
+  const { mutate: saveMenu, loading: saving } = useMutation(
+    async (f: MenuForm) => {
       const payload = {
-        label: form.label.trim(),
-        icon: form.icon.trim() || undefined,
-        path: form.path.trim() || undefined,
-        parentId: form.parentId || undefined,
-        sortOrder: Number(form.sortOrder) || 0,
+        label: f.label.trim(),
+        icon: f.icon.trim() || undefined,
+        path: f.path.trim() || undefined,
+        parentId: f.parentId || undefined,
+        sortOrder: Number(f.sortOrder) || 0,
       };
       if (editingId) {
         await api.menus.update(editingId, payload);
@@ -70,26 +38,21 @@ export default function AdminMenusGrid() {
         await api.menus.create(payload);
         toast.success('Menú creado');
       }
-      cancelEdit();
-      await load();
-    } catch {
-      toast.error('Error al guardar');
-    } finally {
-      setSaving(false);
-    }
+    },
+    { onSuccess: () => { cancelEdit(); refetch(); }, onError: () => toast.error('Error al guardar') }
+  );
+
+  const { mutate: deleteMenu } = useMutation(
+    async (id: string) => { await api.menus.delete(id); toast.success('Menú eliminado'); },
+    { onSuccess: refetch, onError: () => toast.error('Error al eliminar') }
+  );
+
+  function startEdit(menu: ApiMenu) {
+    setEditingId(menu.id);
+    setForm({ label: menu.label, icon: menu.icon ?? '', path: menu.path ?? '', parentId: menu.parentId ?? '', sortOrder: String(menu.sortOrder) });
   }
 
-  async function remove(id: string) {
-    try {
-      await api.menus.delete(id);
-      toast.success('Menú eliminado');
-      await load();
-    } catch {
-      toast.error('Error al eliminar');
-    } finally {
-      setConfirmDelete(null);
-    }
-  }
+  function cancelEdit() { setEditingId(null); setForm(EMPTY_FORM); }
 
   const parents = menus.filter(m => !m.parentId);
   const children = menus.filter(m => m.parentId);
@@ -107,31 +70,24 @@ export default function AdminMenusGrid() {
 
       {/* Form */}
       <div className="rounded-2xl p-6 bg-white border shadow-sm">
-        <h2 className="text-sm font-black mb-4 text-foreground">
-          {editingId ? 'Editar menú' : 'Nuevo menú'}
-        </h2>
+        <h2 className="text-sm font-black mb-4 text-foreground">{editingId ? 'Editar menú' : 'Nuevo menú'}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Etiqueta *</Label>
-            <Input value={form.label} onChange={e => setForm(p => ({ ...p, label: e.target.value }))}
-              placeholder="ej: Inventario" />
+            <Input value={form.label} onChange={e => setForm(p => ({ ...p, label: e.target.value }))} placeholder="ej: Inventario" />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ruta (path)</Label>
-            <Input value={form.path} onChange={e => setForm(p => ({ ...p, path: e.target.value }))}
-              placeholder="ej: inventory" />
+            <Input value={form.path} onChange={e => setForm(p => ({ ...p, path: e.target.value }))} placeholder="ej: inventory" />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ícono</Label>
-            <Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))}
-              placeholder="ej: box" />
+            <Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="ej: box" />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Padre (opcional)</Label>
             <Select value={form.parentId || '_root'} onValueChange={v => setForm(p => ({ ...p, parentId: v === '_root' ? '' : v }))}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="_root">— Menú raíz —</SelectItem>
                 {parents.map(m => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
@@ -144,13 +100,11 @@ export default function AdminMenusGrid() {
           </div>
         </div>
         <div className="flex gap-2 mt-4">
-          <Button onClick={save} disabled={saving || !form.label.trim()}>
+          <Button onClick={() => saveMenu(form)} disabled={saving || !form.label.trim()}>
             {saving && <span className="w-3.5 h-3.5 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin mr-2" />}
             {editingId ? 'Guardar cambios' : 'Crear menú'}
           </Button>
-          {editingId && (
-            <Button variant="outline" onClick={cancelEdit}>Cancelar</Button>
-          )}
+          {editingId && <Button variant="outline" onClick={cancelEdit}>Cancelar</Button>}
         </div>
       </div>
 
@@ -205,19 +159,12 @@ export default function AdminMenusGrid() {
         </table>
       </div>
 
-      {/* Delete confirm dialog */}
-      <Dialog open={!!confirmDelete} onOpenChange={open => !open && setConfirmDelete(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>¿Eliminar menú?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">Esta acción no se puede deshacer.</p>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setConfirmDelete(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={() => confirmDelete && remove(confirmDelete)}>Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!confirmDelete}
+        title="¿Eliminar menú?"
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={() => { if (confirmDelete) { deleteMenu(confirmDelete); setConfirmDelete(null); } }}
+      />
     </div>
   );
 }

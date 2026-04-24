@@ -1,8 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { api, ApiProduct, ApiCategory, slugify } from '@/lib/api';
+import { useApiData } from '@/hooks/useApiData';
+import { useMutation } from '@/hooks/useMutation';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,16 +14,11 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-interface Props {
-  onAdd?: () => void;
-}
+interface Props { onAdd?: () => void }
 
 export default function AdminProductsGrid({ onAdd }: Props) {
-  const [products, setProducts] = useState<ApiProduct[]>([]);
-  const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
-  const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -29,52 +27,44 @@ export default function AdminProductsGrid({ onAdd }: Props) {
   const [editImages, setEditImages] = useState<string[]>([]);
   const [editUploadingCount, setEditUploadingCount] = useState(0);
   const [editDragging, setEditDragging] = useState(false);
-  const [editSaving, setEditSaving] = useState(false);
   const editFileRef = useRef<HTMLInputElement>(null);
 
-  const loadProducts = useCallback(async () => {
-    setLoading(true);
-    try {
+  const { data: productsRes, loading, refetch: refetchProducts } = useApiData(
+    () => {
       const filters: Record<string, string> = {};
       if (categoryId) filters.categoryId = categoryId;
       if (search) filters.search = search;
-      const res = await api.products.list(filters);
-      setProducts(res.data);
-    } catch {
-      setProducts([]);
-    } finally {
-      setLoading(false);
+      return api.products.list(filters);
+    },
+    [categoryId, search]
+  );
+  const products = productsRes?.data ?? [];
+
+  const { data: categoriesData } = useApiData(() => api.categories.list());
+  const categories: ApiCategory[] = categoriesData ?? [];
+
+  const { mutate: deleteProduct } = useMutation((id: string) => api.products.delete(id));
+
+  const { mutate: saveProduct, loading: editSaving } = useMutation(
+    async () => {
+      if (!editProduct) throw new Error('No product');
+      return api.products.update(editProduct.id, {
+        name: editForm.name,
+        slug: slugify(editForm.name) + '-' + Date.now(),
+        price: Number(editForm.price),
+        description: editForm.description || undefined,
+        badge: editForm.badge || undefined,
+        stock: Number(editForm.stock),
+        featured: editForm.featured,
+        images: editImages,
+        condition: editForm.condition,
+      });
+    },
+    {
+      onSuccess: () => { toast.success('Producto actualizado'); setEditProduct(null); refetchProducts(); },
+      onError: (msg) => toast.error(msg),
     }
-  }, [categoryId, search]);
-
-  useEffect(() => {
-    api.categories.list().then(setCategories).catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(loadProducts, 300);
-    return () => clearTimeout(t);
-  }, [loadProducts]);
-
-  const handleDelete = (id: string, name: string) => {
-    setDeleteConfirm({ id, name });
-  };
-
-  const confirmDelete = async () => {
-    if (!deleteConfirm) return;
-    const { id, name } = deleteConfirm;
-    setDeletingId(id);
-    setDeleteConfirm(null);
-    try {
-      await api.products.delete(id);
-      setProducts(prev => prev.filter(p => p.id !== id));
-      toast.success(`"${name}" eliminado`);
-    } catch {
-      toast.error('No se pudo eliminar el producto');
-    } finally {
-      setDeletingId(null);
-    }
-  };
+  );
 
   const openEdit = (p: ApiProduct) => {
     setEditProduct(p);
@@ -82,7 +72,21 @@ export default function AdminProductsGrid({ onAdd }: Props) {
     setEditImages(p.images ?? []);
     setEditUploadingCount(0);
     setEditDragging(false);
-    setEditSaving(false);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm) return;
+    const { id, name } = deleteConfirm;
+    setDeleteConfirm(null);
+    setDeletingId(id);
+    const result = await deleteProduct(id);
+    setDeletingId(null);
+    if (result !== null) {
+      refetchProducts();
+      toast.success(`"${name}" eliminado`);
+    } else {
+      toast.error('No se pudo eliminar el producto');
+    }
   };
 
   const uploadEditFiles = async (files: File[]) => {
@@ -102,41 +106,8 @@ export default function AdminProductsGrid({ onAdd }: Props) {
     }
   };
 
-  const handleEditDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setEditDragging(false);
-    uploadEditFiles(Array.from(e.dataTransfer.files));
-  };
-
-  const handleEditFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.length) uploadEditFiles(Array.from(e.target.files));
-    e.target.value = '';
-  };
-
-  const handleEditSave = async () => {
-    if (!editProduct) return;
-    setEditSaving(true);
-    try {
-      const updated = await api.products.update(editProduct.id, {
-        name: editForm.name,
-        slug: slugify(editForm.name) + '-' + Date.now(),
-        price: Number(editForm.price),
-        description: editForm.description || undefined,
-        badge: editForm.badge || undefined,
-        stock: Number(editForm.stock),
-        featured: editForm.featured,
-        images: editImages,
-        condition: editForm.condition,
-      });
-      setProducts(prev => prev.map(p => p.id === updated.id ? updated : p));
-      toast.success('Producto actualizado');
-      setEditProduct(null);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Error al actualizar');
-    } finally {
-      setEditSaving(false);
-    }
-  };
+  const handleEditDrop = (e: React.DragEvent) => { e.preventDefault(); setEditDragging(false); uploadEditFiles(Array.from(e.dataTransfer.files)); };
+  const handleEditFile = (e: React.ChangeEvent<HTMLInputElement>) => { if (e.target.files?.length) uploadEditFiles(Array.from(e.target.files)); e.target.value = ''; };
 
   return (
     <div className="flex flex-col gap-4">
@@ -151,15 +122,13 @@ export default function AdminProductsGrid({ onAdd }: Props) {
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar producto..." className="pl-9" />
         </div>
         <Select value={categoryId || '_all'} onValueChange={v => setCategoryId(v === '_all' ? '' : v)}>
-          <SelectTrigger className="w-full sm:w-[200px]">
-            <SelectValue />
-          </SelectTrigger>
+          <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="_all">Todas las categorías</SelectItem>
             {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button variant="outline" onClick={loadProducts} className="flex-shrink-0">
+        <Button variant="outline" onClick={refetchProducts} className="flex-shrink-0">
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
@@ -225,8 +194,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
               <span className="text-sm font-bold text-right">${Number(p.price).toLocaleString('es-AR')}</span>
               <span className={`text-sm text-center font-medium ${p.stock > 0 ? '' : 'text-destructive'}`}>{p.stock}</span>
               <div className="flex justify-center">
-                <Badge variant="outline"
-                  className={`text-[10px] ${p.condition === 'seminuevo' ? 'text-amber-600 border-amber-200 bg-amber-50' : 'text-foreground'}`}>
+                <Badge variant="outline" className={`text-[10px] ${p.condition === 'seminuevo' ? 'text-amber-600 border-amber-200 bg-amber-50' : 'text-foreground'}`}>
                   {p.condition === 'seminuevo' ? 'Semi' : 'Nuevo'}
                 </Badge>
               </div>
@@ -241,7 +209,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                   Editar
                 </Button>
                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  onClick={() => handleDelete(p.id, p.name)} disabled={deletingId === p.id}>
+                  onClick={() => setDeleteConfirm({ id: p.id, name: p.name })} disabled={deletingId === p.id}>
                   {deletingId === p.id
                     ? <div className="w-3 h-3 rounded-full border animate-spin border-destructive/30 border-t-destructive" />
                     : <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -278,7 +246,8 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                   onClick={() => setExpandedId(isOpen ? null : p.id)}>
                   <div className="w-10 h-10 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center bg-muted/40 border">
                     {p.images?.[0]
-                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" /> // eslint-disable-line @next/next/no-img-element
+                      // eslint-disable-next-line @next/next/no-img-element
+                      ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" />
                       : <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
                         </svg>
@@ -330,7 +299,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                         Editar
                       </Button>
                       <Button variant="ghost" className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(p.id, p.name)} disabled={deletingId === p.id}>
+                        onClick={() => setDeleteConfirm({ id: p.id, name: p.name })} disabled={deletingId === p.id}>
                         {deletingId === p.id
                           ? <div className="w-4 h-4 rounded-full border-2 animate-spin border-destructive/20 border-t-destructive" />
                           : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -347,21 +316,13 @@ export default function AdminProductsGrid({ onAdd }: Props) {
         )}
       </div>
 
-      {/* Delete confirm */}
-      <Dialog open={!!deleteConfirm} onOpenChange={open => !open && setDeleteConfirm(null)}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>¿Eliminar producto?</DialogTitle>
-          </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">{deleteConfirm?.name}</span> — Esta acción no se puede deshacer.
-          </p>
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setDeleteConfirm(null)}>Cancelar</Button>
-            <Button variant="destructive" className="flex-1" onClick={confirmDelete}>Eliminar</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ConfirmDeleteDialog
+        open={!!deleteConfirm}
+        title="¿Eliminar producto?"
+        itemName={deleteConfirm?.name}
+        onCancel={() => setDeleteConfirm(null)}
+        onConfirm={confirmDelete}
+      />
 
       {/* Edit Dialog */}
       <Dialog open={!!editProduct} onOpenChange={open => !open && setEditProduct(null)}>
@@ -481,7 +442,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
 
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={() => setEditProduct(null)}>Cancelar</Button>
-              <Button className="flex-1" onClick={handleEditSave} disabled={editSaving || editUploadingCount > 0}>
+              <Button className="flex-1" onClick={() => saveProduct()} disabled={editSaving || editUploadingCount > 0}>
                 {editSaving ? (
                   <span className="flex items-center gap-2">
                     <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
