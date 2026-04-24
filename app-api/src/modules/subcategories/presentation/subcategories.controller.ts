@@ -6,6 +6,8 @@ import { UpdateSubcategoryUseCase } from '../application/use-cases/update-subcat
 import { DeleteSubcategoryUseCase } from '../application/use-cases/delete-subcategory.use-case';
 import { CreateSubcategoryDto } from '../application/dtos/create-subcategory.dto';
 import { UpdateSubcategoryDto } from '../application/dtos/update-subcategory.dto';
+import { Public } from '../../../shared/auth/decorators/public.decorator';
+import { Permissions } from '../../../shared/auth/decorators/permissions.decorator';
 
 @Controller('subcategories')
 export class SubcategoriesController {
@@ -17,26 +19,31 @@ export class SubcategoriesController {
     private readonly deleteSubcategory: DeleteSubcategoryUseCase,
   ) {}
 
+  @Permissions('categories:write')
   @Post()
   create(@Body() dto: CreateSubcategoryDto) {
     return this.createSubcategory.execute(dto);
   }
 
+  @Public()
   @Get()
   findAll(@Query('categoryId') categoryId?: string) {
     return this.findSubcategories.execute(categoryId);
   }
 
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.findSubcategory.execute(id);
   }
 
+  @Permissions('categories:write')
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateSubcategoryDto) {
     return this.updateSubcategory.execute(id, dto);
   }
 
+  @Permissions('categories:delete')
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.deleteSubcategory.execute(id);

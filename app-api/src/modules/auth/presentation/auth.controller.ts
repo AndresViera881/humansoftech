@@ -6,7 +6,9 @@ import { ChangePasswordUseCase } from '../application/use-cases/change-password.
 import { LoginDto } from '../application/dtos/login.dto';
 import { RegisterDto } from '../application/dtos/register.dto';
 import { ChangePasswordDto } from '../application/dtos/change-password.dto';
+import { Public } from '../../../shared/auth/decorators/public.decorator';
 
+@Public()
 @Controller('auth')
 export class AuthController {
   constructor(

@@ -2,6 +2,8 @@ import { Controller, Post, Get, Body, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import { RecordVisitUseCase } from '../application/use-cases/record-visit.use-case';
 import { GetVisitStatsUseCase } from '../application/use-cases/get-visit-stats.use-case';
+import { Public } from '../../../shared/auth/decorators/public.decorator';
+import { Permissions } from '../../../shared/auth/decorators/permissions.decorator';
 
 @Controller('visits')
 export class VisitsController {
@@ -10,6 +12,7 @@ export class VisitsController {
     private readonly getVisitStats: GetVisitStatsUseCase,
   ) {}
 
+  @Public()
   @Post()
   record(@Req() req: Request, @Body() body: { page?: string; referrer?: string }) {
     const ip =
@@ -28,6 +31,7 @@ export class VisitsController {
     });
   }
 
+  @Permissions('analytics:read')
   @Get('stats')
   stats() {
     return this.getVisitStats.execute();

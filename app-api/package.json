@@ -24,6 +24,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
+    "db:seed-rbac": "ts-node prisma/seed-rbac.ts",
     "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio"
   },
@@ -31,19 +32,24 @@
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/jwt": "^11.0.2",
     "@nestjs/mapped-types": "^2.1.1",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@prisma/client": "^6.19.3",
     "@types/multer": "^2.1.0",
+    "@types/passport-jwt": "^4.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "cloudinary": "^2.9.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "prisma": "^6.19.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "ts-node prisma/seed.ts && ts-node prisma/seed-rbac.ts"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

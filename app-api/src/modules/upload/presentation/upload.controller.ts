@@ -2,6 +2,7 @@ import { Controller, Post, UploadedFile, UploadedFiles, UseInterceptors, BadRequ
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { UploadFileUseCase } from '../application/use-cases/upload-file.use-case';
+import { Permissions } from '../../../shared/auth/decorators/permissions.decorator';
 
 const multerOptions = {
   storage: memoryStorage(),
@@ -18,6 +19,7 @@ const multerOptions = {
 export class UploadController {
   constructor(private readonly uploadFile: UploadFileUseCase) {}
 
+  @Permissions('products:write')
   @Post()
   @UseInterceptors(FileInterceptor('file', multerOptions))
   async upload(@UploadedFile() file: Express.Multer.File) {
@@ -26,6 +28,7 @@ export class UploadController {
     return { url: result.secure_url, publicId: result.public_id };
   }
 
+  @Permissions('products:write')
   @Post('multiple')
   @UseInterceptors(FilesInterceptor('files', 10, multerOptions))
   async uploadMultiple(@UploadedFiles() files: Express.Multer.File[]) {

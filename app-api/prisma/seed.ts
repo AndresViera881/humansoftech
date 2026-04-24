@@ -119,14 +119,17 @@ async function main() {
   await prisma.role.deleteMany();
 
   // Roles
+  await prisma.role.create({ data: { name: 'super_admin', description: 'Acceso completo e irrestricto al sistema' } });
   const adminRole = await prisma.role.create({ data: { name: 'admin', description: 'Acceso total al panel de administración' } });
   await prisma.role.create({ data: { name: 'editor', description: 'Puede crear y editar productos' } });
+  await prisma.role.create({ data: { name: 'customer', description: 'Cliente del ecommerce' } });
 
-  // Users
+  // Users — update cedula to match the real admin account if re-seeding
   await prisma.user.create({
     data: {
-      name: 'Admin',
+      name: 'Andres Viera',
       email: 'aviera@humansoftechs.com',
+      cedula: '1721264263',
       password: hashPassword('#andres.Viera123!'),
       roleId: adminRole.id,
     },
@@ -152,7 +155,7 @@ async function main() {
   console.log(`✅ ${categories.length} categorías creadas`);
 
   console.log(`\n🎉 Seed completo: ${brands.length} marcas, ${categories.length} categorías, 0 productos`);
-  console.log('   Login: admin@techstore.com / admin123');
+  console.log('   Login: CI 1721264263 / #andres.Viera123!');
 }
 
 main()
