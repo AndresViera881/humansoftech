@@ -3,17 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, MenuItem } from '@/lib/auth-context';
-import AdminPanel from '@/components/AdminPanel';
-import AdminProductsGrid from '@/components/AdminProductsGrid';
-import AdminUsersGrid from '@/components/AdminUsersGrid';
-import AdminVisitsGrid from '@/components/AdminVisitsGrid';
-import AdminCategoriesGrid from '@/components/AdminCategoriesGrid';
-import AdminSubcategoriesGrid from '@/components/AdminSubcategoriesGrid';
-import AdminRolesGrid from '@/components/AdminRolesGrid';
-import AdminMenusGrid from '@/components/AdminMenusGrid';
-import AdminPermissionsGrid from '@/components/AdminPermissionsGrid';
-import ChangePasswordModal from '@/components/ChangePasswordModal';
-import { LogoIcon } from '@/components/Logo';
+import AdminPanel from '@/components/admin/AdminPanel';
+import AdminProductsGrid from '@/components/admin/AdminProductsGrid';
+import AdminUsersGrid from '@/components/admin/AdminUsersGrid';
+import AdminVisitsGrid from '@/components/admin/AdminVisitsGrid';
+import AdminCategoriesGrid from '@/components/admin/AdminCategoriesGrid';
+import AdminSubcategoriesGrid from '@/components/admin/AdminSubcategoriesGrid';
+import AdminRolesGrid from '@/components/admin/AdminRolesGrid';
+import AdminMenusGrid from '@/components/admin/AdminMenusGrid';
+import AdminPermissionsGrid from '@/components/admin/AdminPermissionsGrid';
+import ChangePasswordModal from '@/components/auth/ChangePasswordModal';
+import { LogoIcon } from '@/components/layout/Logo';
 import {
   DropdownMenu,
   DropdownMenuContent,

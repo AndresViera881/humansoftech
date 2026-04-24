@@ -3,11 +3,11 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
-import Navbar from '@/components/Navbar';
-import FilterPanel from '@/components/FilterPanel';
-import ProductGrid from '@/components/ProductGrid';
-import LoginModal from '@/components/LoginModal';
-import Logo, { LogoFooter, LogoIconGradient } from '@/components/Logo';
+import Navbar from '@/components/layout/Navbar';
+import FilterPanel from '@/components/catalog/FilterPanel';
+import ProductGrid from '@/components/catalog/ProductGrid';
+import LoginModal from '@/components/auth/LoginModal';
+import Logo, { LogoFooter, LogoIconGradient } from '@/components/layout/Logo';
 import { api, ApiCategory, ApiProduct } from '@/lib/api';
 
 const WA_PHONE = '5930995351473';
