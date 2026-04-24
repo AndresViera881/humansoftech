@@ -6,9 +6,7 @@ import { useAuth } from '@/lib/auth-context';
 import CustomerAuthModal from '@/components/CustomerAuthModal';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -35,16 +33,24 @@ export default function CartSidebar() {
   return (
     <>
       <Sheet open={isOpen} onOpenChange={open => !open && closeCart()}>
-        <SheetContent className="w-full max-w-[420px] flex flex-col p-0" side="right">
+        <SheetContent className="w-full max-w-[420px] flex flex-col p-0" side="right"
+          style={{ background: '#f9fafb' }}>
 
           {/* Header */}
-          <SheetHeader className="px-5 py-4 border-b flex-row items-center gap-2 space-y-0">
-            <svg className="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-            </svg>
+          <SheetHeader className="px-5 py-4 flex-row items-center gap-2 space-y-0 bg-white"
+            style={{ borderBottom: '1px solid rgba(37,99,235,0.12)', boxShadow: '0 1px 4px rgba(37,99,235,0.06)' }}>
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(37,99,235,0.08)', color: '#2563eb' }}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
             <SheetTitle className="font-black text-base flex-1">Mi carrito</SheetTitle>
             {count > 0 && (
-              <Badge variant="secondary" className="text-blue-600 bg-blue-50 border-blue-200">{count}</Badge>
+              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+                style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }}>
+                {count}
+              </span>
             )}
           </SheetHeader>
 
@@ -61,36 +67,44 @@ export default function CartSidebar() {
             ) : (
               <div className="flex flex-col gap-3">
                 {items.map(item => (
-                  <div key={item.id} className="flex gap-3 p-3 rounded-xl bg-muted/40 border">
-                    <div className="flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden bg-white border w-16 h-16">
+                  <div key={item.id} className="flex gap-3 p-3 rounded-xl bg-white"
+                    style={{ border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                    <div className="flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden w-16 h-16"
+                      style={{ background: '#f9fafb', border: '1px solid rgba(0,0,0,0.07)' }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={item.image || FALLBACK} alt={item.name}
                         className="object-contain p-1 w-14 h-14" style={{ mixBlendMode: 'multiply' }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold leading-tight truncate">{item.name}</p>
-                      <p className="text-base font-black mt-1 text-blue-600">
+                      <p className="text-sm font-semibold leading-tight truncate text-foreground">{item.name}</p>
+                      <p className="text-base font-black mt-1" style={{ color: '#2563eb' }}>
                         ${(item.price * item.quantity).toLocaleString('es-EC', { minimumFractionDigits: 2 })}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         ${item.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })} c/u
                       </p>
                       <div className="flex items-center gap-2 mt-2">
-                        <Button variant="outline" size="icon" className="w-6 h-6 text-sm"
+                        <button
+                          className="w-6 h-6 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                          style={{ background: '#f3f4f6', border: '1px solid rgba(0,0,0,0.1)', color: '#374151' }}
                           onClick={() => item.quantity === 1 ? removeItem(item.id) : updateQuantity(item.id, item.quantity - 1)}>
                           −
-                        </Button>
+                        </button>
                         <span className="text-sm font-bold w-4 text-center">{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="w-6 h-6 text-sm"
+                        <button
+                          className="w-6 h-6 rounded-lg flex items-center justify-center text-sm font-bold transition-colors"
+                          style={{ background: '#f3f4f6', border: '1px solid rgba(0,0,0,0.1)', color: '#374151' }}
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                           +
-                        </Button>
-                        <Button variant="ghost" size="icon" className="ml-auto w-6 h-6 text-destructive hover:text-destructive"
+                        </button>
+                        <button
+                          className="ml-auto w-7 h-7 rounded-lg flex items-center justify-center transition-colors"
+                          style={{ color: '#ef4444' }}
                           onClick={() => removeItem(item.id)} title="Eliminar">
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                             <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
-                        </Button>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -101,32 +115,44 @@ export default function CartSidebar() {
 
           {/* Footer */}
           {items.length > 0 && (
-            <div className="px-4 pb-6 pt-3 border-t flex flex-col gap-3">
-              <div className="flex items-center justify-between px-1">
+            <div className="px-4 pb-6 pt-4 flex flex-col gap-3 bg-white"
+              style={{ borderTop: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 -2px 8px rgba(0,0,0,0.04)' }}>
+
+              <div className="flex items-center justify-between px-1 py-1">
                 <span className="text-sm font-semibold text-muted-foreground">Total</span>
-                <span className="text-2xl font-black">${total.toLocaleString('es-EC', { minimumFractionDigits: 2 })}</span>
+                <span className="text-2xl font-black" style={{ color: '#111827' }}>
+                  ${total.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
+                </span>
               </div>
 
               {!loggedUser && (
-                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-amber-50 border border-amber-200">
-                  <svg className="w-4 h-4 flex-shrink-0 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl"
+                  style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)' }}>
+                  <svg className="w-4 h-4 flex-shrink-0" style={{ color: '#d97706' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                   </svg>
-                  <span className="text-xs font-medium text-amber-700">Debes iniciar sesión para enviar tu pedido</span>
+                  <span className="text-xs font-medium" style={{ color: '#92400e' }}>Debes iniciar sesión para enviar tu pedido</span>
                 </div>
               )}
 
               {loggedUser && (
-                <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-blue-50 border border-blue-100">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
+                  style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)' }}>
+                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
                     {loggedUser.name[0].toUpperCase()}
                   </div>
-                  <span className="text-xs font-medium truncate text-foreground">{loggedUser.name}</span>
+                  <span className="text-sm font-semibold truncate" style={{ color: '#1e40af' }}>{loggedUser.name}</span>
                 </div>
               )}
 
-              <Button onClick={handleWhatsApp} className={loggedUser ? 'bg-green-600 hover:bg-green-700' : ''}>
+              <button onClick={handleWhatsApp}
+                className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm transition-all"
+                style={{
+                  background: loggedUser ? '#16a34a' : '#2563eb',
+                  color: '#fff',
+                  boxShadow: loggedUser ? '0 4px 14px rgba(22,163,74,0.35)' : '0 4px 14px rgba(37,99,235,0.35)',
+                }}>
                 {loggedUser ? (
                   <>
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -143,12 +169,13 @@ export default function CartSidebar() {
                     Iniciar sesión para continuar
                   </>
                 )}
-              </Button>
+              </button>
 
-              <Separator />
-              <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={clearCart}>
+              <button onClick={clearCart}
+                className="text-xs font-medium text-center py-1 transition-colors"
+                style={{ color: '#9ca3af' }}>
                 Vaciar carrito
-              </Button>
+              </button>
             </div>
           )}
         </SheetContent>
