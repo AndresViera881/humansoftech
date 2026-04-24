@@ -86,20 +86,32 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           )}
         </div>
 
-        <div className="flex flex-col flex-1 p-4 gap-2">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        <div className="flex flex-col flex-1 p-4 gap-1.5">
+          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             {product.category}
           </p>
-          <h3 className="font-bold text-base leading-snug text-foreground" style={{ lineHeight: '1.35' }}>
+          <h3 className="font-bold text-sm leading-snug text-foreground" style={{ lineHeight: '1.35', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
             {product.name}
           </h3>
-          <p className="text-sm flex-1 text-muted-foreground" style={{
-            lineHeight: '1.6',
-            display: '-webkit-box', WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '64px',
-          }}>
-            {product.description}
-          </p>
+          {product.price > 0 && (
+            <p className="text-xl font-black" style={{ color: '#2563eb', letterSpacing: '-0.5px' }}>
+              ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
+            </p>
+          )}
+          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit"
+            style={product.condition === 'nuevo'
+              ? { background: 'rgba(22,163,74,0.1)', color: '#16a34a' }
+              : { background: 'rgba(245,158,11,0.1)', color: '#d97706' }}>
+            {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
+          </span>
+          {product.description && (
+            <p className="text-xs text-muted-foreground flex-1" style={{
+              lineHeight: '1.55', display: '-webkit-box', WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical', overflow: 'hidden',
+            }}>
+              {product.description}
+            </p>
+          )}
         </div>
 
         <div className="px-4 pb-4 flex flex-col gap-2">
