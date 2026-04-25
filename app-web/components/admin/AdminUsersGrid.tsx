@@ -7,13 +7,18 @@ import { api, ApiUser, ApiRole } from '@/lib/api';
 import { useApiData } from '@/hooks/useApiData';
 import { useMutation } from '@/hooks/useMutation';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import { AdminToolbar } from './AdminToolbar';
+import { TableLoading, TableEmpty } from './TableStates';
+import { RowActions } from './RowActions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { FormField } from '@/components/ui/form-field';
+import { SaveButton } from '@/components/ui/save-button';
+import { ErrorBanner } from '@/components/ui/error-banner';
 
 type CropArea = { x: number; y: number; width: number; height: number };
 
@@ -111,6 +116,7 @@ function UserAvatar({ user, size = 36 }: { user: ApiUser; size?: number }) {
 }
 
 export default function AdminUsersGrid() {
+  const [search, setSearch] = useState('');
   const [modalMode, setModalMode] = useState<ModalMode>('create');
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -128,8 +134,12 @@ export default function AdminUsersGrid() {
     Promise.all([api.users.list(), api.roles.list()])
       .then(([users, roles]) => ({ users, roles }))
   );
-  const users: ApiUser[] = data?.users ?? [];
+  const allUsers: ApiUser[] = data?.users ?? [];
   const roles: ApiRole[] = data?.roles ?? [];
+  const users = allUsers.filter(u =>
+    u.name.toLowerCase().includes(search.toLowerCase()) ||
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
 
   const { mutate: saveUser, loading: saving } = useMutation(
     async (f: UserForm) => {
@@ -191,31 +201,25 @@ export default function AdminUsersGrid() {
     if (file) loadPhotoForCrop(file);
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-24">
-      <div className="w-8 h-8 rounded-full border-2 animate-spin border-border border-t-foreground" />
-    </div>
-  );
-
-  if (error) return <p className="text-center py-16 text-sm text-destructive">{error}</p>;
-
   return (
-    <>
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-lg font-bold">Usuarios</h2>
-          <p className="text-sm text-muted-foreground">{users.length} usuario{users.length !== 1 ? 's' : ''} registrado{users.length !== 1 ? 's' : ''}</p>
-        </div>
-        <Button onClick={openCreate}>
-          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Nuevo usuario
-        </Button>
-      </div>
+    <div className="flex flex-col gap-4">
+      <AdminToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar por nombre o email..."
+        onRefresh={refetch}
+        onAdd={openCreate}
+        addLabel="Nuevo usuario"
+      />
+
+      <p className="text-xs text-muted-foreground">{users.length} usuario{users.length !== 1 ? 's' : ''}</p>
 
       {/* Desktop table */}
+      {loading ? (
+        <TableLoading className="hidden sm:flex" />
+      ) : users.length === 0 ? (
+        <TableEmpty message="Sin usuarios" className="hidden sm:flex" />
+      ) : (
       <div className="hidden sm:block rounded-2xl overflow-hidden bg-white border shadow-sm">
         <div style={{ height: '3px', background: 'linear-gradient(90deg, #111827, #374151)' }} />
         <div className="overflow-x-auto">
@@ -228,9 +232,6 @@ export default function AdminUsersGrid() {
               </tr>
             </thead>
             <tbody>
-              {users.length === 0 && (
-                <tr><td colSpan={7} className="px-4 py-12 text-center text-sm text-muted-foreground">No hay usuarios registrados</td></tr>
-              )}
               {users.map((user, i) => (
                 <tr key={user.id} style={{ borderBottom: i < users.length - 1 ? '1px solid var(--border)' : 'none' }}
                   className="transition-colors hover:bg-muted/20">
@@ -271,13 +272,14 @@ export default function AdminUsersGrid() {
           </table>
         </div>
       </div>
+      )}
 
       {/* Mobile accordion */}
       <div className="flex sm:hidden flex-col gap-2">
-        {users.length === 0 ? (
-          <div className="flex items-center justify-center py-14 rounded-2xl text-sm bg-white border text-muted-foreground">
-            No hay usuarios registrados
-          </div>
+        {loading ? (
+          <TableLoading card />
+        ) : users.length === 0 ? (
+          <TableEmpty card message="Sin usuarios" />
         ) : users.map(user => {
           const isOpen = expandedId === user.id;
           return (
@@ -320,21 +322,7 @@ export default function AdminUsersGrid() {
                     <p className="text-xs font-semibold uppercase tracking-wider mb-0.5 text-muted-foreground">Email</p>
                     <p className="text-sm truncate text-muted-foreground">{user.email}</p>
                   </div>
-                  <div className="flex gap-2 pt-1">
-                    <Button variant="outline" className="flex-1 gap-1.5" onClick={() => openEdit(user)}>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Editar
-                    </Button>
-                    <Button variant="ghost" className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setDeleteId(user.id)}>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                      Eliminar
-                    </Button>
-                  </div>
+                  <RowActions variant="text" onEdit={() => openEdit(user)} onDelete={() => setDeleteId(user.id)} />
                 </div>
               )}
             </div>
@@ -350,8 +338,7 @@ export default function AdminUsersGrid() {
           </DialogHeader>
 
           {/* Photo upload */}
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Foto del colaborador</Label>
+          <FormField label="Foto del colaborador">
 
             {cropSrc ? (
               <div className="flex flex-col items-center p-4 rounded-xl bg-muted/40 border">
@@ -388,29 +375,22 @@ export default function AdminUsersGrid() {
               </div>
             )}
             <input ref={photoInputRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
-          </div>
+          </FormField>
 
           <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre completo</Label>
+            <FormField label="Nombre completo">
               <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Nombre completo" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Cédula de identidad</Label>
+            </FormField>
+            <FormField label="Cédula de identidad">
               <Input value={form.cedula} onChange={e => setForm(f => ({ ...f, cedula: e.target.value }))} placeholder="0912345678" maxLength={13} />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Email</Label>
+            </FormField>
+            <FormField label="Email">
               <Input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@ejemplo.com" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Contraseña {modalMode === 'edit' && <span className="normal-case font-normal text-muted-foreground">(dejar vacío para no cambiar)</span>}
-              </Label>
+            </FormField>
+            <FormField label="Contraseña" note={modalMode === 'edit' ? '(dejar vacío para no cambiar)' : undefined}>
               <Input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Mínimo 6 caracteres" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rol</Label>
+            </FormField>
+            <FormField label="Rol">
               <Select value={form.roleId || '_none'} onValueChange={v => setForm(f => ({ ...f, roleId: v === '_none' ? '' : v }))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar rol..." />
@@ -420,29 +400,20 @@ export default function AdminUsersGrid() {
                   {roles.filter(r => r.name !== 'customer').map(r => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
+            </FormField>
             <div className="flex items-center gap-3">
               <Checkbox id="user-active" checked={form.active} onCheckedChange={v => setForm(f => ({ ...f, active: !!v }))} />
               <label htmlFor="user-active" className="text-sm font-medium cursor-pointer">Usuario activo</label>
             </div>
           </div>
 
-          {formError && (
-            <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl bg-destructive/10 border border-destructive/20">
-              <span className="text-xs font-medium text-destructive">{formError}</span>
-            </div>
-          )}
+          <ErrorBanner message={formError} />
 
           <div className="flex justify-end gap-3">
             <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSave} disabled={saving || uploadingPhoto}>
-              {saving ? (
-                <span className="flex items-center gap-2">
-                  <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
-                  Guardando...
-                </span>
-              ) : modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
-            </Button>
+            <SaveButton onClick={handleSave} loading={saving} disabled={uploadingPhoto}>
+              {modalMode === 'create' ? 'Crear colaborador' : 'Guardar cambios'}
+            </SaveButton>
           </div>
         </DialogContent>
       </Dialog>
@@ -499,6 +470,6 @@ export default function AdminUsersGrid() {
         onCancel={() => setDeleteId(null)}
         onConfirm={() => { if (deleteId) deleteUser(deleteId); }}
       />
-    </>
+    </div>
   );
 }

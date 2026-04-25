@@ -7,6 +7,7 @@ import CustomerAuthModal from '@/components/auth/CustomerAuthModal';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { LogoIconGradient } from '@/components/layout/Logo';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -138,9 +139,9 @@ export default function CartSidebar() {
               {loggedUser && (
                 <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl"
                   style={{ background: 'rgba(37,99,235,0.06)', border: '1px solid rgba(37,99,235,0.15)' }}>
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
-                    {loggedUser.name[0].toUpperCase()}
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden"
+                    style={{ background: '#111827', padding: '4px' }}>
+                    <LogoIconGradient size={16} />
                   </div>
                   <span className="text-sm font-semibold truncate" style={{ color: '#1e40af' }}>{loggedUser.name}</span>
                 </div>

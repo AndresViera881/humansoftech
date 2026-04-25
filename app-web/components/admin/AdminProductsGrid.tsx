@@ -5,20 +5,26 @@ import { toast } from 'sonner';
 import { api, ApiProduct, ApiCategory, slugify } from '@/lib/api';
 import { useApiData } from '@/hooks/useApiData';
 import { useMutation } from '@/hooks/useMutation';
+import { useDebounce } from '@/hooks/useDebounce';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import { AdminToolbar } from './AdminToolbar';
+import { TableLoading, TableEmpty, PackageIcon } from './TableStates';
+import { RowActions } from './RowActions';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormField } from '@/components/ui/form-field';
+import { SaveButton } from '@/components/ui/save-button';
 
 interface Props { onAdd?: () => void }
 
 export default function AdminProductsGrid({ onAdd }: Props) {
   const [search, setSearch] = useState('');
   const [categoryId, setCategoryId] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -33,10 +39,10 @@ export default function AdminProductsGrid({ onAdd }: Props) {
     () => {
       const filters: Record<string, string> = {};
       if (categoryId) filters.categoryId = categoryId;
-      if (search) filters.search = search;
+      if (debouncedSearch) filters.search = debouncedSearch;
       return api.products.list(filters);
     },
-    [categoryId, search]
+    [categoryId, debouncedSearch]
   );
   const products = productsRes?.data ?? [];
 
@@ -112,37 +118,22 @@ export default function AdminProductsGrid({ onAdd }: Props) {
   return (
     <div className="flex flex-col gap-4">
 
-      {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
-            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
-          </svg>
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar producto..." className="pl-9" />
-        </div>
-        <Select value={categoryId || '_all'} onValueChange={v => setCategoryId(v === '_all' ? '' : v)}>
-          <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="_all">Todas las categorías</SelectItem>
-            {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <Button variant="outline" onClick={refetchProducts} className="flex-shrink-0">
-          <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-          Actualizar
-        </Button>
-        {onAdd && (
-          <Button onClick={onAdd} className="flex-shrink-0">
-            <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-            </svg>
-            Agregar
-          </Button>
-        )}
-      </div>
+      <AdminToolbar
+        search={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Buscar producto..."
+        onRefresh={refetchProducts}
+        onAdd={onAdd}
+        filters={
+          <Select value={categoryId || '_all'} onValueChange={v => setCategoryId(v === '_all' ? '' : v)}>
+            <SelectTrigger className="w-full sm:w-[200px]"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="_all">Todas las categorías</SelectItem>
+              {categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        }
+      />
 
       {/* Count */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -167,17 +158,9 @@ export default function AdminProductsGrid({ onAdd }: Props) {
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-16 gap-3 bg-white">
-            <div className="w-5 h-5 rounded-full border-2 animate-spin border-border border-t-foreground" />
-            <span className="text-sm text-muted-foreground">Cargando...</span>
-          </div>
+          <TableLoading />
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 bg-white">
-            <svg className="w-10 h-10 text-muted-foreground/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-            </svg>
-            <span className="text-sm text-muted-foreground">Sin productos</span>
-          </div>
+          <TableEmpty message="Sin productos" icon={<PackageIcon />} />
         ) : (
           products.map((p, i) => (
             <div key={p.id}
@@ -226,17 +209,9 @@ export default function AdminProductsGrid({ onAdd }: Props) {
       {/* Mobile accordion */}
       <div className="flex sm:hidden flex-col gap-2">
         {loading ? (
-          <div className="flex items-center justify-center py-16 gap-3 rounded-2xl bg-white border">
-            <div className="w-5 h-5 rounded-full border-2 animate-spin border-border border-t-foreground" />
-            <span className="text-sm text-muted-foreground">Cargando...</span>
-          </div>
+          <TableLoading card />
         ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 gap-2 rounded-2xl bg-white border">
-            <svg className="w-10 h-10 text-muted-foreground/20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10" />
-            </svg>
-            <span className="text-sm text-muted-foreground">Sin productos</span>
-          </div>
+          <TableEmpty card message="Sin productos" icon={<PackageIcon />} />
         ) : (
           products.map(p => {
             const isOpen = expandedId === p.id;
@@ -291,23 +266,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                         <p className="text-xs text-muted-foreground leading-relaxed">{p.description}</p>
                       </div>
                     )}
-                    <div className="flex gap-2 pt-1">
-                      <Button variant="outline" className="flex-1 gap-1.5" onClick={() => openEdit(p)}>
-                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Editar
-                      </Button>
-                      <Button variant="ghost" className="flex-1 gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => setDeleteConfirm({ id: p.id, name: p.name })} disabled={deletingId === p.id}>
-                        {deletingId === p.id
-                          ? <div className="w-4 h-4 rounded-full border-2 animate-spin border-destructive/20 border-t-destructive" />
-                          : <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>}
-                        Eliminar
-                      </Button>
-                    </div>
+                    <RowActions variant="text" onEdit={() => openEdit(p)} onDelete={() => setDeleteConfirm({ id: p.id, name: p.name })} deleting={deletingId === p.id} />
                   </div>
                 )}
               </div>
@@ -333,29 +292,24 @@ export default function AdminProductsGrid({ onAdd }: Props) {
           </DialogHeader>
 
           <div className="overflow-y-auto px-6 py-5 flex flex-col gap-4 min-h-0">
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nombre</Label>
+            <FormField label="Nombre">
               <Input value={editForm.name} onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))} />
-            </div>
+            </FormField>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Precio ($)</Label>
+              <FormField label="Precio ($)">
                 <Input type="number" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: e.target.value }))} />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Stock</Label>
+              </FormField>
+              <FormField label="Stock">
                 <Input type="number" value={editForm.stock} onChange={e => setEditForm(f => ({ ...f, stock: e.target.value }))} />
-              </div>
+              </FormField>
             </div>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Badge</Label>
+            <FormField label="Badge">
               <Input value={editForm.badge} onChange={e => setEditForm(f => ({ ...f, badge: e.target.value }))} placeholder="ej. OFERTA, HOT..." />
-            </div>
+            </FormField>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Condición</Label>
+            <FormField label="Condición">
               <div className="flex gap-2">
                 {(['nuevo', 'seminuevo'] as const).map(val => (
                   <button key={val} type="button"
@@ -370,18 +324,13 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                   </button>
                 ))}
               </div>
-            </div>
+            </FormField>
 
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Descripción</Label>
+            <FormField label="Descripción">
               <Textarea value={editForm.description} onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))} rows={2} className="resize-none" />
-            </div>
+            </FormField>
 
-            {/* Images */}
-            <div className="flex flex-col gap-1.5">
-              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Imágenes <span className="normal-case font-normal text-muted-foreground/60">(arrastra o haz clic)</span>
-              </Label>
+            <FormField label="Imágenes" note="(arrastra o haz clic)">
               <div
                 onDragOver={e => { e.preventDefault(); setEditDragging(true); }}
                 onDragLeave={() => setEditDragging(false)}
@@ -406,7 +355,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                 )}
               </div>
               {editImages.length > 0 && (
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-2 mt-2">
                   {editImages.map((url, i) => (
                     <div key={url} className="relative rounded-lg overflow-hidden group"
                       style={{ aspectRatio: '1', background: '#f9fafb', border: `1px solid ${i === 0 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)'}` }}>
@@ -428,7 +377,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                   ))}
                 </div>
               )}
-            </div>
+            </FormField>
 
             <label className="flex items-center gap-3 cursor-pointer">
               <div onClick={() => setEditForm(f => ({ ...f, featured: !f.featured }))}
@@ -442,14 +391,15 @@ export default function AdminProductsGrid({ onAdd }: Props) {
 
             <div className="flex gap-3 pt-1">
               <Button variant="outline" className="flex-1" onClick={() => setEditProduct(null)}>Cancelar</Button>
-              <Button className="flex-1" onClick={() => saveProduct()} disabled={editSaving || editUploadingCount > 0}>
-                {editSaving ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
-                    Guardando...
-                  </span>
-                ) : editUploadingCount > 0 ? 'Esperando imágenes...' : 'Guardar cambios'}
-              </Button>
+              <SaveButton
+                className="flex-1"
+                onClick={() => saveProduct()}
+                loading={editSaving}
+                disabled={editUploadingCount > 0}
+                loadingText={editUploadingCount > 0 ? 'Esperando imágenes...' : 'Guardando...'}
+              >
+                Guardar cambios
+              </SaveButton>
             </div>
           </div>
         </DialogContent>

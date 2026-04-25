@@ -10,9 +10,13 @@ interface ProductGridProps {
   products: Product[];
   sort: SortKey;
   onSortChange: (sort: SortKey) => void;
+  hasMore?: boolean;
+  loadingMore?: boolean;
+  onLoadMore?: () => void;
+  total?: number;
 }
 
-export default function ProductGrid({ products, sort, onSortChange }: ProductGridProps) {
+export default function ProductGrid({ products, sort, onSortChange, hasMore, loadingMore, onLoadMore, total }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -23,13 +27,17 @@ export default function ProductGrid({ products, sort, onSortChange }: ProductGri
     );
   }
 
+  const count = total ?? products.length;
+
   return (
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
           <h2 className="text-xl font-black text-foreground">Productos</h2>
-          <p className="text-sm text-muted-foreground">{products.length} resultado{products.length !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-muted-foreground">
+            {products.length}{count > products.length ? ` de ${count}` : ''} resultado{count !== 1 ? 's' : ''}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground hidden sm:inline">Ordenar:</span>
@@ -57,6 +65,26 @@ export default function ProductGrid({ products, sort, onSortChange }: ProductGri
           </div>
         ))}
       </div>
+
+      {/* Load more */}
+      {hasMore && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={onLoadMore}
+            disabled={loadingMore}
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-150"
+            style={{ background: '#fff', border: '1.5px solid rgba(0,0,0,0.12)', color: '#374151', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
+            onMouseEnter={e => { if (!loadingMore) (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)'; }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'; }}>
+            {loadingMore ? (
+              <>
+                <span className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-gray-600 animate-spin" />
+                Cargando...
+              </>
+            ) : 'Cargar más productos'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

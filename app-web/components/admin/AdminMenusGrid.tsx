@@ -8,8 +8,9 @@ import { useMutation } from '@/hooks/useMutation';
 import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormField } from '@/components/ui/form-field';
+import { RowActions } from './RowActions';
 
 interface MenuForm { label: string; icon: string; path: string; parentId: string; sortOrder: string }
 const EMPTY_FORM: MenuForm = { label: '', icon: '', path: '', parentId: '', sortOrder: '0' };
@@ -72,20 +73,16 @@ export default function AdminMenusGrid() {
       <div className="rounded-2xl p-6 bg-white border shadow-sm">
         <h2 className="text-sm font-black mb-4 text-foreground">{editingId ? 'Editar menú' : 'Nuevo menú'}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Etiqueta *</Label>
+          <FormField label="Etiqueta *">
             <Input value={form.label} onChange={e => setForm(p => ({ ...p, label: e.target.value }))} placeholder="ej: Inventario" />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ruta (path)</Label>
+          </FormField>
+          <FormField label="Ruta (path)">
             <Input value={form.path} onChange={e => setForm(p => ({ ...p, path: e.target.value }))} placeholder="ej: inventory" />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ícono</Label>
+          </FormField>
+          <FormField label="Ícono">
             <Input value={form.icon} onChange={e => setForm(p => ({ ...p, icon: e.target.value }))} placeholder="ej: box" />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Padre (opcional)</Label>
+          </FormField>
+          <FormField label="Padre (opcional)">
             <Select value={form.parentId || '_root'} onValueChange={v => setForm(p => ({ ...p, parentId: v === '_root' ? '' : v }))}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -93,11 +90,10 @@ export default function AdminMenusGrid() {
                 {parents.map(m => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
               </SelectContent>
             </Select>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Orden</Label>
+          </FormField>
+          <FormField label="Orden">
             <Input type="number" value={form.sortOrder} onChange={e => setForm(p => ({ ...p, sortOrder: e.target.value }))} />
-          </div>
+          </FormField>
         </div>
         <div className="flex gap-2 mt-4">
           <Button onClick={() => saveMenu(form)} disabled={saving || !form.label.trim()}>
@@ -139,19 +135,7 @@ export default function AdminMenusGrid() {
                 </td>
                 <td className="px-5 py-3 text-muted-foreground">{menu.sortOrder}</td>
                 <td className="px-5 py-3">
-                  <div className="flex items-center gap-1.5 justify-end">
-                    <Button variant="outline" size="sm" className="h-7 w-7 p-0" onClick={() => startEdit(menu)}>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => setConfirmDelete(menu.id)}>
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </Button>
-                  </div>
+                  <RowActions onEdit={() => startEdit(menu)} onDelete={() => setConfirmDelete(menu.id)} />
                 </td>
               </tr>
             ))}

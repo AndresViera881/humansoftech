@@ -7,6 +7,7 @@ import { useApiData } from '@/hooks/useApiData';
 import { useMutation } from '@/hooks/useMutation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { SaveButton } from '@/components/ui/save-button';
 
 interface RoleAccess { menuIds: string[]; permissionIds: string[] }
 
@@ -101,21 +102,12 @@ export default function AdminRolesGrid() {
                 <h2 className="text-base font-black text-foreground">{selectedRole.name.replace('_', ' ')}</h2>
                 {selectedRole.description && <p className="text-xs mt-0.5 text-muted-foreground">{selectedRole.description}</p>}
               </div>
-              <Button onClick={() => saveAccess()} disabled={saving}>
-                {saving ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground animate-spin" />
-                    Guardando...
-                  </span>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Guardar
-                  </>
-                )}
-              </Button>
+              <SaveButton onClick={() => saveAccess()} loading={saving}>
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Guardar
+              </SaveButton>
             </div>
 
             <div className="grid grid-cols-2 divide-x">
