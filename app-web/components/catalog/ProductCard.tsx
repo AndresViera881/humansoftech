@@ -8,7 +8,6 @@ import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cart-context';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -115,30 +114,31 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         </div>
 
         <div className="px-4 pb-4 flex flex-col gap-2">
-          <Button
+          <button
             onClick={handleAddToCart}
-            className={`w-full transition-all duration-200 ${added ? 'bg-green-600 hover:bg-green-700' : ''}`}>
+            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
+              added ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
+            }`}>
             {added ? (
               <>
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 ¡Agregado!
               </>
             ) : (
               <>
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Agregar al carrito
               </>
             )}
-          </Button>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}>
-            <Button variant="outline" className="w-full text-green-700 border-green-200 bg-white hover:bg-green-50 hover:text-green-800">
-              {WA_ICON}
-              <span className="ml-2">Consultar por WhatsApp</span>
-            </Button>
+          </button>
+          <a href={waUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150">
+            {WA_ICON}
+            Consultar por WhatsApp
           </a>
         </div>
       </div>
@@ -254,10 +254,12 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
 
           {/* Footer */}
           <div className="px-5 py-3 flex gap-3 border-t flex-shrink-0">
-            <Button
+            <button
               onClick={handleAddToCart}
-              className={`flex-1 transition-all duration-200 ${added ? 'bg-green-600 hover:bg-green-700' : ''}`}
-              title={added ? '¡Agregado!' : 'Agregar al carrito'}>
+              title={added ? '¡Agregado!' : 'Agregar al carrito'}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
+                added ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
+              }`}>
               {added ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
@@ -267,11 +269,11 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               )}
-            </Button>
-            <a href={waUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
-              <Button variant="outline" className="w-full text-green-700 border-green-200 hover:bg-green-50" title="Consultar por WhatsApp">
-                {WA_ICON}
-              </Button>
+            </button>
+            <a href={waUrl} target="_blank" rel="noopener noreferrer"
+              title="Consultar por WhatsApp"
+              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150">
+              {WA_ICON}
             </a>
           </div>
         </DialogContent>
