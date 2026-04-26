@@ -70,18 +70,16 @@ export default function AdminRolesGrid() {
         <p className="text-xs font-bold tracking-widest uppercase px-1 mb-1 text-muted-foreground">Roles</p>
         {roles.map(role => (
           <button key={role.id} onClick={() => selectRole(role)}
-            className="w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150"
-            style={{
-              background: selectedRole?.id === role.id ? '#111827' : '#fff',
-              color: selectedRole?.id === role.id ? '#fff' : '#374151',
-              border: '1px solid',
-              borderColor: selectedRole?.id === role.id ? '#111827' : 'rgba(0,0,0,0.08)',
-              boxShadow: selectedRole?.id === role.id ? '0 4px 12px rgba(0,0,0,0.15)' : '0 1px 3px rgba(0,0,0,0.04)',
-            }}>
+            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 border ${
+              selectedRole?.id === role.id
+                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                : 'bg-card text-foreground border-border shadow-sm hover:border-primary/30 hover:shadow-md'
+            }`}>
             <p>{role.name.replace('_', ' ')}</p>
             {role.description && (
-              <p className="text-xs mt-0.5 font-normal truncate"
-                style={{ color: selectedRole?.id === role.id ? 'rgba(255,255,255,0.55)' : '#9ca3af' }}>
+              <p className={`text-xs mt-0.5 font-normal truncate ${
+                selectedRole?.id === role.id ? 'text-primary-foreground/60' : 'text-muted-foreground'
+              }`}>
                 {role.description}
               </p>
             )}

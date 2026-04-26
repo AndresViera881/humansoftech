@@ -184,12 +184,11 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             ] as { value: 'nuevo' | 'seminuevo'; label: string }[]).map(({ value, label }) => (
               <button key={value} type="button"
                 onClick={() => setForm(f => ({ ...f, condition: value }))}
-                className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
-                style={{
-                  background: form.condition === value ? '#111827' : '#f9fafb',
-                  color: form.condition === value ? '#fff' : '#4b5563',
-                  border: `1.5px solid ${form.condition === value ? '#111827' : 'rgba(0,0,0,0.1)'}`,
-                }}>
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150 border-[1.5px] ${
+                  form.condition === value
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+                }`}>
                 {label}
               </button>
             ))}
@@ -208,7 +207,7 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             <label className="flex items-center gap-2 cursor-pointer pb-1">
               <div onClick={() => setForm(f => ({ ...f, featured: !f.featured }))}
                 className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
-                style={{ background: form.featured ? '#111827' : '#e5e7eb' }}>
+                style={{ background: form.featured ? 'var(--primary)' : 'var(--border)' }}>
                 <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow-sm"
                   style={{ left: form.featured ? '17px' : '1px' }} />
               </div>
@@ -239,8 +238,8 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             onClick={() => fileRef.current?.click()}
             className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-4 transition-all duration-200"
             style={{
-              border: `2px dashed ${dragging ? '#111827' : 'rgba(0,0,0,0.12)'}`,
-              background: dragging ? 'rgba(0,0,0,0.03)' : '#f9fafb',
+              border: `2px dashed ${dragging ? 'var(--primary)' : 'var(--border)'}`,
+              background: dragging ? 'var(--brand-subtle)' : 'var(--surface-2)',
               minHeight: '70px',
             }}>
             <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleFile} />
@@ -253,8 +252,8 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
               </>
             ) : (
               <>
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                  stroke={dragging ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
+                <svg className={`w-6 h-6 ${dragging ? 'text-primary' : 'text-muted-foreground'}`} fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor" strokeWidth={1.5}>
                   <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span className="text-xs text-center text-muted-foreground">
@@ -268,7 +267,7 @@ export default function AdminPanel({ onPublish }: AdminPanelProps) {
             <div className="mt-1 grid grid-cols-3 gap-2">
               {images.map((url, i) => (
                 <div key={url} className="relative rounded-lg overflow-hidden group"
-                  style={{ aspectRatio: '1', background: '#f9fafb', border: '1px solid rgba(0,0,0,0.1)' }}>
+                  style={{ aspectRatio: '1', background: 'var(--surface-2)', border: '1px solid var(--border-light)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={url} alt={`img-${i}`} className="w-full h-full object-cover" />
                   {i === 0 && (

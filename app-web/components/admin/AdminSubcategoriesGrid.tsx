@@ -119,7 +119,7 @@ export default function AdminSubcategoriesGrid() {
             <div className="hidden sm:block">
               {filtered.map((s, i) => (
                 <div key={s.id} className="grid items-center px-4 py-3 transition-colors hover:bg-muted/20"
-                  style={{ gridTemplateColumns: '2fr 1.5fr 1fr 100px', background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: i < filtered.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+                  style={{ gridTemplateColumns: '2fr 1.5fr 1fr 100px', background: i % 2 === 0 ? 'var(--card)' : 'var(--surface-2)', borderBottom: i < filtered.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
                   <div>
                     <p className="text-sm font-semibold truncate">{s.name}</p>
                     <p className="text-xs font-mono text-muted-foreground">{s.slug}</p>

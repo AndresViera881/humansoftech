@@ -39,13 +39,11 @@ export default function FilterPanel({
         <div className="flex flex-col gap-0.5">
           {categoryNames.map((cat) => (
             <button key={cat} onClick={() => { onCategoryChange(cat); onMobileClose?.(); }}
-              className="text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150"
-              style={{
-                background: selectedCategory === cat ? 'rgba(37,99,235,0.07)' : 'transparent',
-                color: selectedCategory === cat ? '#2563eb' : 'var(--text-secondary)',
-                fontWeight: selectedCategory === cat ? '700' : '500',
-                borderLeft: selectedCategory === cat ? '2px solid #2563eb' : '2px solid transparent',
-              }}>
+              className={`text-left px-3 py-2 rounded-lg text-sm transition-all duration-150 border-l-2 ${
+                selectedCategory === cat
+                  ? 'bg-primary/10 text-primary font-bold border-primary'
+                  : 'bg-transparent text-muted-foreground font-medium border-transparent hover:bg-muted hover:text-foreground'
+              }`}>
               {cat}
             </button>
           ))}
@@ -59,7 +57,7 @@ export default function FilterPanel({
         <h3 className="text-xs font-semibold uppercase tracking-widest mb-3 text-primary">
           Rango de Precio
         </h3>
-        <div className="rounded-xl p-4 bg-white border shadow-sm">
+        <div className="rounded-xl p-4 bg-card border shadow-sm">
           <div className="flex justify-between mb-4">
             <div>
               <p className="text-xs text-muted-foreground">Min</p>

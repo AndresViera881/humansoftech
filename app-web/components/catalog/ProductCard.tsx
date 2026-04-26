@@ -56,7 +56,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         onClick={() => setDetailOpen(true)}
       >
         <div className="relative flex items-center justify-center p-5 overflow-hidden"
-          style={{ background: '#f8faff', height: '200px', borderBottom: '1px solid var(--border)' }}>
+          style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}>
           {product.badge && !isNew && (
             <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
               ⭐ {product.badge}
@@ -67,7 +67,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
               ✨ Nuevo
             </Badge>
           )}
-          <Badge variant="outline" className="absolute top-3 right-3 z-10 bg-blue-50 text-blue-600 border-blue-200">
+          <Badge variant="outline" className="absolute top-3 right-3 z-10 bg-primary/5 text-primary border-primary/20">
             {product.category}
           </Badge>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -75,8 +75,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             className="object-contain transition-transform duration-300 group-hover:scale-105"
             style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }} />
           {images.length > 1 && (
-            <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-              style={{ background: 'rgba(37,99,235,0.12)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.2)' }}>
+            <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/12 text-primary border border-primary/20">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -93,14 +92,15 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             {product.name}
           </h3>
           {product.price > 0 && (
-            <p className="text-xl font-black" style={{ color: '#2563eb', letterSpacing: '-0.5px' }}>
+            <p className="text-xl font-black text-primary" style={{ letterSpacing: '-0.5px' }}>
               ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
             </p>
           )}
-          <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit"
-            style={product.condition === 'nuevo'
-              ? { background: 'rgba(22,163,74,0.1)', color: '#16a34a' }
-              : { background: 'rgba(245,158,11,0.1)', color: '#d97706' }}>
+          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit ${
+            product.condition === 'nuevo'
+              ? 'bg-green-50 text-green-700 border border-green-100'
+              : 'bg-amber-50 text-amber-700 border border-amber-100'
+          }`}>
             {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
           </span>
           {product.description && (
@@ -117,7 +117,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           <button
             onClick={handleAddToCart}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
-              added ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
+              added ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-[var(--brand-hover)]'
             }`}>
             {added ? (
               <>
@@ -162,7 +162,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-3 border-b flex-shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 font-bold">
+              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold">
                 {product.category}
               </Badge>
               {product.condition && (
@@ -186,7 +186,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             {/* Image */}
             <div
               className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in flex-shrink-0"
-              style={{ height: '100px', background: 'linear-gradient(135deg, #f0f4ff, #faf5ff)', border: '1px solid #e5e7eb' }}
+              style={{ height: '100px', background: 'linear-gradient(135deg, var(--brand-subtle), oklch(0.97 0.02 290))', border: '1px solid var(--border)' }}
               onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -212,8 +212,8 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
                     className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-150"
                     style={{
                       width: '52px', height: '52px',
-                      border: `2px solid ${i === activeImg ? '#2563eb' : '#e5e7eb'}`,
-                      background: '#f8faff',
+                      border: `2px solid ${i === activeImg ? 'var(--brand)' : 'var(--border)'}`,
+                      background: 'var(--brand-subtle)',
                       opacity: i === activeImg ? 1 : 0.6,
                     }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -230,7 +230,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
               </h2>
               {product.price > 0 && (
                 <div className="flex-shrink-0 text-right">
-                  <p className="text-2xl font-black text-blue-600" style={{ letterSpacing: '-0.5px' }}>
+                  <p className="text-2xl font-black text-primary" style={{ letterSpacing: '-0.5px' }}>
                     ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -242,7 +242,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             {/* Description */}
             {product.description && (
               <div>
-                <p className="text-xs font-bold uppercase tracking-widest mb-2 text-blue-600">
+                <p className="text-xs font-bold uppercase tracking-widest mb-2 text-primary">
                   Descripción
                 </p>
                 <p className="text-sm whitespace-pre-line text-muted-foreground" style={{ lineHeight: '1.75' }}>
@@ -258,7 +258,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
               onClick={handleAddToCart}
               title={added ? '¡Agregado!' : 'Agregar al carrito'}
               className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
-                added ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
+                added ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-[var(--brand-hover)]'
               }`}>
               {added ? (
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>

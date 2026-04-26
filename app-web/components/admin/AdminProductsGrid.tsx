@@ -165,7 +165,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
           products.map((p, i) => (
             <div key={p.id}
               className="grid items-center px-4 py-3 transition-colors hover:bg-muted/30"
-              style={{ gridTemplateColumns: '2fr 1fr 80px 70px 70px 70px 160px', background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: i < products.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+              style={{ gridTemplateColumns: '2fr 1fr 80px 70px 70px 70px 160px', background: i % 2 === 0 ? 'var(--card)' : 'var(--surface-2)', borderBottom: i < products.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
               <div className="flex flex-col gap-0.5 min-w-0 pr-3">
                 <span className="text-sm font-semibold truncate">{p.name}</span>
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -314,12 +314,11 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                 {(['nuevo', 'seminuevo'] as const).map(val => (
                   <button key={val} type="button"
                     onClick={() => setEditForm(f => ({ ...f, condition: val }))}
-                    className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150"
-                    style={{
-                      background: editForm.condition === val ? '#111827' : '#f9fafb',
-                      color: editForm.condition === val ? '#fff' : '#4b5563',
-                      border: `1.5px solid ${editForm.condition === val ? '#111827' : 'rgba(0,0,0,0.1)'}`,
-                    }}>
+                    className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-150 border-[1.5px] ${
+                      editForm.condition === val
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted text-muted-foreground border-border hover:bg-accent'
+                    }`}>
                     {val === 'nuevo' ? 'Nuevo' : 'Seminuevo'}
                   </button>
                 ))}
@@ -337,7 +336,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                 onDrop={handleEditDrop}
                 onClick={() => editFileRef.current?.click()}
                 className="w-full rounded-xl cursor-pointer flex items-center justify-center gap-2 py-3 transition-all duration-200"
-                style={{ border: `2px dashed ${editDragging ? '#111827' : 'rgba(0,0,0,0.12)'}`, background: editDragging ? 'rgba(0,0,0,0.03)' : '#f9fafb', minHeight: '56px' }}>
+                style={{ border: `2px dashed ${editDragging ? 'var(--primary)' : 'var(--border)'}`, background: editDragging ? 'var(--brand-subtle)' : 'var(--surface-2)', minHeight: '56px' }}>
                 <input ref={editFileRef} type="file" accept="image/*" multiple className="hidden" onChange={handleEditFile} />
                 {editUploadingCount > 0 ? (
                   <>
@@ -346,8 +345,8 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
-                      stroke={editDragging ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
+                    <svg className={`w-5 h-5 flex-shrink-0 ${editDragging ? 'text-primary' : 'text-muted-foreground'}`} fill="none" viewBox="0 0 24 24"
+                      stroke="currentColor" strokeWidth={1.5}>
                       <path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     <span className="text-xs text-muted-foreground">{editDragging ? 'Suelta aquí' : 'Añadir imágenes'}</span>
@@ -358,7 +357,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {editImages.map((url, i) => (
                     <div key={url} className="relative rounded-lg overflow-hidden group"
-                      style={{ aspectRatio: '1', background: '#f9fafb', border: `1px solid ${i === 0 ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.1)'}` }}>
+                      style={{ aspectRatio: '1', background: 'var(--surface-2)', border: `1px solid ${i === 0 ? 'var(--primary)' : 'var(--border-light)'}` }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={url} alt="" className="w-full h-full object-cover" />
                       {i === 0 && (
@@ -382,7 +381,7 @@ export default function AdminProductsGrid({ onAdd }: Props) {
             <label className="flex items-center gap-3 cursor-pointer">
               <div onClick={() => setEditForm(f => ({ ...f, featured: !f.featured }))}
                 className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
-                style={{ background: editForm.featured ? '#111827' : '#e5e7eb' }}>
+                style={{ background: editForm.featured ? 'var(--primary)' : 'var(--border)' }}>
                 <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300 shadow"
                   style={{ left: editForm.featured ? '17px' : '1px' }} />
               </div>

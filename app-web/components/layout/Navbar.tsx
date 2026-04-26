@@ -61,8 +61,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
           {/* Cart button */}
           <button
             onClick={openCart}
-            className="relative flex items-center justify-center w-9 h-9 rounded-xl"
-            style={{ background: 'rgba(37,99,235,0.08)', border: '1px solid rgba(37,99,235,0.18)', color: '#2563eb' }}
+            className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 text-primary"
             title="Ver carrito">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -77,8 +76,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
 
           {/* WhatsApp — desktop only */}
           <a href={`https://wa.me/${WA_PHONE}`} target="_blank" rel="noopener noreferrer"
-            className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold"
-            style={{ background: 'rgba(22,163,74,0.08)', color: '#16a34a', border: '1px solid rgba(22,163,74,0.2)' }}>
+            className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 transition-colors">
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
               <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
               <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.126 1.533 5.864L.054 23.25a.75.75 0 00.916.916l5.455-1.476A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.88 0-3.645-.5-5.17-1.373l-.37-.217-3.828 1.037 1.044-3.742-.24-.386A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
@@ -102,8 +100,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button
-                    className="flex-shrink-0 rounded-full transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                    style={{ border: '2px solid #e5e7eb', outlineOffset: '1px' }}
+                    className="flex-shrink-0 rounded-full transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-primary border-2 border-border"
                     title={loggedUser.name}>
                     {loggedUser.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -111,7 +108,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
                         className="w-8 h-8 rounded-full object-cover block" />
                     ) : (
                       <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs"
-                        style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff' }}>
+                        style={{ background: 'linear-gradient(135deg, var(--brand), #7c3aed)', color: '#fff' }}>
                         {loggedUser.name[0].toUpperCase()}
                       </div>
                     )}
@@ -123,17 +120,15 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
                     {loggedUser.photo ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={loggedUser.photo} alt={loggedUser.name}
-                        className="w-14 h-14 rounded-full object-cover mb-3"
-                        style={{ border: '3px solid #e5e7eb' }} />
+                        className="w-14 h-14 rounded-full object-cover mb-3 border-[3px] border-border" />
                     ) : (
                       <div className="w-14 h-14 rounded-full flex items-center justify-center font-black text-xl mb-3"
-                        style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)', color: '#fff' }}>
+                        style={{ background: 'linear-gradient(135deg, var(--brand), #7c3aed)', color: '#fff' }}>
                         {loggedUser.name[0].toUpperCase()}
                       </div>
                     )}
                     <p className="text-sm font-bold text-center text-foreground">{loggedUser.name}</p>
-                    <span className="mt-1 px-2 py-0.5 rounded-full text-xs font-semibold capitalize"
-                      style={{ background: 'rgba(37,99,235,0.08)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.15)' }}>
+                    <span className="mt-1 px-2 py-0.5 rounded-full text-xs font-semibold capitalize bg-primary/10 text-primary border border-primary/15">
                       {loggedUser.role.replace('_', ' ')}
                     </span>
                     {loggedUser.cedula && (

@@ -111,14 +111,14 @@ export default function AdminCategoriesGrid() {
             <div className="hidden sm:block">
               {filtered.map((c, i) => (
                 <div key={c.id} className="grid items-center px-4 py-3 transition-colors hover:bg-muted/20"
-                  style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px', background: i % 2 === 0 ? '#fff' : '#f9fafb', borderBottom: i < filtered.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+                  style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 120px', background: i % 2 === 0 ? 'var(--card)' : 'var(--surface-2)', borderBottom: i < filtered.length - 1 ? '1px solid var(--border-light)' : 'none' }}>
                   <span className="text-sm font-semibold truncate pr-3">{c.name}</span>
                   <span className="text-xs truncate font-mono text-muted-foreground">{c.slug}</span>
                   <span className="text-xs truncate text-muted-foreground">{c.description ?? '—'}</span>
                   <div className="flex justify-center">
                     <button onClick={() => toggleActive(c)}
                       className="w-9 h-5 rounded-full relative transition-all duration-200"
-                      style={{ background: c.active ? '#111827' : '#e5e7eb' }}>
+                      style={{ background: c.active ? 'var(--primary)' : 'var(--border)' }}>
                       <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200" style={{ left: c.active ? '17px' : '1px' }} />
                     </button>
                   </div>
@@ -135,7 +135,7 @@ export default function AdminCategoriesGrid() {
                     <p className="text-sm font-semibold truncate">{c.name}</p>
                     <p className="text-xs font-mono truncate mt-0.5 text-muted-foreground">{c.slug}</p>
                   </div>
-                  <button onClick={() => toggleActive(c)} className="w-9 h-5 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: c.active ? '#111827' : '#e5e7eb' }}>
+                  <button onClick={() => toggleActive(c)} className="w-9 h-5 rounded-full relative transition-all duration-200 flex-shrink-0" style={{ background: c.active ? 'var(--primary)' : 'var(--border)' }}>
                     <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200" style={{ left: c.active ? '17px' : '1px' }} />
                   </button>
                   <RowActions variant="icon-md" onEdit={() => openEdit(c)} onDelete={() => setDeleteConfirm(c)} />
@@ -177,7 +177,7 @@ export default function AdminCategoriesGrid() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <div onClick={() => setForm(f => ({ ...f, active: !f.active }))}
                   className="w-9 h-5 rounded-full transition-all duration-300 relative flex-shrink-0"
-                  style={{ background: form.active ? '#111827' : '#e5e7eb' }}>
+                  style={{ background: form.active ? 'var(--primary)' : 'var(--border)' }}>
                   <div className="absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all duration-300" style={{ left: form.active ? '17px' : '1px' }} />
                 </div>
                 <span className="text-sm font-medium text-muted-foreground">Categoría activa</span>

@@ -51,7 +51,7 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
         {/* Header */}
         <div className="px-6 pt-6 pb-4 text-center bg-muted/40 border-b">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-            style={{ background: 'linear-gradient(135deg, #2563eb, #7c3aed)' }}>
+            style={{ background: 'linear-gradient(135deg, var(--brand), #7c3aed)' }}>
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
@@ -64,7 +64,7 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
         <div className="flex mx-6 mt-4 mb-1 rounded-xl overflow-hidden border">
           {(['login', 'register'] as const).map(t => (
             <button key={t} onClick={() => switchTab(t)}
-              className={`flex-1 py-2 text-xs font-bold transition-all ${tab === t ? 'bg-blue-600 text-white' : 'bg-white text-muted-foreground'}`}>
+              className={`flex-1 py-2 text-xs font-bold transition-all ${tab === t ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}>
               {t === 'login' ? 'Iniciar sesión' : 'Registrarse'}
             </button>
           ))}

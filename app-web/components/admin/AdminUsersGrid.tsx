@@ -70,7 +70,7 @@ function PhotoCropper({ src, onConfirm, onCancel, uploading }: {
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
         </svg>
         <input type="range" min={1} max={3} step={0.05} value={zoom}
-          onChange={e => setZoom(Number(e.target.value))} className="flex-1" style={{ accentColor: '#111827' }} />
+          onChange={e => setZoom(Number(e.target.value))} className="flex-1" style={{ accentColor: 'var(--primary)' }} />
         <svg className="w-4 h-4 flex-shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 3a9 9 0 110 18 9 9 0 010-18z" />
         </svg>
@@ -109,7 +109,7 @@ function UserAvatar({ user, size = 36 }: { user: ApiUser; size?: number }) {
   }
   return (
     <div className="rounded-full flex items-center justify-center font-bold flex-shrink-0"
-      style={{ width: size, height: size, background: '#111827', color: '#fff', fontSize: size * 0.36 }}>
+      style={{ width: size, height: size, background: 'var(--foreground)', color: 'var(--background)', fontSize: size * 0.36 }}>
       {user.name[0].toUpperCase()}
     </div>
   );
@@ -221,7 +221,7 @@ export default function AdminUsersGrid() {
         <TableEmpty message="Sin usuarios" className="hidden sm:flex" />
       ) : (
       <div className="hidden sm:block rounded-2xl overflow-hidden bg-white border shadow-sm">
-        <div style={{ height: '3px', background: 'linear-gradient(90deg, #111827, #374151)' }} />
+        <div style={{ height: '3px', background: 'linear-gradient(90deg, var(--primary), oklch(0.58 0.18 290))' }} />
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -349,7 +349,7 @@ export default function AdminUsersGrid() {
               <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/40 border">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={form.photo} alt="Foto" className="rounded-full object-cover flex-shrink-0"
-                  style={{ width: 72, height: 72, border: '3px solid #111827' }} />
+                  style={{ width: 72, height: 72, border: '3px solid var(--primary)' }} />
                 <div className="flex flex-col gap-2">
                   <p className="text-xs font-semibold">Foto cargada</p>
                   <Button variant="outline" size="sm" type="button" onClick={() => photoInputRef.current?.click()}>Cambiar foto</Button>
@@ -364,8 +364,8 @@ export default function AdminUsersGrid() {
                 onDrop={handlePhotoDrop}
                 onClick={() => photoInputRef.current?.click()}
                 className="w-full rounded-xl cursor-pointer flex flex-col items-center justify-center gap-2 py-8 transition-all duration-200"
-                style={{ border: `2px dashed ${draggingPhoto ? '#111827' : '#d1d5db'}`, background: draggingPhoto ? 'rgba(0,0,0,0.03)' : '#f9fafb', minHeight: '100px' }}>
-                <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke={draggingPhoto ? '#111827' : '#9ca3af'} strokeWidth={1.5}>
+                style={{ border: `2px dashed ${draggingPhoto ? 'var(--primary)' : 'var(--border)'}`, background: draggingPhoto ? 'var(--brand-subtle)' : 'var(--surface-2)', minHeight: '100px' }}>
+                <svg className={`w-7 h-7 ${draggingPhoto ? 'text-primary' : 'text-muted-foreground'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
                 <span className="text-xs text-center text-muted-foreground">

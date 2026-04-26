@@ -72,10 +72,7 @@ export default function ProductGrid({ products, sort, onSortChange, hasMore, loa
           <button
             onClick={onLoadMore}
             disabled={loadingMore}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-150"
-            style={{ background: '#fff', border: '1.5px solid rgba(0,0,0,0.12)', color: '#374151', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}
-            onMouseEnter={e => { if (!loadingMore) (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)'; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'; }}>
+            className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-150 bg-card border border-border text-foreground shadow-sm hover:shadow-md hover:border-primary/30 disabled:opacity-50 disabled:cursor-not-allowed">
             {loadingMore ? (
               <>
                 <span className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-gray-600 animate-spin" />
