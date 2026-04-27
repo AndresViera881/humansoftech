@@ -5,7 +5,6 @@ import { toast } from 'sonner';
 import { api, ApiRole, ApiMenu, ApiPermission } from '@/lib/api';
 import { useApiData } from '@/hooks/useApiData';
 import { useMutation } from '@/hooks/useMutation';
-import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { SaveButton } from '@/components/ui/save-button';
 
@@ -63,54 +62,57 @@ export default function AdminRolesGrid() {
   }
 
   return (
-    <div className="flex gap-6 h-full">
+    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 h-full">
 
-      {/* Role list */}
-      <div className="w-56 flex-shrink-0 flex flex-col gap-2">
+      {/* Role list — horizontal scroll on mobile, vertical on desktop */}
+      <div className="sm:w-56 sm:flex-shrink-0 flex flex-col gap-2">
         <p className="text-xs font-bold tracking-widest uppercase px-1 mb-1 text-muted-foreground">Roles</p>
-        {roles.map(role => (
-          <button key={role.id} onClick={() => selectRole(role)}
-            className={`w-full text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 border ${
-              selectedRole?.id === role.id
-                ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
-                : 'bg-card text-foreground border-border shadow-sm hover:border-primary/30 hover:shadow-md'
-            }`}>
-            <p>{role.name.replace('_', ' ')}</p>
-            {role.description && (
-              <p className={`text-xs mt-0.5 font-normal truncate ${
-                selectedRole?.id === role.id ? 'text-primary-foreground/60' : 'text-muted-foreground'
+        <div className="flex sm:flex-col gap-2 overflow-x-auto pb-1 sm:pb-0" style={{ scrollbarWidth: 'none' }}>
+          {roles.map(role => (
+            <button key={role.id} onClick={() => selectRole(role)}
+              className={`flex-shrink-0 sm:flex-shrink text-left px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-150 border ${
+                selectedRole?.id === role.id
+                  ? 'bg-primary text-primary-foreground border-primary shadow-md shadow-primary/20'
+                  : 'bg-card text-foreground border-border shadow-sm hover:border-primary/30 hover:shadow-md'
               }`}>
-                {role.description}
-              </p>
-            )}
-          </button>
-        ))}
+              <p className="whitespace-nowrap sm:whitespace-normal">{role.name.replace('_', ' ')}</p>
+              {role.description && (
+                <p className={`text-xs mt-0.5 font-normal truncate hidden sm:block ${
+                  selectedRole?.id === role.id ? 'text-primary-foreground/60' : 'text-muted-foreground'
+                }`}>
+                  {role.description}
+                </p>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Access editor */}
       <div className="flex-1 min-w-0">
         {!selectedRole ? (
-          <div className="flex items-center justify-center h-64 rounded-2xl bg-white border text-muted-foreground">
-            <p className="text-sm">Selecciona un rol para editar sus accesos</p>
+          <div className="flex items-center justify-center h-40 sm:h-64 rounded-2xl bg-white border text-muted-foreground">
+            <p className="text-sm text-center px-4">Selecciona un rol para editar sus accesos</p>
           </div>
         ) : (
           <div className="rounded-2xl overflow-hidden bg-white border shadow-sm">
-            <div className="flex items-center justify-between px-6 py-4 border-b">
-              <div>
-                <h2 className="text-base font-black text-foreground">{selectedRole.name.replace('_', ' ')}</h2>
-                {selectedRole.description && <p className="text-xs mt-0.5 text-muted-foreground">{selectedRole.description}</p>}
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b gap-3">
+              <div className="min-w-0">
+                <h2 className="text-base font-black text-foreground truncate">{selectedRole.name.replace('_', ' ')}</h2>
+                {selectedRole.description && <p className="text-xs mt-0.5 text-muted-foreground truncate">{selectedRole.description}</p>}
               </div>
               <SaveButton onClick={() => saveAccess()} loading={saving}>
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
                 Guardar
               </SaveButton>
             </div>
 
-            <div className="grid grid-cols-2 divide-x">
+            {/* Menus + Permissions — stack on mobile, side by side on sm+ */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 sm:divide-x divide-y sm:divide-y-0">
               {/* Menus */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-xs font-bold tracking-widest uppercase mb-4 text-muted-foreground">Menús</p>
                 <div className="flex flex-col gap-3">
                   {parentMenus.map(parent => {
@@ -134,7 +136,7 @@ export default function AdminRolesGrid() {
               </div>
 
               {/* Permissions */}
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-xs font-bold tracking-widest uppercase mb-4 text-muted-foreground">Permisos</p>
                 <div className="flex flex-col gap-2.5">
                   {permissions.map(perm => (

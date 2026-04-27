@@ -19,6 +19,7 @@ export default function AdminPermissionsGrid() {
   const [form, setForm] = useState<PermForm>(EMPTY);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [expandedResource, setExpandedResource] = useState<string | null>(null);
 
   const { data, loading, refetch } = useApiData(() => api.permissions.list());
   const perms: ApiPermission[] = data ?? [];
@@ -71,7 +72,7 @@ export default function AdminPermissionsGrid() {
     <div className="flex flex-col gap-6">
 
       {/* Form */}
-      <div className="rounded-2xl p-6 bg-white border shadow-sm">
+      <div className="rounded-2xl p-4 sm:p-6 bg-white border shadow-sm">
         <h2 className="text-sm font-black mb-4 text-foreground">{editingId ? 'Editar permiso' : 'Nuevo permiso'}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <FormField label="Recurso *">
@@ -102,31 +103,61 @@ export default function AdminPermissionsGrid() {
         </div>
       </div>
 
-      {/* Grouped by resource */}
+      {/* Grouped list */}
       <div className="flex flex-col gap-4">
-        {Object.entries(grouped).map(([resource, items]) => (
-          <div key={resource} className="rounded-2xl overflow-hidden bg-white border shadow-sm">
-            <div className="px-5 py-3 flex items-center gap-2 bg-muted/40 border-b">
-              <span className="text-xs font-bold tracking-widest uppercase text-foreground">{resource}</span>
-              <Badge variant="secondary" className="text-xs">{items.length}</Badge>
-            </div>
-            <table className="w-full text-sm">
-              <tbody>
-                {items.map((perm, i) => (
-                  <tr key={perm.id}
-                    style={{ borderBottom: i < items.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}
-                    className="transition-colors hover:bg-muted/20">
-                    <td className="px-5 py-3 font-mono text-xs font-semibold w-48 text-foreground">{perm.name}</td>
-                    <td className="px-5 py-3 text-muted-foreground">{perm.description ?? '—'}</td>
-                    <td className="px-5 py-3 text-right">
+        {Object.entries(grouped).map(([resource, items]) => {
+          const isOpen = expandedResource === resource;
+          return (
+            <div key={resource} className="rounded-2xl overflow-hidden bg-white border shadow-sm">
+              {/* Group header */}
+              <div className="px-4 sm:px-5 py-3 flex items-center gap-2 bg-muted/40 border-b">
+                <span className="text-xs font-bold tracking-widest uppercase text-foreground">{resource}</span>
+                <Badge variant="secondary" className="text-xs">{items.length}</Badge>
+                {/* Mobile toggle */}
+                <button className="ml-auto sm:hidden"
+                  onClick={() => setExpandedResource(isOpen ? null : resource)}>
+                  <svg className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Desktop table */}
+              <table className="hidden sm:table w-full text-sm">
+                <tbody>
+                  {items.map((perm, i) => (
+                    <tr key={perm.id}
+                      style={{ borderBottom: i < items.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}
+                      className="transition-colors hover:bg-muted/20">
+                      <td className="px-5 py-3 font-mono text-xs font-semibold w-48 text-foreground">{perm.name}</td>
+                      <td className="px-5 py-3 text-muted-foreground">{perm.description ?? '—'}</td>
+                      <td className="px-5 py-3 text-right">
+                        <RowActions onEdit={() => startEdit(perm)} onDelete={() => setConfirmDelete(perm.id)} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Mobile cards — visible when group is expanded */}
+              {isOpen && (
+                <div className="flex sm:hidden flex-col divide-y">
+                  {items.map(perm => (
+                    <div key={perm.id} className="px-4 py-3 flex items-center gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-mono font-semibold text-foreground truncate">{perm.name}</p>
+                        {perm.description && <p className="text-xs text-muted-foreground mt-0.5">{perm.description}</p>}
+                      </div>
                       <RowActions onEdit={() => startEdit(perm)} onDelete={() => setConfirmDelete(perm.id)} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+            </div>
+          );
+        })}
       </div>
 
       <ConfirmDeleteDialog

@@ -19,6 +19,7 @@ export default function AdminMenusGrid() {
   const [form, setForm] = useState<MenuForm>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { data, loading, refetch } = useApiData(() => api.menus.list());
   const menus: ApiMenu[] = data ?? [];
@@ -58,6 +59,13 @@ export default function AdminMenusGrid() {
   const parents = menus.filter(m => !m.parentId);
   const children = menus.filter(m => m.parentId);
 
+  const sorted = [...parents, ...children].sort((a, b) => {
+    const aParent = a.parentId ?? a.id;
+    const bParent = b.parentId ?? b.id;
+    if (aParent !== bParent) return aParent.localeCompare(bParent);
+    return a.sortOrder - b.sortOrder;
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -70,7 +78,7 @@ export default function AdminMenusGrid() {
     <div className="flex flex-col gap-6">
 
       {/* Form */}
-      <div className="rounded-2xl p-6 bg-white border shadow-sm">
+      <div className="rounded-2xl p-4 sm:p-6 bg-white border shadow-sm">
         <h2 className="text-sm font-black mb-4 text-foreground">{editingId ? 'Editar menú' : 'Nuevo menú'}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           <FormField label="Etiqueta *">
@@ -104,8 +112,8 @@ export default function AdminMenusGrid() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl overflow-hidden bg-white border shadow-sm">
+      {/* Desktop table */}
+      <div className="hidden sm:block rounded-2xl overflow-hidden bg-white border shadow-sm">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/40 border-b">
@@ -115,12 +123,7 @@ export default function AdminMenusGrid() {
             </tr>
           </thead>
           <tbody>
-            {[...parents, ...children].sort((a, b) => {
-              const aParent = a.parentId ?? a.id;
-              const bParent = b.parentId ?? b.id;
-              if (aParent !== bParent) return aParent.localeCompare(bParent);
-              return a.sortOrder - b.sortOrder;
-            }).map((menu, i) => (
+            {sorted.map((menu, i) => (
               <tr key={menu.id}
                 style={{ borderBottom: i < menus.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}
                 className="transition-colors hover:bg-muted/20">
@@ -141,6 +144,52 @@ export default function AdminMenusGrid() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="flex sm:hidden flex-col gap-2">
+        {sorted.map(menu => {
+          const isOpen = expandedId === menu.id;
+          const parentLabel = menu.parentId ? menus.find(m => m.id === menu.parentId)?.label : null;
+          return (
+            <div key={menu.id} className="rounded-2xl overflow-hidden bg-white border shadow-sm">
+              <button className="w-full flex items-center gap-3 px-4 py-3 text-left"
+                onClick={() => setExpandedId(isOpen ? null : menu.id)}>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold truncate">
+                    {menu.parentId && <span className="text-muted-foreground/50 mr-1">›</span>}
+                    {menu.label}
+                  </p>
+                  {menu.path && <p className="text-xs font-mono text-muted-foreground truncate">{menu.path}</p>}
+                </div>
+                {parentLabel && (
+                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-md flex-shrink-0">{parentLabel}</span>
+                )}
+                <svg className={`w-4 h-4 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isOpen && (
+                <div className="px-4 pb-4 flex flex-col gap-3 border-t">
+                  <div className="grid grid-cols-2 gap-2 pt-3">
+                    {[
+                      { label: 'Ícono', value: menu.icon ?? '—' },
+                      { label: 'Orden', value: String(menu.sortOrder) },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="rounded-xl px-3 py-2 bg-muted/40 border">
+                        <p className="text-xs font-semibold uppercase tracking-wider mb-0.5 text-muted-foreground">{label}</p>
+                        <p className="text-sm font-bold">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <RowActions variant="text" onEdit={() => startEdit(menu)} onDelete={() => setConfirmDelete(menu.id)} />
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       <ConfirmDeleteDialog
