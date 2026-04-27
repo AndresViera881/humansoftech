@@ -134,7 +134,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:brightness-125 active:scale-[0.98]"
           style={added
             ? { background: '#16a34a' }
-            : { background: '#2563eb' }
+            : { background: '#030712' }
           }
         >
           {added ? (
