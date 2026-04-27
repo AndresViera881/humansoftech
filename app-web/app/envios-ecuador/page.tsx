@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoginModal from '@/components/auth/LoginModal';
+import { LogoFooter } from '@/components/layout/Logo';
 import { useAuth } from '@/lib/auth-context';
 import { LoginResponse } from '@/lib/api';
 
@@ -84,6 +85,9 @@ export default function EnviosPage() {
               style={{ background: 'radial-gradient(circle, #16a34a, transparent)' }} />
           </div>
           <div className="relative max-w-5xl mx-auto px-6 py-16 md:py-24 text-center">
+            <div className="flex justify-center mb-8">
+              <LogoFooter size={30} textSize="text-sm" />
+            </div>
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
               style={{ background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(22,163,74,0.3)' }}>
               <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import LoginModal from '@/components/auth/LoginModal';
+import { LogoFooter } from '@/components/layout/Logo';
 import { useAuth } from '@/lib/auth-context';
 import { LoginResponse } from '@/lib/api';
 
@@ -90,11 +91,10 @@ export default function QuienesSomosPage() {
                 </button>
               </div>
             </div>
-            <div className="flex-shrink-0 hidden md:flex items-center justify-center w-72 h-72 rounded-3xl overflow-hidden border border-white/10"
+            <div className="flex-shrink-0 hidden md:flex flex-col items-center justify-center w-72 h-72 rounded-3xl border border-white/10 gap-6"
               style={{ background: 'rgba(255,255,255,0.04)' }}>
-              <svg className="w-40 h-40 text-blue-400/40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.8}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
+              <LogoFooter size={52} textSize="text-xl" />
+              <p className="text-white/30 text-xs font-medium tracking-widest uppercase">Ambato, Ecuador</p>
             </div>
           </div>
         </section>
