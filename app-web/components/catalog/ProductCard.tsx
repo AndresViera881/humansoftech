@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cart-context';
 import { Badge } from '@/components/ui/badge';
-import ProductDetailModal from './ProductDetailModal';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -23,9 +23,9 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, isNew }: ProductCardProps) {
   const images = product.images?.length ? product.images : [FALLBACK];
-  const [detailOpen, setDetailOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
+  const router = useRouter();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -40,141 +40,129 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
   const waUrl = `https://wa.me/${WA_PHONE}?text=${waMessage}`;
 
   return (
-    <>
-      {/* ── Card ── */}
+    <div
+      className={`card flex flex-col overflow-hidden cursor-pointer group ${isNew ? 'animate-new-product' : ''}`}
+      style={{ borderRadius: '16px' }}
+      onClick={() => router.push(`/producto/${product.id}`)}
+    >
+      {/* Image area */}
       <div
-        className={`card flex flex-col overflow-hidden cursor-pointer group ${isNew ? 'animate-new-product' : ''}`}
-        style={{ borderRadius: '16px' }}
-        onClick={() => setDetailOpen(true)}
+        className="relative flex items-center justify-center p-5 overflow-hidden"
+        style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}
       >
-        {/* Image area */}
-        <div
-          className="relative flex items-center justify-center p-5 overflow-hidden"
-          style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}
-        >
-          {product.badge && !isNew && (
-            <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
-              ⭐ {product.badge}
-            </Badge>
-          )}
-          {isNew && (
-            <Badge className="absolute top-3 left-3 z-10 bg-green-50 text-green-600 border-green-200 hover:bg-green-50">
-              ✨ Nuevo
-            </Badge>
-          )}
-          <Badge variant="outline" className="absolute top-3 right-3 z-10 bg-primary/5 text-primary border-primary/20">
-            {product.category}
+        {product.badge && !isNew && (
+          <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
+            ⭐ {product.badge}
           </Badge>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={images[0]}
-            alt={product.name}
-            className="object-contain transition-transform duration-300 group-hover:scale-105"
-            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }}
-          />
-          {images.length > 1 && (
-            <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/12 text-primary border border-primary/20">
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              {images.length}
-            </span>
-          )}
-        </div>
+        )}
+        {isNew && (
+          <Badge className="absolute top-3 left-3 z-10 bg-green-50 text-green-600 border-green-200 hover:bg-green-50">
+            ✨ Nuevo
+          </Badge>
+        )}
+        <Badge variant="outline" className="absolute top-3 right-3 z-10 bg-primary/5 text-primary border-primary/20">
+          {product.category}
+        </Badge>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={images[0]}
+          alt={product.name}
+          className="object-contain transition-transform duration-300 group-hover:scale-105"
+          style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }}
+        />
+        {images.length > 1 && (
+          <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/12 text-primary border border-primary/20">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {images.length}
+          </span>
+        )}
+      </div>
 
-        {/* Info */}
-        <div className="flex flex-col flex-1 p-4 gap-1.5">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-            {product.category}
+      {/* Info */}
+      <div className="flex flex-col flex-1 p-4 gap-1.5">
+        <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+          {product.category}
+        </p>
+        <h3
+          className="font-bold text-sm leading-snug text-foreground"
+          style={{
+            lineHeight: '1.35',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
+          {product.name}
+        </h3>
+        {product.price > 0 && (
+          <p className="text-xl font-black" style={{ letterSpacing: '-0.5px', color: '#2563eb' }}>
+            ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
           </p>
-          <h3
-            className="font-bold text-sm leading-snug text-foreground"
+        )}
+        <span
+          className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit ${
+            product.condition === 'nuevo'
+              ? 'bg-green-50 text-green-700 border border-green-100'
+              : 'bg-amber-50 text-amber-700 border border-amber-100'
+          }`}
+        >
+          {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
+        </span>
+        {product.description && (
+          <p
+            className="text-xs text-muted-foreground flex-1"
             style={{
-              lineHeight: '1.35',
+              lineHeight: '1.55',
               display: '-webkit-box',
               WebkitLineClamp: 2,
               WebkitBoxOrient: 'vertical',
               overflow: 'hidden',
             }}
           >
-            {product.name}
-          </h3>
-          {product.price > 0 && (
-            <p className="text-xl font-black" style={{ letterSpacing: '-0.5px', color: '#2563eb' }}>
-              ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
-            </p>
-          )}
-          <span
-            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit ${
-              product.condition === 'nuevo'
-                ? 'bg-green-50 text-green-700 border border-green-100'
-                : 'bg-amber-50 text-amber-700 border border-amber-100'
-            }`}
-          >
-            {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
-          </span>
-          {product.description && (
-            <p
-              className="text-xs text-muted-foreground flex-1"
-              style={{
-                lineHeight: '1.55',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-                overflow: 'hidden',
-              }}
-            >
-              {product.description}
-            </p>
-          )}
-        </div>
-
-        {/* Action buttons */}
-        <div className="px-4 pb-4 flex flex-col gap-2">
-          <button
-            onClick={handleAddToCart}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
-              added ? 'bg-green-600 hover:bg-green-700' : 'hover:brightness-110 active:scale-[0.98]'
-            }`}
-            style={added ? {} : { background: '#2563eb' }}
-          >
-            {added ? (
-              <>
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-                ¡Agregado!
-              </>
-            ) : (
-              <>
-                <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                Agregar al carrito
-              </>
-            )}
-          </button>
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150"
-          >
-            {WA_ICON}
-            Consultar por WhatsApp
-          </a>
-        </div>
+            {product.description}
+          </p>
+        )}
       </div>
 
-      {/* ── Product detail popup ── */}
-      <ProductDetailModal
-        product={product}
-        open={detailOpen}
-        onOpenChange={setDetailOpen}
-        onAddToCart={handleAddToCart}
-        added={added}
-      />
-    </>
+      {/* Action buttons */}
+      <div className="px-4 pb-4 flex flex-col gap-2">
+        <button
+          onClick={handleAddToCart}
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
+            added ? 'bg-green-600 hover:bg-green-700' : 'hover:brightness-110 active:scale-[0.98]'
+          }`}
+          style={added ? {} : { background: '#2563eb' }}
+        >
+          {added ? (
+            <>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+              ¡Agregado!
+            </>
+          ) : (
+            <>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              Agregar al carrito
+            </>
+          )}
+        </button>
+        <a
+          href={waUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150"
+        >
+          {WA_ICON}
+          Consultar por WhatsApp
+        </a>
+      </div>
+    </div>
   );
 }

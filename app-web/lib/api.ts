@@ -256,6 +256,7 @@ export const api = {
       const qs = params.toString();
       return request<ProductsResponse>(`/products${qs ? `?${qs}` : ''}`);
     },
+    getById: (id: string) => request<ApiProduct>(`/products/${id}`),
     create: (payload: CreateProductPayload) =>
       request<ApiProduct>('/products', { method: 'POST', body: JSON.stringify({ ...payload, images: payload.images ?? [] }) }),
     update: (id: string, payload: Partial<CreateProductPayload>) =>
