@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const EMPRESA_LINKS = [
+  { href: '/', label: 'Inicio' },
   { href: '/quienes-somos', label: 'Quiénes somos' },
   { href: '/garantia-y-devoluciones', label: 'Garantía y devoluciones' },
   { href: '/envios-ecuador', label: 'Envíos en Ecuador' },
