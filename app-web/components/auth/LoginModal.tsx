@@ -109,7 +109,8 @@ export default function LoginModal({ onLogin, onClose }: LoginModalProps) {
           <Button
             type="submit"
             disabled={loading || !cedula.trim() || !password.trim()}
-            className="w-full mt-1">
+            className="w-full mt-1"
+            style={{ background: '#030712' }}>
             {loading ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 rounded-full animate-spin border-primary-foreground/30 border-t-primary-foreground" />
