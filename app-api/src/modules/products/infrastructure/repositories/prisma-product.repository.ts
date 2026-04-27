@@ -62,13 +62,12 @@ export class PrismaProductRepository implements ProductRepository {
     };
   }
 
-  async findById(id: string): Promise<ProductEntity | null> {
+  async findById(id: string): Promise<any | null> {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: { category: true, subcategory: true },
     });
-    if (!product) return null;
-    return ProductMapper.toDomain(product);
+    return product ?? null;
   }
 
   async create(data: CreateProductDto): Promise<any> {
