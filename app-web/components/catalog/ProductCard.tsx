@@ -48,7 +48,7 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
       {/* Image area */}
       <div
         className="relative flex items-center justify-center p-5 overflow-hidden"
-        style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}
+        style={{ background: '#ffffff', height: '200px', borderBottom: '1px solid var(--border)' }}
       >
         {product.badge && !isNew && (
           <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
