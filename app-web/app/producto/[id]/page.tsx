@@ -166,7 +166,7 @@ export default function ProductDetailPage() {
               <div
                 className="relative flex items-center justify-center rounded-2xl overflow-hidden cursor-zoom-in group"
                 style={{
-                  background: 'linear-gradient(145deg, var(--brand-subtle), oklch(0.96 0.02 248.6))',
+                  background: '#ffffff',
                   border: '1px solid var(--border)',
                   height: '420px',
                 }}
@@ -208,7 +208,7 @@ export default function ProductDetailPage() {
                         width: '72px',
                         height: '72px',
                         border: `2px solid ${i === activeImg ? '#2563eb' : 'var(--border)'}`,
-                        background: 'var(--brand-subtle)',
+                        background: '#ffffff',
                         opacity: i === activeImg ? 1 : 0.5,
                         transform: i === activeImg ? 'scale(1.06)' : 'scale(1)',
                         boxShadow: i === activeImg ? '0 0 0 4px rgba(37,99,235,0.12)' : 'none',
