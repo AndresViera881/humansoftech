@@ -15,8 +15,11 @@ export default function ProductError({ error, reset }: { error: Error; reset: ()
       <div className="text-center px-6">
         <p className="text-4xl mb-4">😕</p>
         <h2 className="text-lg font-black text-foreground mb-2">No se pudo cargar el producto</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          Ocurrió un error al cargar esta página. Por favor intenta de nuevo.
+        <p className="text-sm text-muted-foreground mb-2">
+          Ocurrió un error al cargar esta página.
+        </p>
+        <p className="text-xs font-mono bg-gray-100 rounded px-3 py-2 text-red-600 mb-6 max-w-sm mx-auto break-all">
+          {error?.message || 'Error desconocido'}
         </p>
         <div className="flex items-center justify-center gap-3">
           <button
