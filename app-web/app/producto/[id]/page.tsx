@@ -207,11 +207,11 @@ export default function ProductDetailPage() {
                       style={{
                         width: '72px',
                         height: '72px',
-                        border: `2px solid ${i === activeImg ? '#2563eb' : 'var(--border)'}`,
+                        border: `2px solid ${i === activeImg ? '#111827' : '#e5e7eb'}`,
                         background: '#ffffff',
                         opacity: i === activeImg ? 1 : 0.5,
                         transform: i === activeImg ? 'scale(1.06)' : 'scale(1)',
-                        boxShadow: i === activeImg ? '0 0 0 4px rgba(37,99,235,0.12)' : 'none',
+                        boxShadow: i === activeImg ? '0 0 0 3px rgba(0,0,0,0.1)' : 'none',
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
