@@ -88,6 +88,28 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
 
         {/* Right actions */}
         <div className="flex items-center gap-1.5 flex-shrink-0">
+          {/* Empresa — mobile icon only */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="md:hidden flex items-center justify-center w-9 h-9 rounded-xl border"
+                style={{ background: 'rgba(3,7,18,0.08)', borderColor: 'rgba(3,7,18,0.2)', color: '#030712' }}
+                title="Menú">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1">
+              {EMPRESA_LINKS.map(({ href, label }) => (
+                <DropdownMenuItem key={href} asChild>
+                  <Link href={href} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer">
+                    {label}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {/* Cart button */}
           <button
             onClick={openCart}
@@ -190,7 +212,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
         </div>
       </div>
 
-      {/* ── Row 2: Search + Filter + Empresa — mobile only ── */}
+      {/* ── Row 2: Search + Filter — mobile only ── */}
       <div className="flex md:hidden items-center gap-2 px-3 pb-3 max-w-7xl mx-auto w-full">
         <div className="flex-1 relative">
           <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
@@ -213,26 +235,6 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
             Filtros
           </Button>
         )}
-        {/* Empresa dropdown — mobile */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="flex-shrink-0 gap-1">
-              Empresa
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1">
-            {EMPRESA_LINKS.map(({ href, label }) => (
-              <DropdownMenuItem key={href} asChild>
-                <Link href={href} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer">
-                  {label}
-                </Link>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
     </header>
