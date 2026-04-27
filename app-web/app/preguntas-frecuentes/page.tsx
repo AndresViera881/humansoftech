@@ -22,7 +22,7 @@ const FAQS = [
       },
       {
         q: '¿Qué métodos de pago aceptan?',
-        a: 'Aceptamos transferencia bancaria, depósito, pago por QR (Bancolombia, Banco Pichincha) y efectivo en compras locales en Ambato. Consultanos por el método más conveniente para ti.',
+        a: 'Aceptamos transferencia bancaria y pago con tarjeta de débito o crédito de todos los bancos nacionales del Ecuador (Pichincha, Pacífico, Guayaquil, Produbanco, Bolivariano, Internacional, y más). También aceptamos efectivo en compras locales en Ambato. Escríbenos por WhatsApp y te indicamos la opción más conveniente para ti.',
       },
       {
         q: '¿Puedo reservar un producto?',
