@@ -52,7 +52,7 @@ const FAQS = [
       },
       {
         q: '¿Los celulares vienen desbloqueados?',
-        a: 'Sí, todos nuestros equipos son liberados para cualquier operadora. Funciona con Claro, Movistar, CNT y demás.',
+        a: 'Sí, todos nuestros equipos son liberados para cualquier operadora. Funcionan con Claro, Movistar, CNT y demás.',
       },
     ],
   },
