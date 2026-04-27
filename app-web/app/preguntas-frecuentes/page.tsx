@@ -46,7 +46,7 @@ const FAQS = [
         q: '¿Los equipos seminuevos tienen algún defecto?',
         a: 'No vendemos equipos con defectos. Antes de publicar un seminuevo, lo revisamos técnicamente. Si tiene alguna observación menor (rayón estético, por ejemplo), lo indicamos claramente en la descripción.',
       },
-{
+      {
         q: '¿Los celulares vienen desbloqueados?',
         a: 'Sí, todos nuestros equipos son liberados para cualquier operadora. Funcionan con Claro, Movistar, CNT y demás.',
       },
@@ -94,10 +94,10 @@ const FAQS = [
   },
 ];
 
-function FAQItem({ q, a }: { q: string; a: string }) {
+function FAQItem({ q, a, isLast }: { q: string; a: string; isLast?: boolean }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="border-b last:border-b-0" style={{ borderColor: 'var(--border)' }}>
+    <div className={isLast ? '' : 'border-b'} style={{ borderColor: 'var(--border)' }}>
       <button
         onClick={() => setOpen(v => !v)}
         className="w-full flex items-center justify-between gap-4 py-4 text-left transition-colors hover:text-primary"
@@ -172,8 +172,8 @@ export default function PreguntasFrecuentesPage() {
                 <h2 className="text-lg font-black text-foreground">{section.category}</h2>
               </div>
               <div>
-                {section.questions.map(item => (
-                  <FAQItem key={item.q} q={item.q} a={item.a} />
+                {section.questions.map((item, idx) => (
+                  <FAQItem key={item.q} q={item.q} a={item.a} isLast={idx === section.questions.length - 1} />
                 ))}
               </div>
             </div>
