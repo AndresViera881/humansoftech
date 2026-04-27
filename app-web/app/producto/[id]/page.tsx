@@ -207,7 +207,7 @@ export default function ProductDetailPage() {
                       style={{
                         width: '72px',
                         height: '72px',
-                        border: `2px solid ${i === activeImg ? '#d1d5db' : '#f3f4f6'}`,
+                        border: 'none',
                         background: '#ffffff',
                         opacity: i === activeImg ? 1 : 0.55,
                         transform: i === activeImg ? 'scale(1.06)' : 'scale(1)',
