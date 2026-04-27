@@ -46,11 +46,7 @@ const FAQS = [
         q: '¿Los equipos seminuevos tienen algún defecto?',
         a: 'No vendemos equipos con defectos. Antes de publicar un seminuevo, lo revisamos técnicamente. Si tiene alguna observación menor (rayón estético, por ejemplo), lo indicamos claramente en la descripción.',
       },
-      {
-        q: '¿Puedo ver el equipo antes de comprarlo si estoy en Ambato?',
-        a: 'Sí. Coordinamos una cita en Ambato para que puedas revisar el equipo personalmente. Escríbenos por WhatsApp para agendar.',
-      },
-      {
+{
         q: '¿Los celulares vienen desbloqueados?',
         a: 'Sí, todos nuestros equipos son liberados para cualquier operadora. Funcionan con Claro, Movistar, CNT y demás.',
       },
