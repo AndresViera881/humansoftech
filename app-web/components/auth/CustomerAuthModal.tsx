@@ -64,7 +64,8 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
         <div className="flex mx-6 mt-4 mb-1 rounded-xl overflow-hidden border">
           {(['login', 'register'] as const).map(t => (
             <button key={t} onClick={() => switchTab(t)}
-              className={`flex-1 py-2 text-xs font-bold transition-all ${tab === t ? 'bg-primary text-primary-foreground' : 'bg-card text-muted-foreground hover:bg-muted'}`}>
+              className={`flex-1 py-2 text-xs font-bold transition-all ${tab === t ? 'text-white' : 'bg-card text-muted-foreground hover:bg-muted'}`}
+              style={tab === t ? { background: '#030712' } : {}}>
               {t === 'login' ? 'Iniciar sesión' : 'Registrarse'}
             </button>
           ))}
@@ -107,7 +108,7 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
             </div>
           )}
 
-          <Button type="submit" disabled={loading || !canSubmit} className="w-full mt-1">
+          <Button type="submit" disabled={loading || !canSubmit} className="w-full mt-1" style={{ background: '#030712' }}>
             {loading ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 rounded-full animate-spin border-white/30 border-t-white" />
