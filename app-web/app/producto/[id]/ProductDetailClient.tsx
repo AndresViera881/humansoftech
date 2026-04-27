@@ -1,0 +1,355 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Lightbox from 'yet-another-react-lightbox';
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
+import { api, ApiProduct } from '@/lib/api';
+import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
+import Navbar from '@/components/layout/Navbar';
+import Footer from '@/components/layout/Footer';
+import LoginModal from '@/components/auth/LoginModal';
+
+const WA_PHONE = '5930995351473';
+const FALLBACK = '/products/laptop.svg';
+
+const WA_SVG = (
+  <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.126 1.533 5.864L.054 23.25a.75.75 0 00.916.916l5.455-1.476A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.88 0-3.645-.5-5.17-1.373l-.37-.217-3.828 1.037 1.044-3.742-.24-.386A10 10 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+  </svg>
+);
+
+const CART_SVG = (
+  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+);
+
+const CHECK_SVG = (
+  <svg className="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+  </svg>
+);
+
+function Skeleton() {
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 lg:gap-14 animate-pulse">
+      <div className="rounded-2xl bg-gray-100" style={{ height: '460px' }} />
+      <div className="flex flex-col gap-4 pt-2">
+        {[0.35, 0.75, 0.3, 0.55, 1, 1, 0.6].map((w, i) => (
+          <div key={i} className="h-4 rounded-full bg-gray-200" style={{ width: `${w * 100}%` }} />
+        ))}
+        <div className="mt-4 h-14 rounded-2xl bg-gray-200" />
+        <div className="h-14 rounded-2xl bg-gray-100" />
+      </div>
+    </div>
+  );
+}
+
+interface Props {
+  initialProduct: ApiProduct | null;
+  productId: string;
+}
+
+export default function ProductDetailClient({ initialProduct, productId }: Props) {
+  const router = useRouter();
+  const { addItem } = useCart();
+  const { login } = useAuth();
+
+  const [product, setProduct] = useState<ApiProduct | null>(initialProduct);
+  const [loading, setLoading] = useState(initialProduct === null);
+  const [notFound, setNotFound] = useState(false);
+  const [activeImg, setActiveImg] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState(0);
+  const [added, setAdded] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    if (initialProduct !== null) return;
+    setLoading(true);
+    api.products.getById(productId)
+      .then(p => setProduct(p as ApiProduct))
+      .catch(() => setNotFound(true))
+      .finally(() => setLoading(false));
+  }, [productId, initialProduct]);
+
+  const images = product?.images?.length ? product.images : [FALLBACK];
+  const slides = images.map(src => ({ src }));
+  const price = product ? parseFloat(String(product.price)) : 0;
+  const categoryName = product?.category?.name ?? '';
+
+  const waMsg = encodeURIComponent(
+    `Hola! Me interesa: ${product?.name ?? ''}. ¿Tiene disponibilidad?`
+  );
+  const waUrl = `https://wa.me/${WA_PHONE}?text=${waMsg}`;
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addItem({
+      id: product.id,
+      name: product.name,
+      category: categoryName,
+      price,
+      description: product.description ?? '',
+      images,
+      badge: product.badge ?? undefined,
+      condition: product.condition,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg)' }}>
+      <Navbar
+        onLoginClick={() => setShowLogin(true)}
+        searchValue=""
+        onSearchChange={() => {}}
+        onFilterClick={() => {}}
+      />
+
+      {/* ── Breadcrumb ── */}
+      <div className="border-b" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-2.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <button
+            onClick={() => router.push('/')}
+            className="hover:text-primary transition-colors font-medium"
+          >
+            Catálogo
+          </button>
+          {categoryName && (
+            <>
+              <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+              <span>{categoryName}</span>
+            </>
+          )}
+          {product && (
+            <>
+              <svg className="w-3 h-3 opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+              <span className="text-foreground font-medium truncate max-w-[200px]">{product.name}</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      <main className="flex-1 max-w-6xl mx-auto w-full px-4 md:px-6 py-8 md:py-12">
+
+        {loading && <Skeleton />}
+
+        {!loading && notFound && (
+          <div className="text-center py-28 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl">😕</div>
+            <p className="text-xl font-black text-foreground">Producto no encontrado</p>
+            <p className="text-sm text-muted-foreground">El producto puede haber sido removido o el enlace es incorrecto.</p>
+            <button
+              onClick={() => router.push('/')}
+              className="mt-2 px-6 py-3 rounded-xl text-sm font-bold text-white"
+              style={{ background: '#2563eb' }}
+            >
+              Ver catálogo completo
+            </button>
+          </div>
+        )}
+
+        {!loading && product && (
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-8 lg:gap-14 items-start">
+
+            {/* ── LEFT: Galería (sticky en desktop) ── */}
+            <div className="lg:sticky lg:top-6">
+
+              {/* Imagen principal */}
+              <div
+                className="relative flex items-center justify-center rounded-2xl overflow-hidden cursor-zoom-in group"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid var(--border)',
+                  height: '420px',
+                }}
+                onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={images[activeImg]}
+                  alt={product.name}
+                  className="object-contain transition-transform duration-500 group-hover:scale-[1.06]"
+                  style={{ maxHeight: '360px', maxWidth: '85%', mixBlendMode: 'multiply' }}
+                />
+
+                {/* Zoom hint */}
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/80 backdrop-blur-sm text-xs font-medium text-muted-foreground shadow-sm border border-white/60 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
+                  </svg>
+                  Ampliar
+                </div>
+
+                {/* Contador */}
+                {images.length > 1 && (
+                  <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-black/30 text-white backdrop-blur-sm">
+                    {activeImg + 1} / {images.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Thumbnails */}
+              {images.length > 1 && (
+                <div className="flex gap-2.5 mt-3 overflow-x-auto pb-1">
+                  {images.map((src, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActiveImg(i)}
+                      className="flex-shrink-0 rounded-xl overflow-hidden transition-all duration-200"
+                      style={{
+                        width: '72px',
+                        height: '72px',
+                        border: 'none',
+                        background: '#ffffff',
+                        opacity: i === activeImg ? 1 : 0.55,
+                        transform: i === activeImg ? 'scale(1.06)' : 'scale(1)',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="w-full h-full object-contain p-1.5" style={{ mixBlendMode: 'multiply' }} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── RIGHT: Información del producto ── */}
+            <div className="flex flex-col gap-6">
+
+              {/* Badges */}
+              <div className="flex flex-wrap gap-2">
+                {categoryName && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(37,99,235,0.08)', color: '#2563eb', border: '1px solid rgba(37,99,235,0.15)' }}>
+                    {categoryName}
+                  </span>
+                )}
+                {product.condition && (
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                    product.condition === 'nuevo'
+                      ? 'bg-green-50 text-green-700 border border-green-200'
+                      : 'bg-amber-50 text-amber-700 border border-amber-200'
+                  }`}>
+                    {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
+                  </span>
+                )}
+                {product.badge && (
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 border border-amber-200">
+                    ⭐ {product.badge}
+                  </span>
+                )}
+                {product.stock != null && product.stock > 0 && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                    En stock
+                  </span>
+                )}
+              </div>
+
+              {/* Nombre */}
+              <h1 className="text-2xl md:text-3xl font-black text-foreground leading-tight" style={{ letterSpacing: '-0.3px' }}>
+                {product.name}
+              </h1>
+
+              {/* Precio */}
+              {price > 0 && (
+                <div className="flex items-end gap-3 py-3 border-y" style={{ borderColor: 'var(--border)' }}>
+                  <span
+                    className="text-4xl md:text-5xl font-black leading-none"
+                    style={{ color: '#2563eb', letterSpacing: '-2px' }}
+                  >
+                    ${price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
+                  </span>
+                  <span className="text-xs text-muted-foreground pb-1.5">IVA incluido</span>
+                </div>
+              )}
+
+              {/* Descripción */}
+              {product.description && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-[11px] font-black uppercase tracking-[0.15em] text-primary">
+                    Características
+                  </p>
+                  <p className="text-sm text-muted-foreground whitespace-pre-line" style={{ lineHeight: '1.9' }}>
+                    {product.description}
+                  </p>
+                </div>
+              )}
+
+              {/* Trust chips */}
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { d: 'M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z', label: 'Garantía incluida' },
+                  { d: 'M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4', label: 'Envío a todo Ecuador' },
+                  { d: 'M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z', label: 'Soporte WhatsApp' },
+                  { d: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', label: 'Devolución fácil' },
+                ].map(({ d, label }) => (
+                  <div key={label} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl" style={{ background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.1)' }}>
+                    <svg className="w-4 h-4 flex-shrink-0 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+                    </svg>
+                    <span className="text-xs font-semibold text-foreground">{label}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Botones de acción */}
+              <div className="flex flex-col gap-3 pt-1">
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold text-white transition-all duration-200 hover:brightness-125 active:scale-[0.98]"
+                  style={added ? { background: '#16a34a' } : { background: '#030712' }}
+                >
+                  {added ? <>{CHECK_SVG} ¡Agregado al carrito!</> : <>{CART_SVG} Agregar al carrito</>}
+                </button>
+
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-base font-bold text-white transition-all duration-150 hover:brightness-110 active:scale-[0.98]"
+                  style={{ background: '#16a34a' }}
+                >
+                  {WA_SVG}
+                  Consultar por WhatsApp
+                </a>
+              </div>
+
+            </div>
+          </div>
+        )}
+      </main>
+
+      <Footer />
+
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIdx}
+        slides={slides}
+        plugins={[Thumbnails, Zoom]}
+        thumbnails={{ position: 'bottom', width: 80, height: 60, gap: 8, border: 2, borderRadius: 8 }}
+        zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 1.5 }}
+        styles={{ container: { backgroundColor: 'rgba(10,10,20,0.96)', backdropFilter: 'blur(12px)' } }}
+      />
+
+      {showLogin && (
+        <LoginModal
+          onLogin={s => { login(s); setShowLogin(false); }}
+          onClose={() => setShowLogin(false)}
+        />
+      )}
+    </div>
+  );
+}
