@@ -69,6 +69,13 @@ export default function Home() {
   useEffect(() => {
     api.categories.list().then(setCategories).catch(() => { });
     api.visits.record('/', document.referrer).catch(() => { });
+
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('categoria');
+    const cond = params.get('condicion');
+    if (cat) setSelectedCategory(cat);
+    if (cond === 'nuevo') setConditions(['nuevo']);
+    else if (cond === 'seminuevo') setConditions(['seminuevo']);
   }, []);
 
   useEffect(() => {

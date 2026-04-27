@@ -30,10 +30,10 @@ const LINKS = [
     heading: 'Catálogo',
     items: [
       { label: 'Todos los productos', href: '/' },
-      { label: 'Celulares', href: '/' },
-      { label: 'Laptops', href: '/' },
-      { label: 'Productos nuevos', href: '/' },
-      { label: 'Seminuevos', href: '/' },
+      { label: 'Celulares', href: '/?categoria=Celulares' },
+      { label: 'Laptops', href: '/?categoria=Laptops' },
+      { label: 'Productos nuevos', href: '/?condicion=nuevo' },
+      { label: 'Seminuevos', href: '/?condicion=seminuevo' },
     ],
   },
   {
