@@ -1,16 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import Lightbox from 'yet-another-react-lightbox';
-import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
-import Zoom from 'yet-another-react-lightbox/plugins/zoom';
-import 'yet-another-react-lightbox/styles.css';
-import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import { Product } from '@/lib/types';
 import { useCart } from '@/lib/cart-context';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Separator } from '@/components/ui/separator';
+import ProductDetailModal from './ProductDetailModal';
 
 const WA_PHONE = '5930995351473';
 const FALLBACK = '/products/laptop.svg';
@@ -29,9 +23,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, isNew }: ProductCardProps) {
   const images = product.images?.length ? product.images : [FALLBACK];
-  const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxIdx, setLightboxIdx] = useState(0);
-  const [activeImg, setActiveImg] = useState(0);
   const [detailOpen, setDetailOpen] = useState(false);
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
@@ -43,8 +34,9 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
     setTimeout(() => setAdded(false), 1500);
   };
 
-  const slides = images.map(src => ({ src }));
-  const waMessage = encodeURIComponent(`Hola! Estoy interesado en: ${product.name}. ¿Tiene disponibilidad y cuál es el precio?`);
+  const waMessage = encodeURIComponent(
+    `Hola! Estoy interesado en: ${product.name}. ¿Tiene disponibilidad y cuál es el precio?`
+  );
   const waUrl = `https://wa.me/${WA_PHONE}?text=${waMessage}`;
 
   return (
@@ -55,8 +47,11 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
         style={{ borderRadius: '16px' }}
         onClick={() => setDetailOpen(true)}
       >
-        <div className="relative flex items-center justify-center p-5 overflow-hidden"
-          style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}>
+        {/* Image area */}
+        <div
+          className="relative flex items-center justify-center p-5 overflow-hidden"
+          style={{ background: 'var(--brand-subtle)', height: '200px', borderBottom: '1px solid var(--border)' }}
+        >
           {product.badge && !isNew && (
             <Badge className="absolute top-3 left-3 z-10 bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-50">
               ⭐ {product.badge}
@@ -71,9 +66,12 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
             {product.category}
           </Badge>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={images[0]} alt={product.name}
+          <img
+            src={images[0]}
+            alt={product.name}
             className="object-contain transition-transform duration-300 group-hover:scale-105"
-            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }} />
+            style={{ maxHeight: '140px', maxWidth: '100%', mixBlendMode: 'multiply' }}
+          />
           {images.length > 1 && (
             <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/12 text-primary border border-primary/20">
               <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -84,41 +82,62 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
           )}
         </div>
 
+        {/* Info */}
         <div className="flex flex-col flex-1 p-4 gap-1.5">
           <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
             {product.category}
           </p>
-          <h3 className="font-bold text-sm leading-snug text-foreground" style={{ lineHeight: '1.35', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <h3
+            className="font-bold text-sm leading-snug text-foreground"
+            style={{
+              lineHeight: '1.35',
+              display: '-webkit-box',
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+            }}
+          >
             {product.name}
           </h3>
           {product.price > 0 && (
-            <p className="text-xl font-black text-primary" style={{ letterSpacing: '-0.5px' }}>
+            <p className="text-xl font-black" style={{ letterSpacing: '-0.5px', color: '#2563eb' }}>
               ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
             </p>
           )}
-          <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit ${
-            product.condition === 'nuevo'
-              ? 'bg-green-50 text-green-700 border border-green-100'
-              : 'bg-amber-50 text-amber-700 border border-amber-100'
-          }`}>
+          <span
+            className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full w-fit ${
+              product.condition === 'nuevo'
+                ? 'bg-green-50 text-green-700 border border-green-100'
+                : 'bg-amber-50 text-amber-700 border border-amber-100'
+            }`}
+          >
             {product.condition === 'nuevo' ? '✓ Nuevo' : '◎ Seminuevo'}
           </span>
           {product.description && (
-            <p className="text-xs text-muted-foreground flex-1" style={{
-              lineHeight: '1.55', display: '-webkit-box', WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            }}>
+            <p
+              className="text-xs text-muted-foreground flex-1"
+              style={{
+                lineHeight: '1.55',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden',
+              }}
+            >
               {product.description}
             </p>
           )}
         </div>
 
+        {/* Action buttons */}
         <div className="px-4 pb-4 flex flex-col gap-2">
           <button
             onClick={handleAddToCart}
             className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
-              added ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-[var(--brand-hover)]'
-            }`}>
+              added ? 'bg-green-600 hover:bg-green-700' : 'hover:brightness-110 active:scale-[0.98]'
+            }`}
+            style={added ? {} : { background: '#2563eb' }}
+          >
             {added ? (
               <>
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
@@ -135,149 +154,27 @@ export default function ProductCard({ product, isNew }: ProductCardProps) {
               </>
             )}
           </button>
-          <a href={waUrl} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150">
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150"
+          >
             {WA_ICON}
             Consultar por WhatsApp
           </a>
         </div>
       </div>
 
-      {/* ── Lightbox ── */}
-      <Lightbox
-        open={lightboxOpen}
-        close={() => setLightboxOpen(false)}
-        index={lightboxIdx}
-        slides={slides}
-        plugins={[Thumbnails, Zoom]}
-        thumbnails={{ position: 'bottom', width: 80, height: 60, gap: 8, border: 2, borderRadius: 8 }}
-        zoom={{ maxZoomPixelRatio: 3, zoomInMultiplier: 1.5 }}
-        styles={{ container: { backgroundColor: 'rgba(10,10,20,0.95)', backdropFilter: 'blur(12px)' } }}
+      {/* ── Product detail popup ── */}
+      <ProductDetailModal
+        product={product}
+        open={detailOpen}
+        onOpenChange={setDetailOpen}
+        onAddToCart={handleAddToCart}
+        added={added}
       />
-
-      {/* ── Detail modal ── */}
-      <Dialog open={detailOpen} onOpenChange={setDetailOpen}>
-        <DialogContent className="max-w-[480px] flex flex-col p-0 gap-0 h-[350px]" onClick={e => e.stopPropagation()}>
-
-          {/* Header */}
-          <div className="flex items-center justify-between px-5 py-3 border-b flex-shrink-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 font-bold">
-                {product.category}
-              </Badge>
-              {product.condition && (
-                <Badge variant="outline" className={product.condition === 'nuevo'
-                  ? 'bg-green-50 text-green-700 border-green-200 font-bold'
-                  : 'bg-amber-50 text-amber-700 border-amber-200 font-bold'}>
-                  {product.condition === 'nuevo' ? 'Nuevo' : 'Seminuevo'}
-                </Badge>
-              )}
-              {product.badge && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 font-bold">
-                  ⭐ {product.badge}
-                </Badge>
-              )}
-            </div>
-          </div>
-
-          {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-4">
-
-            {/* Image */}
-            <div
-              className="relative flex items-center justify-center rounded-xl overflow-hidden cursor-zoom-in flex-shrink-0"
-              style={{ height: '100px', background: 'linear-gradient(135deg, var(--brand-subtle), oklch(0.97 0.02 290))', border: '1px solid var(--border)' }}
-              onClick={() => { setLightboxIdx(activeImg); setLightboxOpen(true); }}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={images[activeImg]}
-                alt={product.name}
-                className="object-contain"
-                style={{ maxHeight: '80px', maxWidth: '88%', mixBlendMode: 'multiply' }}
-              />
-              <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-white/90 text-muted-foreground shadow-sm">
-                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 5a7 7 0 110 14 7 7 0 010-14z" />
-                </svg>
-                Ampliar
-              </span>
-            </div>
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {images.map((src, i) => (
-                  <button key={i} onClick={() => setActiveImg(i)}
-                    className="flex-shrink-0 rounded-lg overflow-hidden transition-all duration-150"
-                    style={{
-                      width: '52px', height: '52px',
-                      border: `2px solid ${i === activeImg ? 'var(--brand)' : 'var(--border)'}`,
-                      background: 'var(--brand-subtle)',
-                      opacity: i === activeImg ? 1 : 0.6,
-                    }}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={src} alt="" className="w-full h-full object-contain p-1" style={{ mixBlendMode: 'multiply' }} />
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {/* Name + price */}
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-base font-black leading-tight flex-1 text-foreground">
-                {product.name}
-              </h2>
-              {product.price > 0 && (
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-2xl font-black text-primary" style={{ letterSpacing: '-0.5px' }}>
-                    ${product.price.toLocaleString('es-EC', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <Separator />
-
-            {/* Description */}
-            {product.description && (
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest mb-2 text-primary">
-                  Descripción
-                </p>
-                <p className="text-sm whitespace-pre-line text-muted-foreground" style={{ lineHeight: '1.75' }}>
-                  {product.description}
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Footer */}
-          <div className="px-5 py-3 flex gap-3 border-t flex-shrink-0">
-            <button
-              onClick={handleAddToCart}
-              title={added ? '¡Agregado!' : 'Agregar al carrito'}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 ${
-                added ? 'bg-green-600 hover:bg-green-700' : 'bg-primary hover:bg-[var(--brand-hover)]'
-              }`}>
-              {added ? (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              )}
-            </button>
-            <a href={waUrl} target="_blank" rel="noopener noreferrer"
-              title="Consultar por WhatsApp"
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-white border border-green-200 hover:bg-green-50 hover:text-green-800 transition-colors duration-150">
-              {WA_ICON}
-            </a>
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
