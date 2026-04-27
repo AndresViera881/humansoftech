@@ -14,7 +14,7 @@ const STEPS = [
   {
     step: '01',
     title: 'Contáctanos por WhatsApp',
-    desc: 'Escríbenos al +593 9953 514 73 indicando el número de pedido y el motivo de la devolución.',
+    desc: 'Escríbenos al +593 9953 514 73 o al +593 98 160 9568 indicando el número de pedido y el motivo de la devolución.',
   },
   {
     step: '02',

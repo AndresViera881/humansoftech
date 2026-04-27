@@ -17,7 +17,7 @@ const FAQS = [
     questions: [
       {
         q: '¿Cómo puedo realizar un pedido?',
-        a: 'Puedes agregar productos al carrito desde el catálogo y enviarnos el pedido por WhatsApp, o escribirnos directamente al +593 9953 514 73 indicando el producto que deseas.',
+        a: 'Puedes agregar productos al carrito desde el catálogo y enviarnos el pedido por WhatsApp, o escribirnos directamente al +593 9953 514 73 o al +593 98 160 9568 indicando el producto que deseas.',
       },
       {
         q: '¿Qué métodos de pago aceptan?',
