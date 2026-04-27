@@ -211,7 +211,7 @@ export default function ProductDetailPage() {
                         background: '#ffffff',
                         opacity: i === activeImg ? 1 : 0.55,
                         transform: i === activeImg ? 'scale(1.06)' : 'scale(1)',
-                        boxShadow: i === activeImg ? '0 2px 10px rgba(0,0,0,0.12)' : 'none',
+                        boxShadow: 'none',
                       }}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
