@@ -74,11 +74,6 @@ export default function QuienesSomosPage() {
                 nuevos y seminuevos con garantía, al mejor precio del mercado.
               </p>
               <div className="flex items-center gap-3 mt-8 flex-wrap justify-center md:justify-start">
-                <button onClick={() => router.push('/')}
-                  className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90"
-                  style={{ background: '#2563eb' }}>
-                  Ver catálogo
-                </button>
                 <a href={WA} target="_blank" rel="noopener noreferrer"
                   className="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all hover:opacity-90 flex items-center gap-2"
                   style={{ background: '#16a34a' }}>
@@ -88,6 +83,11 @@ export default function QuienesSomosPage() {
                   </svg>
                   Escribir por WhatsApp
                 </a>
+                <button onClick={() => router.push('/')}
+                  className="px-6 py-3 rounded-xl font-bold text-sm transition-all hover:opacity-90"
+                  style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.15)' }}>
+                  Ver catálogo
+                </button>
               </div>
             </div>
             <div className="flex-shrink-0 hidden md:flex items-center justify-center w-72 h-72 rounded-3xl overflow-hidden border border-white/10"
