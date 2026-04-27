@@ -6,12 +6,20 @@ import { useCart } from '@/lib/cart-context';
 import Logo from './Logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import Link from 'next/link';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+const EMPRESA_LINKS = [
+  { href: '/quienes-somos', label: 'Quiénes somos' },
+  { href: '/garantia-y-devoluciones', label: 'Garantía y devoluciones' },
+  { href: '/envios-ecuador', label: 'Envíos en Ecuador' },
+  { href: '/preguntas-frecuentes', label: 'Preguntas frecuentes' },
+];
 
 const WA_PHONE = '5930995351473';
 
@@ -52,6 +60,27 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
             className="pl-9"
           />
         </div>
+
+        {/* Empresa dropdown — desktop */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="hidden md:flex items-center gap-1 px-3 py-2 rounded-xl text-sm font-semibold text-foreground hover:bg-accent transition-colors flex-shrink-0">
+              Empresa
+              <svg className="w-3.5 h-3.5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-52 rounded-2xl p-1">
+            {EMPRESA_LINKS.map(({ href, label }) => (
+              <DropdownMenuItem key={href} asChild>
+                <Link href={href} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer">
+                  {label}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Spacer on mobile */}
         <div className="flex-1 md:hidden" />
@@ -160,7 +189,7 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
         </div>
       </div>
 
-      {/* ── Row 2: Search + Filter — mobile only ── */}
+      {/* ── Row 2: Search + Filter + Empresa — mobile only ── */}
       <div className="flex md:hidden items-center gap-2 px-3 pb-3 max-w-7xl mx-auto w-full">
         <div className="flex-1 relative">
           <svg className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground"
@@ -183,6 +212,26 @@ export default function Navbar({ onLoginClick, onSearchChange, searchValue = '',
             Filtros
           </Button>
         )}
+        {/* Empresa dropdown — mobile */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="flex-shrink-0 gap-1">
+              Empresa
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1">
+            {EMPRESA_LINKS.map(({ href, label }) => (
+              <DropdownMenuItem key={href} asChild>
+                <Link href={href} className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium cursor-pointer">
+                  {label}
+                </Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
     </header>
