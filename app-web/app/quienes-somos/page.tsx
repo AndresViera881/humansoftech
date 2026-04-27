@@ -119,12 +119,12 @@ export default function QuienesSomosPage() {
               {
                 title: 'Nuestra misión',
                 icon: 'M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-                text: 'Hacer la tecnología accesible para cada ecuatoriano. Ofrecemos celulares y laptops de calidad —nuevos y seminuevos— con garantía real, precios justos y atención personalizada.',
+                text: 'Facilitar el acceso a productos internacionales de alta calidad mediante una gestión de importación eficiente y transparente, conectando las necesidades del mercado local con las mejores soluciones globales para impulsar el desarrollo de nuestros clientes.',
               },
               {
                 title: 'Nuestra visión',
                 icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
-                text: 'Ser la tienda de tecnología más confiable del Ecuador, reconocida por transparencia, calidad de servicio y el compromiso genuino con la satisfacción de cada cliente.',
+                text: 'Consolidarnos para el año 2030 como la importadora líder en la región central y un referente estratégico a nivel nacional, siendo reconocidos por nuestra excelencia operativa, innovación logística y solidez comercial en todo el Ecuador.',
               },
             ].map(item => (
               <div key={item.title} className="card p-8">
