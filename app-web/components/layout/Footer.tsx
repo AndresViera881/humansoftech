@@ -29,21 +29,20 @@ const LINKS = [
   {
     heading: 'Catálogo',
     items: [
-      { label: 'Todos los productos', href: '#' },
-      { label: 'Celulares', href: '#' },
-      { label: 'Laptops', href: '#' },
-      { label: 'Accesorios', href: '#' },
-      { label: 'Productos nuevos', href: '#' },
-      { label: 'Seminuevos', href: '#' },
+      { label: 'Todos los productos', href: '/' },
+      { label: 'Celulares', href: '/' },
+      { label: 'Laptops', href: '/' },
+      { label: 'Productos nuevos', href: '/' },
+      { label: 'Seminuevos', href: '/' },
     ],
   },
   {
     heading: 'Empresa',
     items: [
-      { label: 'Quiénes somos', href: '#' },
-      { label: 'Garantía y devoluciones', href: '#' },
-      { label: 'Envíos en Ecuador', href: '#' },
-      { label: 'Preguntas frecuentes', href: '#' },
+      { label: 'Quiénes somos', href: '/quienes-somos' },
+      { label: 'Garantía y devoluciones', href: '/garantia-y-devoluciones' },
+      { label: 'Envíos en Ecuador', href: '/envios-ecuador' },
+      { label: 'Preguntas frecuentes', href: '/preguntas-frecuentes' },
     ],
   },
 ];
