@@ -213,7 +213,7 @@ export default function EnviosPage() {
             <div className="flex items-center justify-center gap-3 flex-wrap">
               <button onClick={() => router.push('/')}
                 className="px-7 py-3.5 rounded-xl font-bold text-sm text-white hover:opacity-90 transition-all"
-                style={{ background: '#2563eb' }}>
+                style={{ background: '#030712' }}>
                 Ver productos
               </button>
               <a href={WA} target="_blank" rel="noopener noreferrer"
