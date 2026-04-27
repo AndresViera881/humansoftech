@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { api, LoginResponse } from '@/lib/api';
+import { LogoIcon } from '@/components/layout/Logo';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,11 +51,8 @@ export default function CustomerAuthModal({ onLogin, onClose }: CustomerAuthModa
 
         {/* Header */}
         <div className="px-6 pt-6 pb-4 text-center bg-muted/40 border-b">
-          <div className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto mb-3"
-            style={{ background: 'linear-gradient(135deg, var(--brand), #7c3aed)' }}>
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3 bg-foreground p-2.5">
+            <LogoIcon size={32} />
           </div>
           <h2 className="text-lg font-black">{tab === 'login' ? 'Inicia sesión' : 'Crea tu cuenta'}</h2>
           <p className="text-xs mt-1 text-muted-foreground">Para finalizar tu pedido necesitas una cuenta</p>
