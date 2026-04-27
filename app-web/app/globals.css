@@ -121,8 +121,8 @@ body {
 /* ── Scrollbar ───────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: oklch(0.93 0 0); }
-::-webkit-scrollbar-thumb { background: oklch(0.75 0.06 248.6); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--brand); }
+::-webkit-scrollbar-thumb { background: #030712; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1e293b; }
 
 /* ═══════════════════════════════════════════════════════
    UTILITY CLASSES
