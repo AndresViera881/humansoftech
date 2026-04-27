@@ -96,11 +96,11 @@ export default function Footer() {
               </a>
               <a href={`https://wa.me/${WA_PHONE}`} target="_blank" rel="noopener noreferrer"
                 className="text-xs text-white/40 hover:text-white/70 transition-colors font-mono">
-                +593 9953 514 73
+                +593995351473
               </a>
               <a href="https://wa.me/593981609568" target="_blank" rel="noopener noreferrer"
                 className="text-xs text-white/40 hover:text-white/70 transition-colors font-mono">
-                +593 98 160 9568
+                +593981609568
               </a>
               <p className="text-xs text-white/30">Ambato, Ecuador</p>
             </div>
