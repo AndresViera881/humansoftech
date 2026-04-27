@@ -142,7 +142,7 @@ export default function CartSidebar() {
 
               <button onClick={handleWhatsApp}
                 className="w-full flex items-center justify-center gap-2.5 py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-150"
-                style={{ background: loggedUser ? 'var(--wa-green)' : 'var(--primary)' }}>
+                style={{ background: loggedUser ? 'var(--wa-green)' : '#030712' }}>
                 {loggedUser ? (
                   <>
                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
