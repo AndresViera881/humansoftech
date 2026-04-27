@@ -155,9 +155,9 @@ export default function Home() {
                   onClick={() => setSelectedCategory(cat)}
                   className="flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold transition-all duration-150"
                   style={{
-                    background: selectedCategory === cat ? 'var(--primary)' : 'var(--surface)',
-                    color: selectedCategory === cat ? 'var(--primary-foreground)' : 'var(--text-secondary)',
-                    border: `1.5px solid ${selectedCategory === cat ? 'var(--primary)' : 'var(--border-light)'}`,
+                    background: selectedCategory === cat ? 'var(--primary)' : '#030712',
+                    color: selectedCategory === cat ? 'var(--primary-foreground)' : '#ffffff',
+                    border: `1.5px solid ${selectedCategory === cat ? 'var(--primary)' : '#1e293b'}`,
                     whiteSpace: 'nowrap',
                     boxShadow: selectedCategory === cat ? '0 2px 8px oklch(0.546 0.211 248.6 / 25%)' : '0 1px 3px oklch(0 0 0 / 6%)',
                   }}>
